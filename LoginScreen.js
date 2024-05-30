@@ -6,33 +6,34 @@ import { signin } from './firebase/auth';
 import { Alert } from 'react-native';
 import MainScreen from "./MainScreen"
 
+
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = async () => {
-    try {
-      const userCredential = await signin(email, password);
-      if (userCredential) {
-           navigation.navigate("Main");
-      }
-    } catch (error) {
-      console.error(error);
-      switch (error.code) {
-        case 'auth/invalid-email':
-          Alert.alert('Login Failed', 'Invalid email format.');
-          break;
-        case 'auth/user-not-found':
-          Alert.alert('Login Failed', 'No user found with this email.');
-          break;
-        case 'auth/wrong-password':
-          Alert.alert('Login Failed', 'Incorrect password.');
-          break;
-        default:
-          Alert.alert('Login Failed');
-      }
+const handleLogin = async () => {
+  try {
+    const { userCredential, userDetails } = await signin(email, password);
+    if (userCredential && userDetails) {
+      navigation.navigate("Main", { user: userDetails }); // Pass user details to MainScreen
     }
-  };
+  } catch (error) {
+    console.error(error);
+    switch (error.code) {
+      case "auth/invalid-email":
+        Alert.alert("Login Failed", "Invalid email format.");
+        break;
+      case "auth/user-not-found":
+        Alert.alert("Login Failed", "No user found with this email.");
+        break;
+      case "auth/wrong-password":
+        Alert.alert("Login Failed", "Incorrect password.");
+        break;
+      default:
+        Alert.alert("Login Failed");
+    }
+  }
+};
 
   return (
     <View style={styles.container}>

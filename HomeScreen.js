@@ -1,8 +1,9 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
 
-export default function HomeScreen() {
-  const userName = "UserName"; // Replace with user's name or username
+export default function HomeScreen(user) {
+
+  const userName = user.user.name; // Replace with user's name or username
   const userCookingToday = "Pizza"; // Replace with user's cooking preference or dish
 
   const contributors = [

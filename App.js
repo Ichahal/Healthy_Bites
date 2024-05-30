@@ -14,14 +14,12 @@ export default function App() {
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      console.log("Changing to login screen...");
       setSplashVisible(false);
     }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
 
-  console.log("splashVisible:", splashVisible);
 
   if (splashVisible) {
     return <SplashScreen />;
@@ -37,6 +35,7 @@ export default function App() {
           component={MainScreen}
           options={{
             headerLeft: null,
+            headerShown: false,
           }}
         />
       </Stack.Navigator>
