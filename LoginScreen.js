@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, Alert, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { Input, Button, Icon } from 'react-native-elements';
 import { StatusBar } from 'expo-status-bar';
-import { signin } from './firebase/auth'; 
+import { signin } from './firebase/auth';
+import { Alert } from 'react-native';
 
-function LoginScreen({ navigation }) {
+export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
     try {
-      const { userCredential, userDetails } = await signin(email, password);
+      const userCredential = await signin(email, password);
       if (userCredential) {
-        Alert.alert('Login Successful', `Welcome ${userDetails.name}`);
-        navigation.navigate('Home', { userDetails });
+        Alert.alert('Login Successful');
       }
     } catch (error) {
       console.error(error);
@@ -67,14 +67,12 @@ function LoginScreen({ navigation }) {
   );
 }
 
-export default LoginScreen;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    padding: 16,
     backgroundColor: '#fff',
+    justifyContent: 'center', // Center contents vertically
+    paddingHorizontal: 30, // Add padding from left and right
   },
   image: {
     width: 150,
@@ -100,3 +98,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
+

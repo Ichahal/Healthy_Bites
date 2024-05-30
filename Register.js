@@ -4,6 +4,7 @@ import { StyleSheet, View, Alert } from 'react-native';
 import { Input, Button, Icon } from 'react-native-elements';
 import { signup } from './firebase/auth'; 
 import { doc, setDoc } from "firebase/firestore";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 export default function Register({ navigation }) {
   const [email, setEmail] = useState('');
@@ -11,9 +12,30 @@ export default function Register({ navigation }) {
   const [name, setName] = useState('');
   const [dob, setDob] = useState('');
   const [mobile, setMobile] = useState('');
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirmDate = (selectedDate) => {
+    hideDatePicker();
+    // Format the selected date as needed
+    setDob(selectedDate.toISOString().split('T')[0]);
+  };
 
   const handleRegister = async () => {
     try {
+      // Ensure mobile number has 10 digits
+      if (mobile.length !== 10) {
+        Alert.alert('Registration Failed', 'Please enter a valid 10-digit mobile number');
+        return;
+      }
+      
       const userCredential = await signup(email, password, name, dob, mobile);
       if (userCredential) {
         Alert.alert('Registration Successful', 'You can now log in with your new account');
@@ -29,22 +51,33 @@ export default function Register({ navigation }) {
     <View style={styles.container}>
       <Input
         placeholder='Name'
-        leftIcon={<Icon name='user' size={24} color='black' />}
+        leftIcon={<Icon name='badge' size={24} color='black' />}
         onChangeText={value => setName(value)}
         value={name}
         containerStyle={styles.input}
       />
       <Input
         placeholder='Date of Birth'
-        leftIcon={<Icon name='calendar' size={24} color='black' />}
-        onChangeText={value => setDob(value)}
+        leftIcon={<Icon name='cake' size={24} color='black' />}
+        onFocus={showDatePicker}
         value={dob}
         containerStyle={styles.input}
+      />
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={handleConfirmDate}
+        onCancel={hideDatePicker}
       />
       <Input
         placeholder='Mobile Number'
         leftIcon={<Icon name='phone' size={24} color='black' />}
-        onChangeText={value => setMobile(value)}
+        onChangeText={value => {
+          // Allow only numbers and limit to 10 digits
+          if (/^\d+$/.test(value) && value.length <= 10) {
+            setMobile(value);
+          }
+        }}
         value={mobile}
         keyboardType='phone-pad'
         containerStyle={styles.input}
