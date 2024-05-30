@@ -15,6 +15,7 @@ export default function Register({ navigation }) {
         Alert.alert('Registration Successful', 'You can now log in with your new account');
         navigation.navigate('Login');
       }
+      //y
     } catch (error) {
       console.error(error);
       Alert.alert('Registration Failed', error.message);
