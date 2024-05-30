@@ -4,6 +4,7 @@ import { Input, Button, Icon } from 'react-native-elements';
 import { StatusBar } from 'expo-status-bar';
 import { signin } from './firebase/auth';
 import { Alert } from 'react-native';
+import MainScreen from "./MainScreen"
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -13,7 +14,7 @@ export default function LoginScreen({ navigation }) {
     try {
       const userCredential = await signin(email, password);
       if (userCredential) {
-        Alert.alert('Login Successful');
+           navigation.navigate("Main");
       }
     } catch (error) {
       console.error(error);
