@@ -35,21 +35,21 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Image source={require('./assets/diet.png')} style={styles.image} />
+      <Image source={require("./assets/diet.png")} style={styles.image} />
       <Text style={styles.heading}>Healthy Bites</Text>
       <Input
-        placeholder='Email'
-        leftIcon={<Icon name='email' size={24} color='black' />}
-        onChangeText={value => setEmail(value)}
+        placeholder="Email"
+        leftIcon={<Icon name="email" size={24} color="#FD5D69" />}
+        onChangeText={(value) => setEmail(value)}
         value={email}
-        autoCapitalize='none'
-        keyboardType='email-address'
+        autoCapitalize="none"
+        keyboardType="email-address"
         containerStyle={styles.input}
       />
       <Input
-        placeholder='Password'
-        leftIcon={<Icon name='lock' size={24} color='black' />}
-        onChangeText={value => setPassword(value)}
+        placeholder="Password"
+        leftIcon={<Icon name="lock" size={24} color="#FD5D69" />}
+        onChangeText={(value) => setPassword(value)}
         value={password}
         secureTextEntry={true}
         containerStyle={styles.input}
@@ -57,9 +57,9 @@ export default function LoginScreen({ navigation }) {
       <Button
         title="Login"
         onPress={handleLogin}
-        buttonStyle={[styles.button, { backgroundColor: 'green' }]}
+        buttonStyle={[styles.button]}
       />
-      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+      <TouchableOpacity onPress={() => navigation.navigate("Register")}>
         <Text style={styles.link}>Register</Text>
       </TouchableOpacity>
       <StatusBar style="auto" />
@@ -70,20 +70,20 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'center', // Center contents vertically
+    backgroundColor: "#fff",
+    justifyContent: "center", // Center contents vertically
     paddingHorizontal: 30, // Add padding from left and right
   },
   image: {
     width: 150,
     height: 150,
     marginBottom: 16,
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   heading: {
     fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: 20,
   },
   input: {
@@ -91,11 +91,13 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 16,
+    backgroundColor: "#FD5D69",
   },
   link: {
-    color: 'darkgreen',
+    color: "#FD5D69",
+    fontSize: 18,
     marginTop: 20,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });
 

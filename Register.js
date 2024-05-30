@@ -50,15 +50,15 @@ export default function Register({ navigation }) {
   return (
     <View style={styles.container}>
       <Input
-        placeholder='Name'
-        leftIcon={<Icon name='badge' size={24} color='black' />}
-        onChangeText={value => setName(value)}
+        placeholder="Name"
+        leftIcon={<Icon name="badge" size={24} color="#FD5D69" />}
+        onChangeText={(value) => setName(value)}
         value={name}
         containerStyle={styles.input}
       />
       <Input
-        placeholder='Date of Birth'
-        leftIcon={<Icon name='cake' size={24} color='black' />}
+        placeholder="Date of Birth"
+        leftIcon={<Icon name="cake" size={24} color="#FD5D69" />}
         onFocus={showDatePicker}
         value={dob}
         containerStyle={styles.input}
@@ -70,31 +70,30 @@ export default function Register({ navigation }) {
         onCancel={hideDatePicker}
       />
       <Input
-        placeholder='Mobile Number'
-        leftIcon={<Icon name='phone' size={24} color='black' />}
-        onChangeText={value => {
-          // Allow only numbers and limit to 10 digits
+        placeholder="Mobile Number"
+        leftIcon={<Icon name="phone" size={24} color="#FD5D69" />}
+        onChangeText={(value) => {
           if (/^\d+$/.test(value) && value.length <= 10) {
             setMobile(value);
           }
         }}
         value={mobile}
-        keyboardType='phone-pad'
+        keyboardType="phone-pad"
         containerStyle={styles.input}
       />
       <Input
-        placeholder='Email'
-        leftIcon={<Icon name='email' size={24} color='black' />}
-        onChangeText={value => setEmail(value)}
+        placeholder="Email"
+        leftIcon={<Icon name="email" size={24} color="#FD5D69" />}
+        onChangeText={(value) => setEmail(value)}
         value={email}
-        autoCapitalize='none'
-        keyboardType='email-address'
+        autoCapitalize="none"
+        keyboardType="email-address"
         containerStyle={styles.input}
       />
       <Input
-        placeholder='Password'
-        leftIcon={<Icon name='lock' size={24} color='black' />}
-        onChangeText={value => setPassword(value)}
+        placeholder="Password"
+        leftIcon={<Icon name="lock" size={24} color="#FD5D69" />}
+        onChangeText={(value) => setPassword(value)}
         value={password}
         secureTextEntry={true}
         containerStyle={styles.input}
@@ -112,14 +111,15 @@ export default function Register({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   input: {
     marginBottom: 20,
   },
   button: {
     marginTop: 16,
+    backgroundColor: "#FD5D69",
   },
 });

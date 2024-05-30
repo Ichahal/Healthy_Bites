@@ -15,7 +15,7 @@ export default function App() {
     const timer = setTimeout(() => {
       console.log("Changing to login screen...");
       setSplashVisible(false);
-    }, 5000);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -28,7 +28,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={Register} />
       </Stack.Navigator>
