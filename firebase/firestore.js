@@ -7,7 +7,6 @@ const add = async (itemToInsert, col) => {
   try {
     console.log(`start add item. ${JSON.stringify(itemToInsert)}`);
     const insertedDocument = await addDoc(collection(db, col), itemToInsert);
-    console.log("Document written with ID: ", insertedDocument.id);
     return insertedDocument;
   } catch (err) {
     console.error(err);
@@ -18,7 +17,7 @@ const addUser = async (itemToInsert, col) => {
   try {
     console.log(`start add item. ${JSON.stringify(itemToInsert)}`);
     const insertedDocument = await setDoc(doc(db, col, itemToInsert.email.toLowerCase()), itemToInsert);
-    console.log("Document written with ID: ", insertedDocument.id);
+    // console.log("Document written with ID: ", insertedDocument.id);
   } catch (err) {
     console.error(err);
   }
