@@ -24,13 +24,13 @@ export default function Register({ navigation }) {
 
   const handleConfirmDate = (selectedDate) => {
     hideDatePicker();
-    // Format the selected date as needed
+
     setDob(selectedDate.toISOString().split('T')[0]);
   };
 
   const handleRegister = async () => {
     try {
-      // Ensure mobile number has 10 digits
+
       if (mobile.length !== 10) {
         Alert.alert('Registration Failed', 'Please enter a valid 10-digit mobile number');
         return;

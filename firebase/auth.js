@@ -1,13 +1,13 @@
 import { auth } from "../firebaseConfig";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { addUser, select } from "./firestore"; 
-import { doc, setDoc } from "firebase/firestore";
+import { addUser } from "./firestore"; 
 
 const signup = async (email, password, name, dob, mobile) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
-    await addUser({ email: user.email, uid: user.uid, name, dob, mobile }, 'users'); 
+    await addUser({ email: user.email, uid: user.uid, name, dob, mobile }, 'users');
+
     return userCredential;
   } catch (err) {
     console.error(err);
@@ -30,7 +30,6 @@ const signin = async (email, password) => {
     throw err; 
   }
 };
-
 
 const signout = async () => {
   try {

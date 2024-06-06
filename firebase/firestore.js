@@ -1,6 +1,6 @@
 import { db } from "../firebaseConfig";
 import {
-  collection, getDocs, query, where, deleteDoc, updateDoc, addDoc, onSnapshot, doc, getDoc, setDoc
+  collection, doc, setDoc, getDoc, deleteDoc, updateDoc, addDoc
 } from "firebase/firestore";
 
 const add = async (itemToInsert, col) => {
@@ -16,8 +16,13 @@ const add = async (itemToInsert, col) => {
 const addUser = async (itemToInsert, col) => {
   try {
     console.log(`start add item. ${JSON.stringify(itemToInsert)}`);
-    const insertedDocument = await setDoc(doc(db, col, itemToInsert.email.toLowerCase()), itemToInsert);
-    // console.log("Document written with ID: ", insertedDocument.id);
+    const userRef = doc(db, col, itemToInsert.email.toLowerCase());
+    await setDoc(userRef, itemToInsert);
+
+    await setDoc(doc(db, `${col}/${itemToInsert.email.toLowerCase()}/favouriteRecipes`, "initDoc"), { initialized: true });
+    await setDoc(doc(db, `${col}/${itemToInsert.email.toLowerCase()}/ownRecipes`, "initDoc"), { initialized: true });
+
+    return userRef;
   } catch (err) {
     console.error(err);
   }
