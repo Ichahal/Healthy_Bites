@@ -9,7 +9,11 @@ export default function MainScreen({ route }) {
   const { user } = route.params;
 
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false, // Hide the header for all screens in the navigator
+      }}
+    >
       <Tab.Screen name="Home">
         {(props) => <HomeScreen {...props} user={user} />}
       </Tab.Screen>
