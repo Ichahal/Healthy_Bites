@@ -13,9 +13,14 @@ import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import EditProfileScreen from "./EditProfileScreen"; // Ensure this screen is imported
 import { signout } from "./firebase/auth";
 import { MenuProvider, Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
+import CreateRecipeScreen from "./CreateRecipeScreen";
 
 const Profile = () => {
   const navigation = useNavigation();
+
+  const handleCreateRecipe = () => {
+    navigation.navigate("CreateRecipe"); // Navigate to the CreateRecipe screen
+  };
 
   return (
     <SafeAreaView style={styles.safeContainer}>
@@ -36,6 +41,12 @@ const Profile = () => {
             onPress={() => navigation.navigate("EditProfile")}
           >
             <Text style={styles.editButtonText}>Edit Profile</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.createRecipeButton} // Style for the Create Recipe button
+            onPress={handleCreateRecipe}
+          >
+            <Text style={styles.createRecipeButtonText}>Create Recipe</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.statsContainer}>
@@ -61,6 +72,7 @@ const Profile = () => {
     </SafeAreaView>
   );
 };
+
 
 const Stack = createStackNavigator();
 
@@ -95,18 +107,27 @@ const ProfileScreen = () => {
                     <Text style={styles.menuText}>⋮</Text>
                   </MenuTrigger>
                   <MenuOptions>
-                    <MenuOption onSelect={handleLogout} customStyles={optionStyles} text="Logout" />
+                    <MenuOption
+                      onSelect={handleLogout}
+                      customStyles={optionStyles}
+                      text="Logout"
+                    />
                   </MenuOptions>
                 </Menu>
               ),
               headerShown: true,
-              headerTitle: '',
-              headerLeft: () => null, 
+              headerTitle: "",
+              headerLeft: () => null,
             }}
           />
           <Stack.Screen
             name="EditProfile"
             component={EditProfileScreen}
+            options={{ headerShown: true }}
+          />
+          <Stack.Screen
+            name="CreateRecipe"
+            component={CreateRecipeScreen}
             options={{ headerShown: true }}
           />
         </Stack.Navigator>
@@ -210,6 +231,18 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#ff6347",
     marginRight: 16,
+  },
+  createRecipeButton: {
+    backgroundColor: "#ff6347",
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 10, // Adjust the margin top as needed
+  },
+  createRecipeButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
   },
 });
 
