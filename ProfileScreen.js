@@ -6,82 +6,133 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  SafeAreaView,
 } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import EditProfileScreen from "./EditProfileScreen"; // Ensure this screen is imported
+import { signout } from "./firebase/auth";
+import { MenuProvider, Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 
 const Profile = () => {
   const navigation = useNavigation();
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.profileHeader}>
-        <Image
-          source={{ uri: "https://via.placeholder.com/100" }} // Placeholder image URL
-          style={styles.profileImage}
-        />
-        <Text style={styles.profileName}>User Name</Text>
-        <Text style={styles.profileUsername}>@username</Text>
-        <Text style={styles.profileDescription}>
-          User description goes here. This is a placeholder for the user's bio
-          or presentation.
-        </Text>
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => navigation.navigate("EditProfile")}
-        >
-          <Text style={styles.editButtonText}>Edit Profile</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.statsContainer}>
-        <View style={styles.stat}>
-          <Text style={styles.statNumber}>60</Text>
-          <Text style={styles.statLabel}>recipes</Text>
+    <SafeAreaView style={styles.safeContainer}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.profileHeader}>
+          <Image
+            source={{ uri: "https://via.placeholder.com/100" }} // Placeholder image URL
+            style={styles.profileImage}
+          />
+          <Text style={styles.profileName}>User Name</Text>
+          <Text style={styles.profileUsername}>@username</Text>
+          <Text style={styles.profileDescription}>
+            User description goes here. This is a placeholder for the user's bio
+            or presentation.
+          </Text>
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => navigation.navigate("EditProfile")}
+          >
+            <Text style={styles.editButtonText}>Edit Profile</Text>
+          </TouchableOpacity>
         </View>
-        <View style={styles.stat}>
-          <Text style={styles.statNumber}>120</Text>
-          <Text style={styles.statLabel}>Following</Text>
+        <View style={styles.statsContainer}>
+          <View style={styles.stat}>
+            <Text style={styles.statNumber}>60</Text>
+            <Text style={styles.statLabel}>recipes</Text>
+          </View>
+          <View style={styles.stat}>
+            <Text style={styles.statNumber}>120</Text>
+            <Text style={styles.statLabel}>Following</Text>
+          </View>
+          <View style={styles.stat}>
+            <Text style={styles.statNumber}>250</Text>
+            <Text style={styles.statLabel}>Followers</Text>
+          </View>
         </View>
-        <View style={styles.stat}>
-          <Text style={styles.statNumber}>250</Text>
-          <Text style={styles.statLabel}>Followers</Text>
+        <View style={styles.tabsContainer}>
+          <Text style={[styles.tab, styles.activeTab]}>Recipes</Text>
+          <Text style={styles.tab}>Favorites</Text>
         </View>
-      </View>
-      <View style={styles.tabsContainer}>
-        <Text style={[styles.tab, styles.activeTab]}>Recipes</Text>
-        <Text style={styles.tab}>Favorites</Text>
-      </View>
-      {/* Add the grid of recipes here */}
-    </ScrollView>
+        {/* Add the grid of recipes here */}
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const Stack = createStackNavigator();
 
 const ProfileScreen = () => {
+  const navigation = useNavigation();
+
+  const handleLogout = async () => {
+    try {
+      await signout(); // Call the signout function
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }], // Navigate to the Login screen
+      });
+    } catch (error) {
+      console.error("Logout Error:", error);
+      // Handle any logout errors here
+    }
+  };
+  
+
   return (
-    <NavigationContainer independent={true}>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Profile"
-          component={Profile}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="EditProfile"
-          component={EditProfileScreen}
-          options={{ headerShown: false }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <MenuProvider>
+      <NavigationContainer independent={true}>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Profile"
+            component={Profile}
+            options={{
+              headerRight: () => (
+                <Menu>
+                  <MenuTrigger>
+                    <Text style={styles.menuText}>⋮</Text>
+                  </MenuTrigger>
+                  <MenuOptions>
+                    <MenuOption onSelect={handleLogout} customStyles={optionStyles} text="Logout" />
+                  </MenuOptions>
+                </Menu>
+              ),
+              headerShown: true,
+              headerTitle: '',
+              headerLeft: () => null, 
+            }}
+          />
+          <Stack.Screen
+            name="EditProfile"
+            component={EditProfileScreen}
+            options={{ headerShown: true }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </MenuProvider>
   );
 };
 
+
+const optionStyles = {
+  optionText: {
+    fontSize: 16, // Adjust the font size as needed
+  },
+};
+
+
+
 const styles = StyleSheet.create({
+  safeContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
   container: {
     padding: 16,
     backgroundColor: "#fff",
+    paddingTop: 40, // Adjust this value to move the content down
   },
   profileHeader: {
     alignItems: "center",
@@ -151,6 +202,14 @@ const styles = StyleSheet.create({
     color: "#ff6347",
     borderBottomWidth: 2,
     borderBottomColor: "#ff6347",
+  },
+  menuButton: {
+    marginRight: 16,
+  },
+  menuText: {
+    fontSize: 24,
+    color: "#ff6347",
+    marginRight: 16,
   },
 });
 

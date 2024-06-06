@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
+import { View, Text, Image, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 
 export default function HomeScreen(user) {
 
@@ -14,62 +14,69 @@ export default function HomeScreen(user) {
   ]; // Replace with contributors' image URLs
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.greeting}>Hi! {userName}</Text>
-      <Text style={styles.subtitle}>What are you cooking today?</Text>
-      <View style={styles.tabContainer}>
-        <Text style={[styles.tab, styles.activeTab]}>Breakfast</Text>
-        <Text style={styles.tab}>Lunch</Text>
-        <Text style={styles.tab}>Dinner</Text>
-        <Text style={styles.tab}>Vegan</Text>
-        <Text style={styles.tab}>D.</Text>
-      </View>
-      <View style={styles.trendingRecipe}>
-        <Image
-          source={{ uri: "https://via.placeholder.com/300" }} // Placeholder for trending recipe image
-          style={styles.trendingImage}
-        />
-        <Text style={styles.recipeTitle}>Salami and cheese pizza</Text>
-        <Text style={styles.recipeDescription}>
-          This is a quick overview of the ingredients...
-        </Text>
-      </View>
-      <View style={styles.yourRecipes}>
-        <View style={styles.recipe}>
-          <Image
-            source={{ uri: "https://via.placeholder.com/150" }} // Placeholder for user recipe image
-            style={styles.recipeImage}
-          />
-          <Text style={styles.recipeTitle}>{userCookingToday}</Text>
-          <Text style={styles.recipeDescription}>5 stars | 15min</Text>
+    <SafeAreaView style={styles.safeContainer}>
+      <ScrollView style={styles.container}>
+        <Text style={styles.greeting}>Hi! {userName}</Text>
+        <Text style={styles.subtitle}>What are you cooking today?</Text>
+        <View style={styles.tabContainer}>
+          <Text style={[styles.tab, styles.activeTab]}>Breakfast</Text>
+          <Text style={styles.tab}>Lunch</Text>
+          <Text style={styles.tab}>Dinner</Text>
+          <Text style={styles.tab}>Vegan</Text>
+          <Text style={styles.tab}>D.</Text>
         </View>
-        <View style={styles.recipe}>
+        <View style={styles.trendingRecipe}>
           <Image
-            source={{ uri: "https://via.placeholder.com/150" }} // Placeholder for user recipe image
-            style={styles.recipeImage}
+            source={{ uri: "https://via.placeholder.com/300" }} // Placeholder for trending recipe image
+            style={styles.trendingImage}
           />
-          <Text style={styles.recipeTitle}>Tiramisu</Text>
-          <Text style={styles.recipeDescription}>5 stars | 15min</Text>
+          <Text style={styles.recipeTitle}>Salami and cheese pizza</Text>
+          <Text style={styles.recipeDescription}>
+            This is a quick overview of the ingredients...
+          </Text>
         </View>
-      </View>
-      <Text style={styles.sectionTitle}>Top Contributors</Text>
-      <View style={styles.topContributors}>
-        {contributors.map((contributor, index) => (
-          <Image
-            key={index}
-            source={{ uri: contributor }} // Placeholder for contributors' images
-            style={styles.contributorImage}
-          />
-        ))}
-      </View>
-    </ScrollView>
+        <View style={styles.yourRecipes}>
+          <View style={styles.recipe}>
+            <Image
+              source={{ uri: "https://via.placeholder.com/150" }} // Placeholder for user recipe image
+              style={styles.recipeImage}
+            />
+            <Text style={styles.recipeTitle}>{userCookingToday}</Text>
+            <Text style={styles.recipeDescription}>5 stars | 15min</Text>
+          </View>
+          <View style={styles.recipe}>
+            <Image
+              source={{ uri: "https://via.placeholder.com/150" }} // Placeholder for user recipe image
+              style={styles.recipeImage}
+            />
+            <Text style={styles.recipeTitle}>Tiramisu</Text>
+            <Text style={styles.recipeDescription}>5 stars | 15min</Text>
+          </View>
+        </View>
+        <Text style={styles.sectionTitle}>Top Contributors</Text>
+        <View style={styles.topContributors}>
+          {contributors.map((contributor, index) => (
+            <Image
+              key={index}
+              source={{ uri: contributor }} // Placeholder for contributors' images
+              style={styles.contributorImage}
+            />
+          ))}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
   container: {
     padding: 16,
     backgroundColor: "#fff",
+    paddingTop: 40, // Adjust this value to move the content down
   },
   greeting: {
     fontSize: 24,

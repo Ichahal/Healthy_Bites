@@ -7,10 +7,10 @@ const signup = async (email, password, name, dob, mobile) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     await addUser({ email: user.email, uid: user.uid, name, dob, mobile }, 'users');
-
+    console.log('User signed up successfully:', user);
     return userCredential;
   } catch (err) {
-    console.error(err);
+    console.error('Signup error:', err);
     throw err; 
   }
 };
@@ -22,11 +22,18 @@ const signin = async (email, password) => {
     }
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
+
+    console.log('User authenticated successfully:', user);
+
     const userDetails = await select(user.email.toLowerCase(), 'users');
-    console.log('User details:', userDetails);
+    if (!userDetails) {
+      throw new Error('User details not found in database');
+    }
+
+    console.log('User details retrieved:', userDetails);
     return { userCredential, userDetails };
   } catch (err) {
-    console.error(err);
+    console.error('Signin error:', err);
     throw err; 
   }
 };
@@ -34,8 +41,9 @@ const signin = async (email, password) => {
 const signout = async () => {
   try {
     await signOut(auth);
+    console.log('User signed out successfully');
   } catch (err) {
-    console.error(err);
+    console.error('Signout error:', err);
     throw err; 
   }
 };
