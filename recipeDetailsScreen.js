@@ -26,7 +26,7 @@ const RecipeDetailsScreen = ({ navigation }) => {
   };
 
   const handleGoBack = () => {
-    navigation.navigate("Home"); // Replace "Home" with the name of your home screen
+    navigation.navigate("Home"); 
   };
 
   return (
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFFFF",
     padding: 16,
-    paddingBottom: 100, // Adjust this value to create space at the bottom
+    paddingBottom: 100, 
   },
   header: {
     alignItems: "center",

@@ -15,7 +15,7 @@ const handleLogin = async () => {
   try {
     const { userCredential, userDetails } = await signin(email, password);
     if (userCredential && userDetails) {
-      navigation.navigate("Main", { user: userDetails }); // Pass user details to MainScreen
+      navigation.navigate("Main", { user: userDetails }); 
     }
   } catch (error) {
     console.error(error);
@@ -73,8 +73,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    justifyContent: "center", // Center contents vertically
-    paddingHorizontal: 30, // Add padding from left and right
+    justifyContent: "center", 
+    paddingHorizontal: 30, 
   },
   image: {
     width: 150,

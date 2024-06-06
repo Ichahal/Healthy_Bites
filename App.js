@@ -5,7 +5,7 @@ import SplashScreen from './SplashScreen';
 import LoginScreen from './LoginScreen';
 import Register from './Register';
 import MainScreen from './MainScreen';
-import RecipeDetailsScreen from './recipeDetailsScreen'; // Import the RecipeDetailsScreen component
+import RecipeDetailsScreen from './recipeDetailsScreen'; 
 
 const Stack = createStackNavigator();
 
@@ -41,7 +41,7 @@ export default function App() {
           name="RecipeDetailsScreen"
           component={RecipeDetailsScreen}
           options={{
-            headerShown: false, // Hide the header for RecipeDetailsScreen
+            headerShown: false, 
           }}
         />
       </Stack.Navigator>

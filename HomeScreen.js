@@ -1,13 +1,13 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native"; // Import useNavigation hook
+import { useNavigation } from "@react-navigation/native";
 import RecipeDetailsScreen from "./recipeDetailsScreen";
 
 export default function HomeScreen({ user }) {
   const userName = user.name;
   const userCookingToday = "Pizza";
 
-  const navigation = useNavigation(); // Initialize navigation
+  const navigation = useNavigation();
 
   const navigateToRecipeDetails = () => {
     navigation.navigate("RecipeDetailsScreen"); // Navigate to RecipeDetailsScreen

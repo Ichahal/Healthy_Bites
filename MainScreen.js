@@ -11,7 +11,7 @@ export default function MainScreen({ route }) {
   return (
     <Tab.Navigator
       screenOptions={{
-        headerShown: false, // Hide the header for all screens in the navigator
+        headerShown: false, 
       }}
     >
       <Tab.Screen name="Home">

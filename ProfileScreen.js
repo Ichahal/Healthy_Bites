@@ -69,10 +69,10 @@ const ProfileScreen = () => {
 
   const handleLogout = async () => {
     try {
-      await signout(); // Call the signout function
+      await signout(); 
       navigation.reset({
         index: 0,
-        routes: [{ name: 'Login' }], // Navigate to the Login screen
+        routes: [{ name: 'Login' }], 
       });
     } catch (error) {
       console.error("Logout Error:", error);
@@ -118,7 +118,7 @@ const ProfileScreen = () => {
 
 const optionStyles = {
   optionText: {
-    fontSize: 16, // Adjust the font size as needed
+    fontSize: 16,
   },
 };
 
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     backgroundColor: "#fff",
-    paddingTop: 40, // Adjust this value to move the content down
+    paddingTop: 40, 
   },
   profileHeader: {
     alignItems: "center",
