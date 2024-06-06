@@ -1,17 +1,24 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, ScrollView, SafeAreaView } from "react-native";
+import { View, Text, Image, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native"; // Import useNavigation hook
+import RecipeDetailsScreen from "./recipeDetailsScreen";
 
-export default function HomeScreen(user) {
+export default function HomeScreen({ user }) {
+  const userName = user.name;
+  const userCookingToday = "Pizza";
 
-  const userName = user.user.name; // Replace with user's name or username
-  const userCookingToday = "Pizza"; // Replace with user's cooking preference or dish
+  const navigation = useNavigation(); // Initialize navigation
+
+  const navigateToRecipeDetails = () => {
+    navigation.navigate("RecipeDetailsScreen"); // Navigate to RecipeDetailsScreen
+  };
 
   const contributors = [
     "https://via.placeholder.com/150",
     "https://via.placeholder.com/150",
     "https://via.placeholder.com/150",
     "https://via.placeholder.com/150",
-  ]; // Replace with contributors' image URLs
+  ];
 
   return (
     <SafeAreaView style={styles.safeContainer}>
@@ -25,20 +32,20 @@ export default function HomeScreen(user) {
           <Text style={styles.tab}>Vegan</Text>
           <Text style={styles.tab}>D.</Text>
         </View>
-        <View style={styles.trendingRecipe}>
+        <TouchableOpacity onPress={navigateToRecipeDetails} style={styles.trendingRecipe}>
           <Image
-            source={{ uri: "https://via.placeholder.com/300" }} // Placeholder for trending recipe image
+            source={{ uri: "https://www.eatloveeats.com/wp-content/uploads/2022/03/Creamy-Broccoli-Chicken-Lasagna-Featured.jpg" }}
             style={styles.trendingImage}
           />
-          <Text style={styles.recipeTitle}>Salami and cheese pizza</Text>
+          <Text style={styles.recipeTitle}>Broccoli Lasagna</Text>
           <Text style={styles.recipeDescription}>
             This is a quick overview of the ingredients...
           </Text>
-        </View>
+        </TouchableOpacity>
         <View style={styles.yourRecipes}>
           <View style={styles.recipe}>
             <Image
-              source={{ uri: "https://via.placeholder.com/150" }} // Placeholder for user recipe image
+              source={{ uri: "https://via.placeholder.com/150" }}
               style={styles.recipeImage}
             />
             <Text style={styles.recipeTitle}>{userCookingToday}</Text>
@@ -46,7 +53,7 @@ export default function HomeScreen(user) {
           </View>
           <View style={styles.recipe}>
             <Image
-              source={{ uri: "https://via.placeholder.com/150" }} // Placeholder for user recipe image
+              source={{ uri: "https://via.placeholder.com/150" }}
               style={styles.recipeImage}
             />
             <Text style={styles.recipeTitle}>Tiramisu</Text>
@@ -58,7 +65,7 @@ export default function HomeScreen(user) {
           {contributors.map((contributor, index) => (
             <Image
               key={index}
-              source={{ uri: contributor }} // Placeholder for contributors' images
+              source={{ uri: contributor }}
               style={styles.contributorImage}
             />
           ))}
@@ -76,7 +83,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     backgroundColor: "#fff",
-    paddingTop: 40, // Adjust this value to move the content down
+    paddingTop: 40,
   },
   greeting: {
     fontSize: 24,

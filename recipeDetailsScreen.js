@@ -1,35 +1,15 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from "react-native";
 
-const RecipeDetailsScreen = ({ recipe }) => {
-  const {
-    image,
-    title,
-    rating,
-    views,
-    userImage,
-    username,
-    details,
-    ingredients,
-    isFollowing,
-    cookTime,
-  } = recipe || {
-    image:
-      "https://www.eatloveeats.com/wp-content/uploads/2022/03/Creamy-Broccoli-Chicken-Lasagna-Featured.jpg", // Placeholder image URL
+const RecipeDetailsScreen = ({ navigation }) => {
+  const recipe = {
+    image: "https://www.eatloveeats.com/wp-content/uploads/2022/03/Creamy-Broccoli-Chicken-Lasagna-Featured.jpg", // Placeholder image URL
     title: "Broccoli Lasagna",
     rating: 5,
     views: 2273,
     userImage: "https://via.placeholder.com/40", // Placeholder user image URL
     username: "travelfood_",
-    details:
-      "Layers of tender broccoli, creamy ricotta, and melted cheese, baked to golden perfection. A wholesome twist on the classic comfort food favorite.",
+    details: "Layers of tender broccoli, creamy ricotta, and melted cheese, baked to golden perfection. A wholesome twist on the classic comfort food favorite.",
     ingredients: [
       "9 lasagna noodles",
       "4 cups broccoli florets",
@@ -45,38 +25,42 @@ const RecipeDetailsScreen = ({ recipe }) => {
     cookTime: "30min",
   };
 
+  const handleGoBack = () => {
+    navigation.navigate("Home"); // Replace "Home" with the name of your home screen
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Image source={{ uri: image }} style={styles.image} />
-        <Text style={styles.title}>{title}</Text>
+        <Image source={{ uri: recipe.image }} style={styles.image} />
+        <Text style={styles.title}>{recipe.title}</Text>
         <View style={styles.meta}>
-          <Text style={styles.rating}>⭐ {rating}</Text>
-          <Text style={styles.views}>{views} views</Text>
+          <Text style={styles.rating}>⭐ {recipe.rating}</Text>
+          <Text style={styles.views}>{recipe.views} views</Text>
         </View>
       </View>
       <View style={styles.userContainer}>
-        <Image source={{ uri: userImage }} style={styles.userImage} />
-        <Text style={styles.username}>@{username}</Text>
-        <TouchableOpacity style={styles.followButton}>
-          <Text style={styles.followButtonText}>
-            {isFollowing ? "Following" : "Follow"}
-          </Text>
-        </TouchableOpacity>
+        <Image source={{ uri: recipe.userImage }} style={styles.userImage} />
+        <Text style={styles.username}>@{recipe.username}</Text>
       </View>
       <View style={styles.detailsContainer}>
-        <Text style={styles.cookTime}>{cookTime}</Text>
+        <Text style={styles.cookTime}>{recipe.cookTime}</Text>
         <Text style={styles.detailsHeader}>Details</Text>
-        <Text style={styles.details}>{details}</Text>
+        <Text style={styles.details}>{recipe.details}</Text>
       </View>
       <View style={styles.ingredientsContainer}>
         <Text style={styles.ingredientsTitle}>Ingredients</Text>
-        {ingredients.map((ingredient, index) => (
+        {recipe.ingredients.map((ingredient, index) => (
           <Text key={index} style={styles.ingredient}>
             {ingredient}
           </Text>
         ))}
       </View>
+      <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
+        <Text style={styles.backButtonText}>Back to Home</Text>
+      </TouchableOpacity>
+      {/* Add a dummy view to create space at the bottom */}
+      <View style={{ height: 100 }} />
     </ScrollView>
   );
 };
@@ -86,6 +70,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFFFF",
     padding: 16,
+    paddingBottom: 100, // Adjust this value to create space at the bottom
   },
   header: {
     alignItems: "center",
@@ -134,17 +119,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#333333",
   },
-  followButton: {
-    backgroundColor: "#FF6F61",
-    borderRadius: 20,
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    marginLeft: 80,
-  },
-  followButtonText: {
-    color: "#FFFFFF",
-    fontWeight: "bold",
-  },
   detailsContainer: {
     marginBottom: 16,
     paddingLeft: 16,
@@ -181,6 +155,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#666666",
     marginBottom: 4,
+  },
+  backButton: {
+    backgroundColor: "#FF6F61",
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignSelf: "center",
+    marginTop: 20,
+  },
+  backButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
 

@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import SplashScreen from './SplashScreen';
 import LoginScreen from './LoginScreen';
 import Register from './Register';
 import MainScreen from './MainScreen';
+import RecipeDetailsScreen from './recipeDetailsScreen'; // Import the RecipeDetailsScreen component
 
 const Stack = createStackNavigator();
 
@@ -19,7 +19,6 @@ export default function App() {
 
     return () => clearTimeout(timer);
   }, []);
-
 
   if (splashVisible) {
     return <SplashScreen />;
@@ -36,6 +35,13 @@ export default function App() {
           options={{
             headerLeft: null,
             headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="RecipeDetailsScreen"
+          component={RecipeDetailsScreen}
+          options={{
+            headerShown: false, // Hide the header for RecipeDetailsScreen
           }}
         />
       </Stack.Navigator>
