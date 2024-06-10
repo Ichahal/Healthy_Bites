@@ -6,7 +6,7 @@ const signup = async (email, password, name, dob, mobile) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
-    await addUser({ email: user.email, uid: user.uid, name, dob, mobile }, 'users');
+    await addUser({ email: user.email, uid: user.uid, name, dob, mobile, password }, 'users');
     console.log('User signed up successfully:', user);
     return userCredential;
   } catch (err) {

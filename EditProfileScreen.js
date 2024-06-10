@@ -8,15 +8,27 @@ import {
   Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { updateUser } from "../Healthy_Bites/firebase/firestore";
 
-const EditProfileScreen = () => {
+const EditProfileScreen = ({ route, setUser }) => {
   const navigation = useNavigation();
-  const [name, setName] = useState("User Name");
-  const [username, setUsername] = useState("username");
-  const [presentation, setPresentation] = useState(
-    "User description goes here. This is a placeholder for the user's bio or presentation."
-  );
-  const [link, setLink] = useState("");
+  const { user } = route.params;
+
+  const [name, setName] = useState(user.name);
+  const [username, setUsername] = useState(user.username);
+  const [description, setDescription] = useState(user.description);
+  const [link, setLink] = useState(user.link || "");
+
+  const handleSave = async () => {
+    const updatedUser = { ...user, name, username, description, link };
+    try {
+      await updateUser(updatedUser, "users", user.email.toLowerCase());
+      setUser(updatedUser);
+      navigation.navigate("Profile");
+    } catch (error) {
+      console.error("Update Error:", error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -28,7 +40,7 @@ const EditProfileScreen = () => {
       </TouchableOpacity>
       <Text style={styles.title}>Edit Profile</Text>
       <Image
-        source={{ uri: "https://via.placeholder.com/100" }} // Placeholder image URL
+        source={{ uri: user.profilePictureUrl || "https://via.placeholder.com/100" }}
         style={styles.profileImage}
       />
       <Text style={styles.editPhotoText}>Edit Photo</Text>
@@ -46,11 +58,11 @@ const EditProfileScreen = () => {
       />
       <TextInput
         style={styles.input}
-        placeholder="Presentation"
+        placeholder="Description"
         multiline
         numberOfLines={4}
-        value={presentation}
-        onChangeText={setPresentation}
+        value={description}
+        onChangeText={setDescription}
       />
       <TextInput
         style={styles.input}
@@ -58,7 +70,7 @@ const EditProfileScreen = () => {
         value={link}
         onChangeText={setLink}
       />
-      <TouchableOpacity style={styles.saveButton}>
+      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
         <Text style={styles.saveButtonText}>Save</Text>
       </TouchableOpacity>
     </View>

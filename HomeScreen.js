@@ -1,9 +1,18 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import RecipeDetailsScreen from "./recipeDetailsScreen";
+import { useIsFocused } from "@react-navigation/native";
 
-export default function HomeScreen({ user }) {
+export default function HomeScreen({ user, setUser }) {
+  const isFocused = useIsFocused();
+
+  React.useEffect(() => {
+    if (isFocused) {
+      // Add any logic here that should run when HomeScreen is focused
+      setUser(user); // Ensure user state is updated
+    }
+  }, [isFocused]);
+
   const userName = user.name;
   const userCookingToday = "Pizza";
 

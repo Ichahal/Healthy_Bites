@@ -1,22 +1,27 @@
-import React from "react";
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  SafeAreaView,
-} from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
+import { NavigationContainer, useNavigation, useIsFocused } from "@react-navigation/native";
 import EditProfileScreen from "./EditProfileScreen"; // Ensure this screen is imported
-import { signout } from "./firebase/auth";
+import { signout, auth } from "./firebase/auth";
 import { MenuProvider, Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import CreateRecipeScreen from "./CreateRecipeScreen";
+import { select } from "../Healthy_Bites/firebase/firestore";
 
-const Profile = () => {
+const Profile = ({ user, setUser }) => {
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      const userDetails = await select(auth.currentUser.email.toLowerCase(), 'users');
+      setUser(userDetails);
+    };
+
+    if (isFocused) {
+      loadUserData();
+    }
+  }, [isFocused]);
 
   const handleCreateRecipe = () => {
     navigation.navigate("CreateRecipe"); // Navigate to the CreateRecipe screen
@@ -30,15 +35,14 @@ const Profile = () => {
             source={{ uri: "https://via.placeholder.com/100" }} // Placeholder image URL
             style={styles.profileImage}
           />
-          <Text style={styles.profileName}>User Name</Text>
-          <Text style={styles.profileUsername}>@username</Text>
+          <Text style={styles.profileName}>{user.name}</Text>
+          <Text style={styles.profileUsername}>@{user.username}</Text>
           <Text style={styles.profileDescription}>
-            User description goes here. This is a placeholder for the user's bio
-            or presentation.
+            {user.description || "User description goes here. This is a placeholder for the user's bio or presentation."}
           </Text>
           <TouchableOpacity
             style={styles.editButton}
-            onPress={() => navigation.navigate("EditProfile")}
+            onPress={() => navigation.navigate("EditProfile", { user })}
           >
             <Text style={styles.editButtonText}>Edit Profile</Text>
           </TouchableOpacity>
@@ -73,11 +77,15 @@ const Profile = () => {
   );
 };
 
-
 const Stack = createStackNavigator();
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ user, setUser }) => {
+  const [currentUser, setCurrentUser] = useState(user);
   const navigation = useNavigation();
+
+  useEffect(() => {
+    setUser(currentUser);
+  }, [currentUser]);
 
   const handleLogout = async () => {
     try {
@@ -91,7 +99,6 @@ const ProfileScreen = () => {
       // Handle any logout errors here
     }
   };
-  
 
   return (
     <MenuProvider>
@@ -99,7 +106,6 @@ const ProfileScreen = () => {
         <Stack.Navigator>
           <Stack.Screen
             name="Profile"
-            component={Profile}
             options={{
               headerRight: () => (
                 <Menu>
@@ -119,12 +125,21 @@ const ProfileScreen = () => {
               headerTitle: "",
               headerLeft: () => null,
             }}
-          />
+          >
+            {(props) => <Profile {...props} user={currentUser} setUser={setCurrentUser} />}
+          </Stack.Screen>
           <Stack.Screen
             name="EditProfile"
-            component={EditProfileScreen}
             options={{ headerShown: true }}
-          />
+          >
+            {(props) => <EditProfileScreen {...props} user={currentUser} setUser={setCurrentUser} />}
+          </Stack.Screen>
+          <Stack.Screen
+            name="Home"
+            options={{ headerShown: true }}
+          >
+            {(props) => <HomeScreen {...props} user={currentUser} setUser={setCurrentUser} />}
+          </Stack.Screen>
           <Stack.Screen
             name="CreateRecipe"
             component={CreateRecipeScreen}
@@ -136,14 +151,11 @@ const ProfileScreen = () => {
   );
 };
 
-
 const optionStyles = {
   optionText: {
     fontSize: 16,
   },
 };
-
-
 
 const styles = StyleSheet.create({
   safeContainer: {

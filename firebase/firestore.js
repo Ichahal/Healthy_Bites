@@ -60,5 +60,15 @@ const select = async (docId, col) => {
     console.error(err);
   }
 };
+const updateUser = async (itemToUpdate, col, docId) => {
+  try {
+    const docRef = doc(db, col, docId);
+    await updateDoc(docRef, itemToUpdate);
+    console.log("User updated successfully:", itemToUpdate);
+  } catch (err) {
+    console.error("Error updating document:", err);
+    throw err;
+  }
+};
 
-export { addUser, add, delDoc, update, select };
+export { addUser, add, delDoc, update, select, updateUser };
