@@ -11,6 +11,7 @@ import { select } from "../Healthy_Bites/firebase/firestore";
 const Profile = ({ user, setUser }) => {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
+  const [activeTab, setActiveTab] = useState("Recipes"); // State to track the active tab
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -24,7 +25,11 @@ const Profile = ({ user, setUser }) => {
   }, [isFocused]);
 
   const handleCreateRecipe = () => {
-    navigation.navigate("CreateRecipe"); // Navigate to the CreateRecipe screen
+    navigation.navigate("CreateRecipe", { user }); // Navigate to the CreateRecipe screen
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
   };
 
   return (
@@ -67,10 +72,26 @@ const Profile = ({ user, setUser }) => {
             <Text style={styles.statLabel}>Followers</Text>
           </View>
         </View>
-        <View style={styles.tabsContainer}>
+        {/* <View style={styles.tabsContainer}>
           <Text style={[styles.tab, styles.activeTab]}>Recipes</Text>
           <Text style={styles.tab}>Favorites</Text>
+        </View> */}
+        {/* Other profile content */}
+        <View style={styles.tabsContainer}>
+          <TouchableOpacity onPress={() => handleTabChange("Recipes")}>
+            <Text style={[styles.tab, activeTab === "Recipes" && styles.activeTab]}>Recipes</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleTabChange("Favorites")}>
+            <Text style={[styles.tab, activeTab === "Favorites" && styles.activeTab]}>Favorites</Text>
+          </TouchableOpacity>
         </View>
+        {activeTab === "Recipes" ? (
+          // Render recipes grid here
+          <Text>Recipes Grid</Text>
+        ) : (
+          // Render favorites grid here
+          <Text>Favorites Grid</Text>
+        )}
         {/* Add the grid of recipes here */}
       </ScrollView>
     </SafeAreaView>
@@ -142,9 +163,10 @@ const ProfileScreen = ({ user, setUser }) => {
           </Stack.Screen>
           <Stack.Screen
             name="CreateRecipe"
-            component={CreateRecipeScreen}
             options={{ headerShown: true }}
-          />
+          >
+            {(props) => <CreateRecipeScreen {...props} user={user} />}
+          </Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
     </MenuProvider>

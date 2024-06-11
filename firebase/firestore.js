@@ -1,8 +1,9 @@
 import { db } from "../firebaseConfig";
 import {
-  collection, doc, setDoc, getDoc, deleteDoc, updateDoc, addDoc
+  collection, doc, setDoc, getDoc, deleteDoc, updateDoc, addDoc, getFirestore
 } from "firebase/firestore";
-
+// const app = initializeApp(firebaseConfig);
+// const db = getFirestore(app);
 const add = async (itemToInsert, col) => {
   try {
     console.log(`start add item. ${JSON.stringify(itemToInsert)}`);
@@ -15,12 +16,21 @@ const add = async (itemToInsert, col) => {
 
 const addUser = async (itemToInsert, col) => {
   try {
-    console.log(`start add item. ${JSON.stringify(itemToInsert)}`);
+    // Add user to the specified collection
     const userRef = doc(db, col, itemToInsert.email.toLowerCase());
     await setDoc(userRef, itemToInsert);
 
+    // Initialize "favouriteRecipes" and "ownRecipes" subcollections for the user
     await setDoc(doc(db, `${col}/${itemToInsert.email.toLowerCase()}/favouriteRecipes`, "initDoc"), { initialized: true });
     await setDoc(doc(db, `${col}/${itemToInsert.email.toLowerCase()}/ownRecipes`, "initDoc"), { initialized: true });
+
+    // Add recipe to the "Recipes" collection
+    const recipeRef = await setDoc(doc(db, "Recipes"), itemToInsert);
+    console.log("Recipe added to Recipes collection:", recipeRef.id);
+
+    // Add recipe to the "ownRecipes" subcollection of the user
+    const userOwnRecipeRef = await setDoc(doc(db, `${col}/${itemToInsert.email.toLowerCase()}/ownRecipes`, recipeRef.id), itemToInsert);
+    console.log("Recipe added to user's ownRecipes subcollection:", userOwnRecipeRef.id);
 
     return userRef;
   } catch (err) {

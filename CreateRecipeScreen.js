@@ -10,14 +10,16 @@ import {
   Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { db } from "../Healthy_Bites/firebaseConfig";
+import { useNavigation } from "@react-navigation/native";
+import { collection, doc, setDoc, addDoc } from "firebase/firestore";
 
 const CreateRecipeScreen = ({ user }) => {
+  const navigation = useNavigation();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [time, setTime] = useState("");
-  const [ingredients, setIngredients] = useState([
-    { amount: "", ingredient: "" },
-  ]);
+  const [ingredients, setIngredients] = useState([{ amount: "", ingredient: "" }]);
   const [instructions, setInstructions] = useState([""]);
   const [photo, setPhoto] = useState(null);
 
@@ -38,18 +40,46 @@ const CreateRecipeScreen = ({ user }) => {
     });
 
     if (!result.cancelled) {
-      setPhoto(result.uri);
+      if (result.assets && result.assets.length > 0) {
+        setPhoto(result.assets[0].uri);
+      } else {
+        console.error("No assets found in result");
+      }
+    } else {
+      console.log("Image selection cancelled");
     }
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     if (!title || !description || !time || !photo) {
       Alert.alert("Error", "Please fill out all fields and add a photo.");
       return;
     }
 
-    // Here you would handle publishing the recipe, e.g., saving to Firestore
-    Alert.alert("Success", "Recipe published!");
+    const recipeData = {
+      title,
+      description,
+      time,
+      ingredients,
+      instructions,
+      photo,
+      userId: user.email
+    };
+
+    try {
+      // Add recipe to Firestore "Recipes" collection
+      const recipeRef = await addDoc(collection(db, "Recipes"), recipeData);
+
+      // Add recipe to user's "ownRecipes" subcollection
+      const userOwnRecipesRef = doc(db, `users/${user.email.toLowerCase()}/ownRecipes`, recipeRef.id);
+      await setDoc(userOwnRecipesRef, recipeData);
+
+      Alert.alert("Success", "Recipe published!");
+      navigation.goBack();
+    } catch (error) {
+      console.error("Error publishing recipe:", error);
+      Alert.alert("Error", "Failed to publish recipe. Please try again later.");
+    }
   };
 
   return (
@@ -299,3 +329,5 @@ const styles = StyleSheet.create({
 });
 
 export default CreateRecipeScreen;
+
+   
