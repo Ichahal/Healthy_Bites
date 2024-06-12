@@ -1,14 +1,23 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+} from "react-native";
 import { useIsFocused } from "@react-navigation/native";
+import MainRecipeComponent from "./MainRecipeComponent";
+import SquareRecipeComponent from "./SquareRecipeComponent";
+import SearchRecipeComponent from "./SearchRecipeComponent";
+
 
 export default function HomeScreen({ user, setUser }) {
   const isFocused = useIsFocused();
 
   React.useEffect(() => {
     if (isFocused) {
-      // Add any logic here that should run when HomeScreen is focused
       setUser(user); // Ensure user state is updated
     }
   }, [isFocused]);
@@ -16,18 +25,41 @@ export default function HomeScreen({ user, setUser }) {
   const userName = user.name;
   const userCookingToday = "Pizza";
 
-  const navigation = useNavigation();
-
-  const navigateToRecipeDetails = () => {
-    navigation.navigate("RecipeDetailsScreen"); // Navigate to RecipeDetailsScreen
-  };
-
   const contributors = [
     "https://via.placeholder.com/150",
     "https://via.placeholder.com/150",
     "https://via.placeholder.com/150",
     "https://via.placeholder.com/150",
   ];
+
+  const mainRecipe = {
+    image:
+      "https://www.eatloveeats.com/wp-content/uploads/2022/03/Creamy-Broccoli-Chicken-Lasagna-Featured.jpg",
+    title: "Broccoli Lasagna",
+    description: "This is a quick overview of the ingredients...",
+    author: "Chef Josh Ryan",
+    time: "45min",
+    difficulty: "Easy",
+    rating: 4,
+    details: "5 stars | 15min",
+  };
+
+  const yourRecipes = [
+    {
+      image:
+        "https://www.eatloveeats.com/wp-content/uploads/2022/03/Creamy-Broccoli-Chicken-Lasagna-Featured.jpg",
+      title: userCookingToday,
+      details: "5 stars | 15min",
+    },
+    {
+      image:
+        "https://www.eatloveeats.com/wp-content/uploads/2022/03/Creamy-Broccoli-Chicken-Lasagna-Featured.jpg",
+      title: "Tiramisu",
+      details: "5 stars | 15min",
+    },
+  ];
+
+
 
   return (
     <SafeAreaView style={styles.safeContainer}>
@@ -41,34 +73,13 @@ export default function HomeScreen({ user, setUser }) {
           <Text style={styles.tab}>Vegan</Text>
           <Text style={styles.tab}>D.</Text>
         </View>
-        <TouchableOpacity onPress={navigateToRecipeDetails} style={styles.trendingRecipe}>
-          <Image
-            source={{ uri: "https://www.eatloveeats.com/wp-content/uploads/2022/03/Creamy-Broccoli-Chicken-Lasagna-Featured.jpg" }}
-            style={styles.trendingImage}
-          />
-          <Text style={styles.recipeTitle}>Broccoli Lasagna</Text>
-          <Text style={styles.recipeDescription}>
-            This is a quick overview of the ingredients...
-          </Text>
-        </TouchableOpacity>
+        <MainRecipeComponent recipe={mainRecipe} />
         <View style={styles.yourRecipes}>
-          <View style={styles.recipe}>
-            <Image
-              source={{ uri: "https://via.placeholder.com/150" }}
-              style={styles.recipeImage}
-            />
-            <Text style={styles.recipeTitle}>{userCookingToday}</Text>
-            <Text style={styles.recipeDescription}>5 stars | 15min</Text>
-          </View>
-          <View style={styles.recipe}>
-            <Image
-              source={{ uri: "https://via.placeholder.com/150" }}
-              style={styles.recipeImage}
-            />
-            <Text style={styles.recipeTitle}>Tiramisu</Text>
-            <Text style={styles.recipeDescription}>5 stars | 15min</Text>
-          </View>
+          {yourRecipes.map((recipe, index) => (
+            <SquareRecipeComponent key={index} recipe={recipe} />
+          ))}
         </View>
+        <SearchRecipeComponent recipe={mainRecipe} />
         <Text style={styles.sectionTitle}>Top Contributors</Text>
         <View style={styles.topContributors}>
           {contributors.map((contributor, index) => (
@@ -115,35 +126,10 @@ const styles = StyleSheet.create({
   activeTab: {
     color: "#ff6347",
   },
-  trendingRecipe: {
-    marginBottom: 16,
-  },
-  trendingImage: {
-    width: "100%",
-    height: 200,
-    borderRadius: 8,
-  },
-  recipeTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginVertical: 8,
-  },
-  recipeDescription: {
-    fontSize: 14,
-    color: "#666",
-  },
   yourRecipes: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 16,
-  },
-  recipe: {
-    width: "48%",
-  },
-  recipeImage: {
-    width: "100%",
-    height: 150,
-    borderRadius: 8,
   },
   sectionTitle: {
     fontSize: 18,

@@ -11,17 +11,19 @@ export default function MainScreen({ route }) {
 
   return (
     <Tab.Navigator>
-      <Tab.Screen
-        name="Home"
-        options={{ headerShown: false }}
-      >
-        {(props) => <HomeScreen {...props} user={currentUser} setUser={setCurrentUser} />}
+      <Tab.Screen name="Home" options={{ headerShown: false }}>
+        {(props) => (
+          <HomeScreen {...props} user={currentUser} setUser={setCurrentUser} />
+        )}
       </Tab.Screen>
-      <Tab.Screen
-        name="Profile"
-        options={{ headerShown: false }}
-      >
-        {(props) => <ProfileScreen {...props} user={currentUser} setUser={setCurrentUser} />}
+      <Tab.Screen name="Profile" options={{ headerShown: false }}>
+        {(props) => (
+          <ProfileScreen
+            {...props}
+            user={currentUser}
+            setUser={setCurrentUser}
+          />
+        )}
       </Tab.Screen>
     </Tab.Navigator>
   );
