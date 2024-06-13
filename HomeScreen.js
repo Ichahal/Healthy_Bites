@@ -1,103 +1,126 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   Image,
   StyleSheet,
-  ScrollView,
   SafeAreaView,
+  FlatList,
+  ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
+import axios from "axios";
 import MainRecipeComponent from "./MainRecipeComponent";
 import SquareRecipeComponent from "./SquareRecipeComponent";
-import SearchRecipeComponent from "./SearchRecipeComponent";
-import SearchBarComponent from "./SearchBarComponent"; // Import the new component
+import SearchBarComponent from "./SearchBarComponent";
 
 export default function HomeScreen({ user, setUser }) {
   const isFocused = useIsFocused();
   const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState("");
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [mainRecipe, setMainRecipe] = useState(null);
+  const [yourRecipes, setYourRecipes] = useState([]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isFocused) {
       setUser(user); // Ensure user state is updated
     }
   }, [isFocused]);
 
-  const userName = user.name;
-  const userCookingToday = "Pizza";
+  useEffect(() => {
+    fetchRecipes("pizza"); // Fetching pizza recipes as an example
+  }, []);
 
-  const contributors = [
-    "https://via.placeholder.com/150",
-    "https://via.placeholder.com/150",
-    "https://via.placeholder.com/150",
-    "https://via.placeholder.com/150",
-  ];
-
-  const mainRecipe = {
-    image:
-      "https://www.eatloveeats.com/wp-content/uploads/2022/03/Creamy-Broccoli-Chicken-Lasagna-Featured.jpg",
-    title: "Broccoli Lasagna",
-    description: "This is a quick overview of the ingredients...",
-    author: "Chef Josh Ryan",
-    time: "45min",
-    difficulty: "Easy",
-    rating: 4,
-    details: "5 stars | 15min",
+  const fetchRecipes = async (query) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `https://forkify-api.herokuapp.com/api/v2/recipes?search=${query}`,
+        {
+          headers: {
+            Authorization: `Bearer 5e209556-a259-438e-a84f-696acfe64826`, // Include your API key here
+          },
+        }
+      );
+      const apiRecipes = response.data.data.recipes;
+      
+      // Get a random main recipe from API
+      const randomMainRecipeIndex = Math.floor(Math.random() * apiRecipes.length);
+      const randomMainRecipe = apiRecipes[randomMainRecipeIndex];
+  
+      // Get random your recipes from API
+      const randomYourRecipesIndexes = [];
+      while (randomYourRecipesIndexes.length < 2) {
+        const randomIndex = Math.floor(Math.random() * apiRecipes.length);
+        if (!randomYourRecipesIndexes.includes(randomIndex)) {
+          randomYourRecipesIndexes.push(randomIndex);
+        }
+      }
+      const randomYourRecipes = randomYourRecipesIndexes.map(index => apiRecipes[index]);
+  
+      setRecipes(apiRecipes);
+      setMainRecipe({
+        image: randomMainRecipe.image_url,
+        title: randomMainRecipe.title,
+        details: `${randomMainRecipe.publisher} | ${randomMainRecipe.cooking_time}min`,
+      });
+      setYourRecipes(randomYourRecipes.map(recipe => ({
+        image: recipe.image_url,
+        title: recipe.title,
+        details: `${recipe.publisher} | ${recipe.cooking_time}min`,
+      })));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const yourRecipes = [
-    {
-      image:
-        "https://www.eatloveeats.com/wp-content/uploads/2022/03/Creamy-Broccoli-Chicken-Lasagna-Featured.jpg",
-      title: userCookingToday,
-      details: "5 stars | 15min",
-    },
-    {
-      image:
-        "https://www.eatloveeats.com/wp-content/uploads/2022/03/Creamy-Broccoli-Chicken-Lasagna-Featured.jpg",
-      title: "Tiramisu",
-      details: "5 stars | 15min",
-    },
-  ];
-
   const handleSearch = () => {
-    navigation.navigate("SearchScreen", {
-      recipes: Array(20).fill(mainRecipe), // Sending 10 instances of mainRecipe
-    });
+    fetchRecipes(searchQuery);
   };
 
   return (
     <SafeAreaView style={styles.safeContainer}>
-      <ScrollView style={styles.container}>
-        <Text style={styles.greeting}>Hi! {userName}</Text>
+      <ScrollView>
+        <Text style={styles.greeting}>Hi! {user.name}</Text>
         <SearchBarComponent
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           onSearch={handleSearch}
         />
-        <View style={styles.tabContainer}>
-          <Text style={[styles.tab, styles.activeTab]}>Breakfast</Text>
-          <Text style={styles.tab}>Lunch</Text>
-          <Text style={styles.tab}>Dinner</Text>
-          <Text style={styles.tab}>Vegan</Text>
-          <Text style={styles.tab}>D.</Text>
+        {mainRecipe && <MainRecipeComponent recipe={mainRecipe} />}
+
+        <View style={styles.featuredRecipesContainer}>
+          <Text style={styles.sectionTitle}>Featured Recipes</Text>
+          {recipes.length > 0 ? (
+            <FlatList
+              horizontal
+              data={Array.from({ length: 20 }, (_, index) => index).map((index) => recipes[index % recipes.length])}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <SquareRecipeComponent
+                  recipe={{
+                    image: item.image_url,
+                    title: item.title,
+                    details: `${item.publisher} | ${item.cooking_time}min`,
+                  }}
+                />
+              )}
+              contentContainerStyle={styles.featuredRecipesList}
+            />
+          ) : (
+            <ActivityIndicator size="large" color="#0000ff" />
+          )}
         </View>
-        <MainRecipeComponent recipe={mainRecipe} />
+
+        <Text style={styles.sectionTitle}>Your Recipes</Text>
         <View style={styles.yourRecipes}>
           {yourRecipes.map((recipe, index) => (
             <SquareRecipeComponent key={index} recipe={recipe} />
-          ))}
-        </View>
-        <SearchRecipeComponent recipe={mainRecipe} />
-        <Text style={styles.sectionTitle}>Top Contributors</Text>
-        <View style={styles.topContributors}>
-          {contributors.map((contributor, index) => (
-            <Image
-              key={index}
-              source={{ uri: contributor }}
-              style={styles.contributorImage}
-            />
           ))}
         </View>
       </ScrollView>
@@ -110,44 +133,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-  container: {
-    padding: 16,
-    backgroundColor: "#fff",
-    paddingTop: 40,
-  },
   greeting: {
     fontSize: 24,
     fontWeight: "bold",
+    paddingHorizontal: 16,
   },
-  tabContainer: {
-    flexDirection: "row",
-    marginBottom: 16,
-  },
-  tab: {
-    marginRight: 16,
-    fontSize: 16,
-    color: "#666",
-  },
-  activeTab: {
-    color: "#ff6347",
-  },
-  yourRecipes: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  featuredRecipesContainer: {
     marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 8,
+    paddingHorizontal: 16,
   },
-  topContributors: {
+  featuredRecipesList: {
+    paddingHorizontal: 16,
+  },
+  yourRecipes: {
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  contributorImage: {
-    width: 75,
-    height: 75,
-    borderRadius: 37.5,
+    marginBottom: 16,
+    paddingHorizontal: 16,
   },
 });
