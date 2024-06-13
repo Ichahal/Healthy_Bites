@@ -6,6 +6,7 @@ import LoginScreen from './LoginScreen';
 import Register from './Register';
 import MainScreen from './MainScreen';
 import RecipeDetailsScreen from './recipeDetailsScreen'; 
+import SearchScreen from './SearchScreen';
 
 const Stack = createStackNavigator();
 
@@ -40,10 +41,9 @@ export default function App() {
         <Stack.Screen
           name="RecipeDetailsScreen"
           component={RecipeDetailsScreen}
-          options={{
-            headerShown: false, 
-          }}
+          
         />
+        <Stack.Screen name="SearchScreen" component={SearchScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

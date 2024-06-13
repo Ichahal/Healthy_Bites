@@ -56,9 +56,9 @@ const RecipeDetailsScreen = ({ navigation }) => {
           </Text>
         ))}
       </View>
-      <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
+      {/* <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
         <Text style={styles.backButtonText}>Back to Home</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       {/* Add a dummy view to create space at the bottom */}
       <View style={{ height: 100 }} />
     </ScrollView>

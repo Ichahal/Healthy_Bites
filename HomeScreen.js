@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,14 +7,16 @@ import {
   ScrollView,
   SafeAreaView,
 } from "react-native";
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import MainRecipeComponent from "./MainRecipeComponent";
 import SquareRecipeComponent from "./SquareRecipeComponent";
 import SearchRecipeComponent from "./SearchRecipeComponent";
-
+import SearchBarComponent from "./SearchBarComponent"; // Import the new component
 
 export default function HomeScreen({ user, setUser }) {
   const isFocused = useIsFocused();
+  const navigation = useNavigation();
+  const [searchQuery, setSearchQuery] = useState("");
 
   React.useEffect(() => {
     if (isFocused) {
@@ -59,13 +61,21 @@ export default function HomeScreen({ user, setUser }) {
     },
   ];
 
-
+  const handleSearch = () => {
+    navigation.navigate("SearchScreen", {
+      recipes: Array(20).fill(mainRecipe), // Sending 10 instances of mainRecipe
+    });
+  };
 
   return (
     <SafeAreaView style={styles.safeContainer}>
       <ScrollView style={styles.container}>
         <Text style={styles.greeting}>Hi! {userName}</Text>
-        <Text style={styles.subtitle}>What are you cooking today?</Text>
+        <SearchBarComponent
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          onSearch={handleSearch}
+        />
         <View style={styles.tabContainer}>
           <Text style={[styles.tab, styles.activeTab]}>Breakfast</Text>
           <Text style={styles.tab}>Lunch</Text>
@@ -108,11 +118,6 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 24,
     fontWeight: "bold",
-  },
-  subtitle: {
-    fontSize: 18,
-    color: "#666",
-    marginBottom: 16,
   },
   tabContainer: {
     flexDirection: "row",
