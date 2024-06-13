@@ -30,7 +30,7 @@ export default function HomeScreen({ user, setUser }) {
   }, [isFocused]);
 
   useEffect(() => {
-    fetchRecipes('pizza'); 
+    fetchRecipes('potato'); 
   }, []);
 
   const fetchRecipes = async (query) => {
@@ -46,11 +46,9 @@ export default function HomeScreen({ user, setUser }) {
       );
       const apiRecipes = response.data.data.recipes;
 
-  
       const randomMainRecipeIndex = Math.floor(Math.random() * apiRecipes.length);
       const randomMainRecipe = apiRecipes[randomMainRecipeIndex];
 
-   
       const randomYourRecipesIndexes = [];
       while (randomYourRecipesIndexes.length < 2) {
         const randomIndex = Math.floor(Math.random() * apiRecipes.length);
@@ -88,8 +86,9 @@ export default function HomeScreen({ user, setUser }) {
     }
   };
 
-  const handleSearch = () => {
-    fetchRecipes(searchQuery);
+  const handleSearch = async () => {
+    await fetchRecipes(searchQuery);
+    navigation.navigate('SearchScreen', { mainRecipe });
   };
 
   return (
