@@ -1,40 +1,34 @@
-import React from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import React from 'react';
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 
-const SquareRecipeComponent = ({ recipe }) => {
-  const navigation = useNavigation();
-
-  const navigateToRecipeDetails = () => {
-    navigation.navigate("RecipeDetailsScreen");
-  };
-
+const SquareRecipeComponent = ({ recipe, onPress }) => {
   return (
-    <TouchableOpacity onPress={navigateToRecipeDetails} style={styles.recipe}>
-      <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
-      <Text style={styles.recipeTitle}>{recipe.title}</Text>
-      <Text style={styles.recipeDescription}>{recipe.details}</Text>
+    <TouchableOpacity style={styles.container} onPress={onPress}>
+      <Image source={{ uri: recipe.image }} style={styles.image} />
+      <Text style={styles.title}>{recipe.title}</Text>
+      <Text style={styles.details}>{recipe.details}</Text>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  recipe: {
-    width: "48%",
+  container: {
+    marginRight: 16,
+    width: 150,
   },
-  recipeImage: {
-    width: "100%",
-    height: 150,
+  image: {
+    width: '100%',
+    height: 100,
     borderRadius: 8,
   },
-  recipeTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
     marginVertical: 8,
   },
-  recipeDescription: {
+  details: {
     fontSize: 14,
-    color: "#666",
+    color: 'gray',
   },
 });
 
