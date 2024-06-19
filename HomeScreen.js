@@ -40,7 +40,7 @@ export default function HomeScreen({ user, setUser }) {
     const loadVegetarianRecipes = async () => {
       setVegetarianLoading(true);
       try {
-        const response = await fetch("https://www.themealdb.com/api/json/v1/1/filter.php?c=Vegetarian");
+        const response = await fetch("https://www.themealdb.com/api/json/v1/1/filter.php?c=Vegan");
         const data = await response.json();
         setVegetarianRecipes(data.meals);
       } catch (error) {
