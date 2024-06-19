@@ -1,79 +1,135 @@
-import React from "react";
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import { db } from "./firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const RecipeDetailsScreen = ({ navigation }) => {
-  const recipe = {
-    image: "https://www.eatloveeats.com/wp-content/uploads/2022/03/Creamy-Broccoli-Chicken-Lasagna-Featured.jpg", // Placeholder image URL
-    title: "Broccoli Lasagna",
-    rating: 5,
-    views: 2273,
-    userImage: "https://via.placeholder.com/40", // Placeholder user image URL
-    username: "travelfood_",
-    details: "Layers of tender broccoli, creamy ricotta, and melted cheese, baked to golden perfection. A wholesome twist on the classic comfort food favorite.",
-    ingredients: [
-      "9 lasagna noodles",
-      "4 cups broccoli florets",
-      "2 cups ricotta cheese",
-      "2 cups shredded mozzarella cheese",
-      "1/2 cup grated Parmesan cheese",
-      "2 cloves garlic, minced",
-      "1 teaspoon dried oregano",
-      "1 teaspoon dried basil",
-      "1/2 teaspoon salt",
-    ],
-    isFollowing: false,
-    cookTime: "30min",
-  };
+const RecipeDetailsScreen = ({ route, navigation }) => {
+  const { recipeId, recipeName, user } = route.params;
+  const [recipe, setRecipe] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRecipeDetails = async () => {
+      if (recipeId) {
+        try {
+          const docRef = doc(db, `users/${user.email}/ownRecipes`, recipeId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setRecipe(docSnap.data());
+          } else {
+            console.log("No such document!");
+          }
+        } catch (error) {
+          console.error("Error fetching recipe details:", error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        try {
+          const response = await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${recipeName}`);
+          const data = await response.json();
+          setRecipe(data.meals[0]);
+        } catch (error) {
+          console.error("Error fetching recipe details:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchRecipeDetails();
+  }, [recipeId, recipeName]);
 
   const handleGoBack = () => {
-    navigation.navigate("Home"); 
+    navigation.navigate("Home");
   };
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FF6F61" />
+      </View>
+    );
+  }
+
   return (
+    <SafeAreaView style={styles.safeContainer}>
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Image source={{ uri: recipe.image }} style={styles.image} />
-        <Text style={styles.title}>{recipe.title}</Text>
-        <View style={styles.meta}>
-          <Text style={styles.rating}>⭐ {recipe.rating}</Text>
-          <Text style={styles.views}>{recipe.views} views</Text>
-        </View>
-      </View>
-      <View style={styles.userContainer}>
-        <Image source={{ uri: recipe.userImage }} style={styles.userImage} />
-        <Text style={styles.username}>@{recipe.username}</Text>
-      </View>
-      <View style={styles.detailsContainer}>
-        <Text style={styles.cookTime}>{recipe.cookTime}</Text>
-        <Text style={styles.detailsHeader}>Details</Text>
-        <Text style={styles.details}>{recipe.details}</Text>
-      </View>
-      <View style={styles.ingredientsContainer}>
-        <Text style={styles.ingredientsTitle}>Ingredients</Text>
-        {recipe.ingredients.map((ingredient, index) => (
-          <Text key={index} style={styles.ingredient}>
-            {ingredient}
-          </Text>
-        ))}
-      </View>
-      <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
-        <Text style={styles.backButtonText}>Back to Home</Text>
-      </TouchableOpacity>
-      {/* Add a dummy view to create space at the bottom */}
-      <View style={{ height: 100 }} />
+      {recipe ? (
+        <>
+          <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
+            <Image source={require("./assets/back.png")} style={styles.backIcon} />
+          </TouchableOpacity>
+            <Image source={{ uri: recipe.strMealThumb || recipe.photo }} style={styles.image} />
+            <Text style={styles.title}>{recipe.strMeal || recipe.title}</Text>
+            <View style={styles.meta}>
+              <Text style={styles.rating}>5 stars</Text>
+              <Text style={styles.views}>{recipe.time || "15 min"}</Text>
+            </View>
+          </View>
+          <View style={styles.userContainer}>
+            <Image source={{ uri: "https://via.placeholder.com/150" }} style={styles.userImage} />
+            <Text style={styles.username}>Author</Text>
+          </View>
+          <View style={styles.detailsContainer}>
+            <Text style={styles.cookTime}>Time: 30 minutes {recipe.strCookTime || recipe.time}</Text>
+            <Text style={styles.detailsHeader}>Details</Text>
+            <Text style={styles.details}>{recipe.strInstructions || recipe.description}</Text>
+          </View>
+          <View style={styles.ingredientsContainer}>
+            <Text style={styles.ingredientsTitle}>Ingredients</Text>
+            {Object.keys(recipe)
+              .filter((key) => key.startsWith("strIngredient") && recipe[key])
+              .map((key, index) => (
+                <Text key={index} style={styles.ingredient}>
+                  {recipe[key]}
+                </Text>
+              ))}
+          </View>
+        </>
+      ) : (
+        <Text>Recipe not found</Text>
+      )}
     </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    padding: 16,
-    paddingBottom: 100, 
+    paddingHorizontal: 16,
+    paddingBottom: 100,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  backButton: {
+    position: "absolute",
+    left:0,
+    zIndex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    borderRadius: 20,
+    padding: 10,
+    elevation: 5,
+  },
+  backIcon: {
+    width: 34,
+    height: 34,
+    // tintColor: "#FF6F61",
   },
   header: {
     alignItems: "center",
+    marginTop: 20,
     marginBottom: 16,
   },
   image: {
@@ -155,19 +211,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#666666",
     marginBottom: 4,
-  },
-  backButton: {
-    backgroundColor: "#FF6F61",
-    borderRadius: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    alignSelf: "center",
-    marginTop: 20,
-  },
-  backButtonText: {
-    color: "#FFFFFF",
-    fontWeight: "bold",
-    fontSize: 16,
   },
 });
 

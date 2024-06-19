@@ -80,5 +80,15 @@ const updateUser = async (itemToUpdate, col, docId) => {
     throw err;
   }
 };
+const selectRecipesForUser = async (userEmail) => {
+  try {
+    const q = query(collection(db, "Recipes"), where("userId", "==", userEmail));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+  } catch (error) {
+    console.error("Error fetching recipes:", error);
+    throw error;
+  }
+};
 
-export { addUser, add, delDoc, update, select, updateUser };
+export { addUser, add, delDoc, update, select, updateUser, selectRecipesForUser };
