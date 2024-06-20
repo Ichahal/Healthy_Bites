@@ -215,7 +215,8 @@ export default function HomeScreen({ user, setUser }) {
           )}
         </ScrollView>
       </ScrollView>
-    </SafeAreaView>
+      </SafeAreaView>
+
   );
 }
 
@@ -223,10 +224,12 @@ const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
     backgroundColor: "#fff",
+    marginBottom: 0,
+    paddingBottom: 0,
   },
   container: {
     flex: 1,
-    paddingVertical: 16,
+    paddingTop: 16,
     paddingHorizontal: 16,
     backgroundColor: "#fff",
   },
