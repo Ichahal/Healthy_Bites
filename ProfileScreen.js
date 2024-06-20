@@ -49,7 +49,7 @@ const Profile = ({ user, setUser }) => {
   }, [isFocused, user]);
 
   const navigateToRecipeDetails = (recipeId, recipeName) => {
-    navigation.navigate("RecipeDetailsScreen", { recipeId, recipeName, user });
+    navigation.navigate("Recipe Details Screen", { recipeId, recipeName, user });
   };
 
   return (
