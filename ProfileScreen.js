@@ -1,60 +1,86 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet, FlatList, SafeAreaView, ActivityIndicator } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer, useNavigation, useIsFocused } from "@react-navigation/native";
-import EditProfileScreen from "./EditProfileScreen"; // Ensure this screen is imported
+import EditProfileScreen from "./EditProfileScreen";
 import { signout, auth } from "./firebase/auth";
 import { MenuProvider, Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import CreateRecipeScreen from "./CreateRecipeScreen";
-import { select } from "../Healthy_Bites/firebase/firestore";
+import { db } from "../Healthy_Bites/firebaseConfig";
+import { collection, getDocs, query } from 'firebase/firestore';
 
 const Profile = ({ user, setUser }) => {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
-  const [activeTab, setActiveTab] = useState("Recipes"); // State to track the active tab
+  const [activeTab, setActiveTab] = useState("Recipes");
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [profileImage, setProfileImage] = useState(user.profilePictureUrl || "");
 
   useEffect(() => {
-    const loadUserData = async () => {
-      const userDetails = await select(auth.currentUser.email.toLowerCase(), 'users');
-      setUser(userDetails);
+    const loadRecipes = async () => {
+      setLoading(true);
+      try {
+        if (user && user.email) {
+          // Query the "ownRecipes" subcollection of the current user
+          const q = query(collection(db, `users/${user.email}/ownRecipes`));
+          const querySnapshot = await getDocs(q);
+          const recipesData = querySnapshot.docs.map(doc => doc.data());
+          setRecipes(recipesData);
+        }
+      } catch (error) {
+        console.error("Error loading recipes:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    if (isFocused) {
-      loadUserData();
+    if (isFocused && user && user.email) {
+      loadRecipes();
     }
-  }, [isFocused]);
+  }, [isFocused, user]);
 
   const handleCreateRecipe = () => {
-    navigation.navigate("CreateRecipe", { user }); // Navigate to the CreateRecipe screen
+    navigation.navigate("CreateRecipe", { user });
   };
 
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
+  const renderRecipeItem = ({ item }) => {
+    return (
+      <TouchableOpacity style={styles.recipeCard} onPress={() => {/* Navigate to recipe detail */}}>
+        <Image source={{ uri: item.photo }} style={styles.recipeImage} />
+        <View style={styles.recipeDetails}>
+          <Text style={styles.recipeTitle}>{item.title}</Text>
+          <Text style={styles.recipeDescription}>{item.description}</Text>
+          <Text style={styles.recipeTime}>Time: {item.time}</Text>
+        </View>
+      </TouchableOpacity>
+    );
   };
+
+  useEffect(() => {
+    if (user.profilePictureUrl) {
+      setProfileImage(user.profilePictureUrl);
+    }
+  }, [user.profilePictureUrl]);
 
   return (
     <SafeAreaView style={styles.safeContainer}>
-      <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.container}>
         <View style={styles.profileHeader}>
-          <Image
-            source={{ uri: "https://via.placeholder.com/100" }} // Placeholder image URL
-            style={styles.profileImage}
-          />
+          {profileImage ? (
+            <Image source={{ uri: profileImage }} style={styles.profileImage} />
+          ) : (
+            <Image source={{ uri: "https://via.placeholder.com/100"}} style={styles.profileImage} />
+          )}
           <Text style={styles.profileName}>{user.name}</Text>
           <Text style={styles.profileUsername}>@{user.username}</Text>
           <Text style={styles.profileDescription}>
             {user.description || "User description goes here. This is a placeholder for the user's bio or presentation."}
           </Text>
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={() => navigation.navigate("EditProfile", { user })}
-          >
+          <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate("EditProfile", { user, setUser })}>
             <Text style={styles.editButtonText}>Edit Profile</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.createRecipeButton} // Style for the Create Recipe button
-            onPress={handleCreateRecipe}
-          >
+          <TouchableOpacity style={styles.createRecipeButton} onPress={handleCreateRecipe}>
             <Text style={styles.createRecipeButtonText}>Create Recipe</Text>
           </TouchableOpacity>
         </View>
@@ -72,28 +98,32 @@ const Profile = ({ user, setUser }) => {
             <Text style={styles.statLabel}>Followers</Text>
           </View>
         </View>
-        {/* <View style={styles.tabsContainer}>
-          <Text style={[styles.tab, styles.activeTab]}>Recipes</Text>
-          <Text style={styles.tab}>Favorites</Text>
-        </View> */}
-        {/* Other profile content */}
         <View style={styles.tabsContainer}>
-          <TouchableOpacity onPress={() => handleTabChange("Recipes")}>
+          <TouchableOpacity onPress={() => setActiveTab("Recipes")}>
             <Text style={[styles.tab, activeTab === "Recipes" && styles.activeTab]}>Recipes</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleTabChange("Favorites")}>
+          <TouchableOpacity onPress={() => setActiveTab("Favorites")}>
             <Text style={[styles.tab, activeTab === "Favorites" && styles.activeTab]}>Favorites</Text>
           </TouchableOpacity>
         </View>
         {activeTab === "Recipes" ? (
-          // Render recipes grid here
-          <Text>Recipes Grid</Text>
+          <FlatList
+            data={recipes}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={renderRecipeItem}
+            numColumns={2}
+            contentContainerStyle={styles.recipeGrid}
+            ListEmptyComponent={() => (
+              <View style={styles.centeredView}>
+                <Text>No recipes found.</Text>
+              </View>
+            )}
+            ListFooterComponent={loading && <ActivityIndicator size="large" color="#ff6347" />}
+          />
         ) : (
-          // Render favorites grid here
           <Text>Favorites Grid</Text>
         )}
-        {/* Add the grid of recipes here */}
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
@@ -185,9 +215,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   container: {
+    flex: 1,
     padding: 16,
     backgroundColor: "#fff",
-    paddingTop: 40, 
+    paddingTop: 40,
   },
   profileHeader: {
     alignItems: "center",
@@ -258,13 +289,52 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: "#ff6347",
   },
-  menuButton: {
-    marginRight: 16,
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  menuText: {
-    fontSize: 24,
-    color: "#ff6347",
-    marginRight: 16,
+  recipeGrid: {
+    paddingTop: 16,
+  },
+  recipeCard: {
+    flex: 1,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    margin: 8,
+    padding: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  recipeImage: {
+    width: "100%",
+    height: 150,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  recipeDetails: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  recipeTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 4,
+  },
+  recipeDescription: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
+    marginBottom: 4,
+  },
+  recipeTime: {
+    fontSize: 12,
+    color: "#999",
+    textAlign: "center",
   },
   createRecipeButton: {
     backgroundColor: "#ff6347",
@@ -281,3 +351,4 @@ const styles = StyleSheet.create({
 });
 
 export default ProfileScreen;
+

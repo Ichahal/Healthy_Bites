@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase/app";
+import { getStorage } from "firebase/storage";
 import { getFirestore } from "firebase/firestore";
 import {
   getAuth,
@@ -23,6 +24,7 @@ const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage),
 });
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 let analytics;
 isSupported().then((supported) => {
@@ -31,4 +33,4 @@ isSupported().then((supported) => {
   }
 });
 
-export { auth, db, analytics };
+export { auth, db, analytics, storage };

@@ -1,150 +1,150 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  FlatList,
-  ActivityIndicator,
-  ScrollView,
-} from 'react-native';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
-import axios from 'axios';
-import MainRecipeComponent from './MainRecipeComponent';
-import SquareRecipeComponent from './SquareRecipeComponent';
-import SearchBarComponent from './SearchBarComponent';
+import React, { useEffect, useState } from "react";
+import { View, Text, Image, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, ActivityIndicator } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { useIsFocused } from "@react-navigation/native";
+import { db } from "./firebaseConfig";
+import { collection, getDocs, query } from "firebase/firestore";
+
+const PRIMARY_COLOR = "#FD5D69";
+const SECONDARY_COLOR = "#FFA69E"; // Lighter shade of primary color
 
 export default function HomeScreen({ user, setUser }) {
   const isFocused = useIsFocused();
-  const navigation = useNavigation();
-  const [searchQuery, setSearchQuery] = useState('');
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [mainRecipe, setMainRecipe] = useState(null);
-  const [yourRecipes, setYourRecipes] = useState([]);
+  const [vegetarianRecipes, setVegetarianRecipes] = useState([]);
+  const [vegetarianLoading, setVegetarianLoading] = useState(false);
+  const [randomRecipe, setRandomRecipe] = useState(null);
+  const [randomRecipeLoading, setRandomRecipeLoading] = useState(false);
 
   useEffect(() => {
-    if (isFocused) {
-      setUser(user); 
-    }
-  }, [isFocused]);
-
-  useEffect(() => {
-    fetchRecipes('potato'); 
-  }, []);
-
-  const fetchRecipes = async (query) => {
-    setLoading(true);
-    try {
-      const response = await axios.get(
-        `https://forkify-api.herokuapp.com/api/v2/recipes?search=${query}`,
-        {
-          headers: {
-            Authorization: `Bearer 5e209556-a259-438e-a84f-696acfe64826`, // Include your API key here
-          },
+    const loadRecipes = async () => {
+      setLoading(true);
+      try {
+        if (user && user.email) {
+          const q = query(collection(db, `users/${user.email}/ownRecipes`));
+          const querySnapshot = await getDocs(q);
+          const recipesData = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          setRecipes(recipesData);
         }
-      );
-      const apiRecipes = response.data.data.recipes;
-
-      const randomMainRecipeIndex = Math.floor(Math.random() * apiRecipes.length);
-      const randomMainRecipe = apiRecipes[randomMainRecipeIndex];
-
-      const randomYourRecipesIndexes = [];
-      while (randomYourRecipesIndexes.length < 2) {
-        const randomIndex = Math.floor(Math.random() * apiRecipes.length);
-        if (!randomYourRecipesIndexes.includes(randomIndex)) {
-          randomYourRecipesIndexes.push(randomIndex);
-        }
+      } catch (error) {
+        console.error("Error loading recipes:", error);
+      } finally {
+        setLoading(false);
       }
-      const randomYourRecipes = randomYourRecipesIndexes.map((index) => apiRecipes[index]);
+    };
 
-      setRecipes(apiRecipes);
-      setMainRecipe({
-        image: randomMainRecipe.image_url,
-        title: randomMainRecipe.title,
-        details: `${randomMainRecipe.publisher} | ${randomMainRecipe.cooking_time}min`,
-        publisher: randomMainRecipe.publisher,
-        cooking_time: randomMainRecipe.cooking_time,
-        ingredients: randomMainRecipe.ingredients,
-        instructions: randomMainRecipe.instructions,
-      });
-      setYourRecipes(
-        randomYourRecipes.map((recipe) => ({
-          image: recipe.image_url,
-          title: recipe.title,
-          details: `${recipe.publisher} | ${recipe.cooking_time}min`,
-          publisher: recipe.publisher,
-          cooking_time: recipe.cooking_time,
-          ingredients: recipe.ingredients,
-          instructions: recipe.instructions,
-        }))
-      );
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
+    const loadVegetarianRecipes = async () => {
+      setVegetarianLoading(true);
+      try {
+        const response = await fetch("https://www.themealdb.com/api/json/v1/1/filter.php?c=Vegan");
+        const data = await response.json();
+        setVegetarianRecipes(data.meals);
+      } catch (error) {
+        console.error("Error loading vegetarian recipes:", error);
+      } finally {
+        setVegetarianLoading(false);
+      }
+    };
+
+    const fetchRandomRecipe = async () => {
+      setRandomRecipeLoading(true);
+      try {
+        const response = await fetch("https://www.themealdb.com/api/json/v1/1/random.php");
+        const data = await response.json();
+        setRandomRecipe(data.meals[0]); // Assuming data.meals is an array and we take the first item
+      } catch (error) {
+        console.error("Error loading random recipe:", error);
+      } finally {
+        setRandomRecipeLoading(false);
+      }
+    };
+
+    if (isFocused && user && user.email) {
+      loadRecipes();
     }
-  };
 
-  const handleSearch = async () => {
-    await fetchRecipes(searchQuery);
-    navigation.navigate('SearchScreen', { mainRecipe });
+    loadVegetarianRecipes();
+    fetchRandomRecipe();
+  }, [isFocused, user]);
+
+  const userName = user.name;
+  const navigation = useNavigation();
+
+  const navigateToRecipeDetails = (recipeId, recipeName) => {
+    navigation.navigate("RecipeDetailsScreen", { recipeId, recipeName, user });
   };
 
   return (
     <SafeAreaView style={styles.safeContainer}>
-      <ScrollView>
-        <Text style={styles.greeting}>Hi! {user.name}</Text>
-        <SearchBarComponent
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          onSearch={handleSearch}
-        />
-        {mainRecipe && (
-          <MainRecipeComponent
-            recipe={mainRecipe}
-            onPress={() => navigation.navigate('RecipeDetailsScreen', { recipe: mainRecipe })}
-          />
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.greeting}>Hi, {userName}!</Text>
+          <Text style={styles.subtitle}>What are you cooking today?</Text>
+        </View>
+        <View style={styles.tabContainer}>
+          <Text style={[styles.tab, styles.activeTab]}>Breakfast</Text>
+          <Text style={styles.tab}>Lunch</Text>
+          <Text style={styles.tab}>Dinner</Text>
+          <Text style={styles.tab}>Vegan</Text>
+          <Text style={styles.tab}>Dessert</Text>
+        </View>
+        {randomRecipeLoading ? (
+          <ActivityIndicator size="large" color={PRIMARY_COLOR} style={styles.loadingIndicator} />
+        ) : randomRecipe ? (
+          <TouchableOpacity onPress={() => navigateToRecipeDetails(null, randomRecipe.strMeal)} style={styles.trendingRecipe}>
+            <Image
+              source={{ uri: randomRecipe.strMealThumb || "https://via.placeholder.com/150" }}
+              style={styles.trendingImage}
+            />
+            <Text style={styles.recipeTitle}>{randomRecipe.strMeal}</Text>
+            <Text style={styles.recipeDescription}>
+              {randomRecipe.strInstructions.slice(0, 100)}...
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <Text>No random recipe found</Text>
         )}
-
-        <View style={styles.featuredRecipesContainer}>
-          <Text style={styles.sectionTitle}>Featured Recipes</Text>
-          {recipes.length > 0 ? (
-            <FlatList
-              horizontal
-              data={Array.from({ length: 20 }, (_, index) => index).map((index) => recipes[index % recipes.length])}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <SquareRecipeComponent
-                  recipe={{
-                    image: item.image_url,
-                    title: item.title,
-                    details: `${item.publisher} | ${item.cooking_time}min`,
-                    publisher: item.publisher,
-                    cooking_time: item.cooking_time,
-                    ingredients: item.ingredients,
-                    instructions: item.instructions,
-                  }}
-                  onPress={() => navigation.navigate('RecipeDetailsScreen', { recipe: item })}
-                />
-              )}
-              contentContainerStyle={styles.featuredRecipesList}
-            />
-          ) : (
-            <ActivityIndicator size="large" color="#0000ff" />
-          )}
-        </View>
-
         <Text style={styles.sectionTitle}>Your Recipes</Text>
-        <View style={styles.yourRecipes}>
-          {yourRecipes.map((recipe, index) => (
-            <SquareRecipeComponent
-              key={index}
-              recipe={recipe}
-              onPress={() => navigation.navigate('RecipeDetailsScreen', { recipe })}
-            />
-          ))}
-        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
+          {loading ? (
+            <ActivityIndicator size="large" color={PRIMARY_COLOR} style={styles.loadingIndicator} />
+          ) : (
+            <View style={styles.recipeContainer}>
+              {recipes.map((recipe) => (
+                <TouchableOpacity key={recipe.id} onPress={() => navigateToRecipeDetails(recipe.id, recipe.title)} style={styles.recipe}>
+                  <Image
+                    source={{ uri: recipe.photo || "https://via.placeholder.com/150" }}
+                    style={styles.recipeImage}
+                  />
+                  <Text style={styles.recipeTitle}>{recipe.title}</Text>
+                  <Text style={styles.recipeDescription}>{recipe.time || "5 stars | 15min"}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </ScrollView>
+        <Text style={styles.sectionTitle}>Vegetarian Recipes</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
+          {vegetarianLoading ? (
+            <ActivityIndicator size="large" color={PRIMARY_COLOR} style={styles.loadingIndicator} />
+          ) : (
+            <View style={styles.recipeContainer}>
+              {vegetarianRecipes.map((recipe) => (
+                <TouchableOpacity key={recipe.idMeal} onPress={() => navigateToRecipeDetails(null, recipe.strMeal)} style={styles.recipe}>
+                  <Image
+                    source={{ uri: recipe.strMealThumb || "https://via.placeholder.com/150" }}
+                    style={styles.recipeImage}
+                  />
+                  <Text style={styles.recipeTitle}>{recipe.strMeal}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </ScrollView>
       </ScrollView>
     </SafeAreaView>
   );
@@ -153,29 +153,80 @@ export default function HomeScreen({ user, setUser }) {
 const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
+  },
+  container: {
+    flex: 1,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    backgroundColor: "#fff",
+  },
+  header: {
+    marginBottom: 16,
   },
   greeting: {
     fontSize: 24,
-    fontWeight: 'bold',
-    paddingHorizontal: 16,
+    fontWeight: "bold",
+    color: PRIMARY_COLOR,
+    marginBottom: 8,
   },
-  featuredRecipesContainer: {
+  subtitle: {
+    fontSize: 18,
+    color: "#666",
     marginBottom: 16,
+  },
+  tabContainer: {
+    flexDirection: "row",
+    marginBottom: 16,
+  },
+  tab: {
+    marginRight: 16,
+    fontSize: 16,
+    color: "#666",
+  },
+  activeTab: {
+    color: PRIMARY_COLOR,
+  },
+  trendingRecipe: {
+    marginBottom: 16,
+  },
+  trendingImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 8,
+  },
+  recipeContainer: {
+    flexDirection: "row",
+  },
+  recipe: {
+    width: 150,
+    marginRight: 16,
+  },
+  recipeImage: {
+    width: "100%",
+    height: 150,
+    borderRadius: 8,
+  },
+  recipeTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginVertical: 8,
+    color: PRIMARY_COLOR,
+  },
+  recipeDescription: {
+    fontSize: 14,
+    color: "#666",
+  },
+  horizontalScroll: {
+    marginBottom: 26,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
-    paddingHorizontal: 16,
+    color: PRIMARY_COLOR,
   },
-  featuredRecipesList: {
-    paddingHorizontal: 16,
-  },
-  yourRecipes: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-    paddingHorizontal: 16,
+  loadingIndicator: {
+    marginTop: 16,
   },
 });
