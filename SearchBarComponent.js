@@ -1,17 +1,22 @@
+import React, { useState } from "react";
+import {Text, View, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 
-import React from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+const SearchBarComponent = ({ onSearch }) => {
+  const [searchQuery, setSearchQuery] = useState("");
 
-const SearchBarComponent = ({ searchQuery, setSearchQuery, onSearch }) => {
+  const handleSearchPress = async () => {
+    await onSearch(searchQuery); // Trigger search with current searchQuery value
+  };
+
   return (
     <View style={styles.searchContainer}>
       <TextInput
         style={styles.searchBar}
         placeholder="Search recipes..."
         value={searchQuery}
-        onChangeText={setSearchQuery}
+        onChangeText={(text) => setSearchQuery(text)}
       />
-      <TouchableOpacity style={styles.searchButton} onPress={onSearch}>
+      <TouchableOpacity style={styles.searchButton} onPress={handleSearchPress}>
         <Text style={styles.searchButtonText}>🔍</Text>
       </TouchableOpacity>
     </View>

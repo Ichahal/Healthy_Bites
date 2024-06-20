@@ -2,12 +2,10 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  Image,
-  StyleSheet,
   ScrollView,
   SafeAreaView,
-  TouchableOpacity,
   ActivityIndicator,
+  StyleSheet,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useIsFocused } from "@react-navigation/native";
@@ -17,9 +15,7 @@ import SquareRecipeComponent from "./SquareRecipeComponent";
 import MainRecipeComponent from "./MainRecipeComponent";
 import SearchBarComponent from "./SearchBarComponent";
 
-
 const PRIMARY_COLOR = "#FD5D69";
-const SECONDARY_COLOR = "#FFA69E"; // Lighter shade of primary color
 
 export default function HomeScreen({ user, setUser }) {
   const isFocused = useIsFocused();
@@ -31,6 +27,24 @@ export default function HomeScreen({ user, setUser }) {
   const [randomRecipeLoading, setRandomRecipeLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigation = useNavigation();
+  const [activeTab, setActiveTab] = useState("Starter"); // Default active tab
+  const [tabRecipes, setTabRecipes] = useState([]);
+  const [tabLoading, setTabLoading] = useState(false);
+
+  const fetchRecipesByCategory = async (category) => {
+    setTabLoading(true);
+    try {
+      const response = await fetch(
+        `https://www.themealdb.com/api/json/v1/1/filter.php?c=${category}`
+      );
+      const data = await response.json();
+      setTabRecipes(data.meals || []);
+    } catch (error) {
+      console.error(`Error loading ${category} recipes:`, error);
+    } finally {
+      setTabLoading(false);
+    }
+  };
 
   useEffect(() => {
     const loadRecipes = async () => {
@@ -52,21 +66,6 @@ export default function HomeScreen({ user, setUser }) {
       }
     };
 
-    const loadVegetarianRecipes = async () => {
-      setVegetarianLoading(true);
-      try {
-        const response = await fetch(
-          "https://www.themealdb.com/api/json/v1/1/filter.php?c=Vegetarian"
-        );
-        const data = await response.json();
-        setVegetarianRecipes(data.meals);
-      } catch (error) {
-        console.error("Error loading vegetarian recipes:", error);
-      } finally {
-        setVegetarianLoading(false);
-      }
-    };
-
     const fetchRandomRecipe = async () => {
       setRandomRecipeLoading(true);
       try {
@@ -74,7 +73,7 @@ export default function HomeScreen({ user, setUser }) {
           "https://www.themealdb.com/api/json/v1/1/random.php"
         );
         const data = await response.json();
-        setRandomRecipe(data.meals[0]); // Assuming data.meals is an array and we take the first item
+        setRandomRecipe(data.meals[0]);
       } catch (error) {
         console.error("Error loading random recipe:", error);
       } finally {
@@ -86,9 +85,9 @@ export default function HomeScreen({ user, setUser }) {
       loadRecipes();
     }
 
-    loadVegetarianRecipes();
+    fetchRecipesByCategory(activeTab);
     fetchRandomRecipe();
-  }, [isFocused, user]);
+  }, [isFocused, user, activeTab]);
 
   const handleSearch = async () => {
     try {
@@ -103,9 +102,18 @@ export default function HomeScreen({ user, setUser }) {
           photo: meal.strMealThumb,
           instructions: meal.strInstructions,
         }));
-        navigation.navigate("SearchScreen", { searchResults });
+        navigation.navigate("Search Screen", { searchResults });
       } else {
-        alert("No results found");
+        const randomRecipesResponse = await fetch(
+          "https://www.themealdb.com/api/json/v1/1/filter.php?a=Random"
+        );
+        const randomRecipesData = await randomRecipesResponse.json();
+        const randomResults = randomRecipesData.meals.map((meal) => ({
+          id: meal.idMeal,
+          title: meal.strMeal,
+          photo: meal.strMealThumb,
+        }));
+        navigation.navigate("Search Screen", { searchResults: randomResults });
       }
     } catch (error) {
       console.error("Error searching recipes:", error);
@@ -115,7 +123,20 @@ export default function HomeScreen({ user, setUser }) {
   const userName = user.name;
 
   const navigateToRecipeDetails = (recipeId, recipeName) => {
-    navigation.navigate("Recipe Details Screen", { recipeId, recipeName, user });
+    navigation.navigate("Recipe Details Screen", {
+      recipeId,
+      recipeName,
+      user,
+    });
+  };
+
+  const handleTabPress = (tabTitle) => {
+    setActiveTab(tabTitle);
+    if (tabTitle !== "Your Recipes") {
+      fetchRecipesByCategory(tabTitle);
+    } else {
+      setTabRecipes(recipes); // Set user's own recipes as tabRecipes
+    }
   };
 
   return (
@@ -130,13 +151,35 @@ export default function HomeScreen({ user, setUser }) {
           setSearchQuery={setSearchQuery}
           onSearch={handleSearch}
         />
+
         <View style={styles.tabContainer}>
-          <Text style={[styles.tab, styles.activeTab]}>Breakfast</Text>
-          <Text style={styles.tab}>Lunch</Text>
-          <Text style={styles.tab}>Dinner</Text>
-          <Text style={styles.tab}>Vegan</Text>
-          <Text style={styles.tab}>Dessert</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {[
+              "Breakfast",
+              "Starter",
+              "Vegetarian",
+              "Vegan",
+              "Dessert",
+              "Seafood",
+              "Pasta",
+              "Side",
+              "Miscellaneous",
+            ].map((tabTitle) => (
+              <Text
+                key={tabTitle}
+                style={[
+                  styles.tab,
+                  activeTab === tabTitle && styles.activeTab,
+                  tabTitle === "Miscellaneous" && { marginRight: 0 }, // Remove margin for the last tab
+                ]}
+                onPress={() => handleTabPress(tabTitle)}
+              >
+                {tabTitle}
+              </Text>
+            ))}
+          </ScrollView>
         </View>
+
         <Text style={styles.sectionTitle}>Featured Recipe</Text>
         {randomRecipeLoading ? (
           <ActivityIndicator
@@ -156,6 +199,7 @@ export default function HomeScreen({ user, setUser }) {
         ) : (
           <Text>No random recipe found</Text>
         )}
+
         <Text style={styles.sectionTitle}>Your Recipes</Text>
         <ScrollView
           horizontal
@@ -186,13 +230,14 @@ export default function HomeScreen({ user, setUser }) {
             </View>
           )}
         </ScrollView>
-        <Text style={styles.sectionTitle}>Vegetarian Recipes</Text>
+
+        <Text style={styles.sectionTitle}>{activeTab} Recipes</Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           style={styles.horizontalScroll}
         >
-          {vegetarianLoading ? (
+          {tabLoading ? (
             <ActivityIndicator
               size="large"
               color={PRIMARY_COLOR}
@@ -200,7 +245,7 @@ export default function HomeScreen({ user, setUser }) {
             />
           ) : (
             <View style={styles.recipeContainer}>
-              {vegetarianRecipes.map((recipe) => (
+              {tabRecipes.map((recipe) => (
                 <SquareRecipeComponent
                   key={recipe.idMeal}
                   recipe={{
@@ -215,8 +260,7 @@ export default function HomeScreen({ user, setUser }) {
           )}
         </ScrollView>
       </ScrollView>
-      </SafeAreaView>
-
+    </SafeAreaView>
   );
 }
 

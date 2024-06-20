@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
   statsContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginBottom: 16,
+    marginBottom: 24,
   },
   stat: {
     alignItems: "center",

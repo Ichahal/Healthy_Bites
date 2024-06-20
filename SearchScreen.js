@@ -1,95 +1,155 @@
 import React, { useState } from "react";
 import {
   View,
-  FlatList,
-  StyleSheet,
-  SafeAreaView,
   Text,
+  ScrollView,
+  StyleSheet,
   TouchableOpacity,
 } from "react-native";
 import SearchRecipeComponent from "./SearchRecipeComponent";
 import SearchBarComponent from "./SearchBarComponent";
 
-const SearchScreen = ({ route }) => {
-  const { recipes } = route.params;
-  const [searchQuery, setSearchQuery] = useState("");
+const SearchScreen = ({ route, navigation }) => {
+  const initialSearchResults = route?.params?.searchResults || [];
+  const [searchResults, setSearchResults] = useState(initialSearchResults);
   const [currentPage, setCurrentPage] = useState(1);
-  const recipesPerPage = 10;
+  const resultsPerPage = 10;
 
-  const handleSearch = () => {
-    setCurrentPage(1); // Reset to first page on new search
+  const totalPages = Math.ceil(searchResults.length / resultsPerPage);
+  const startIndex = (currentPage - 1) * resultsPerPage;
+  const currentResults = searchResults.slice(
+    startIndex,
+    startIndex + resultsPerPage
+  );
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
-  const filteredRecipes = recipes.filter((recipe) =>
-    recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const totalPages = Math.ceil(filteredRecipes.length / recipesPerPage);
-  const paginatedRecipes = filteredRecipes.slice(
-    (currentPage - 1) * recipesPerPage,
-    currentPage * recipesPerPage
-  );
+  const handleSearch = async (query) => {
+    try {
+      const response = await fetch(
+        `https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`
+      );
+      const data = await response.json();
+      if (data.meals) {
+        const newSearchResults = data.meals.map((meal) => ({
+          id: meal.idMeal,
+          title: meal.strMeal,
+          photo: meal.strMealThumb,
+          instructions: meal.strInstructions,
+        }));
+        setSearchResults(newSearchResults);
+        setCurrentPage(1); // Reset page to 1 when new results are fetched
+      } else {
+        const randomRecipesResponse = await fetch(
+          "https://www.themealdb.com/api/json/v1/1/filter.php?a=Random"
+        );
+        const randomRecipesData = await randomRecipesResponse.json();
+        const randomResults = randomRecipesData.meals.map((meal) => ({
+          id: meal.idMeal,
+          title: meal.strMeal,
+          photo: meal.strMealThumb,
+        }));
+        setSearchResults(randomResults);
+        setCurrentPage(1); // Reset page to 1 when new results are fetched
+      }
+    } catch (error) {
+      console.error("Error searching recipes:", error);
+    }
+  };
 
   return (
-    <SafeAreaView style={styles.safeContainer}>
-      <View style={styles.container}>
-        <SearchBarComponent
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          onSearch={handleSearch}
-        />
-        <FlatList
-          data={paginatedRecipes}
-          renderItem={({ item }) => <SearchRecipeComponent recipe={item} />}
-          keyExtractor={(item, index) => index.toString()}
-          ListFooterComponent={
-            <View style={styles.paginationContainer}>
-              {Array.from({ length: totalPages }, (_, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={[
-                    styles.pageNumber,
-                    currentPage === index + 1 && styles.activePageNumber,
-                  ]}
-                  onPress={() => setCurrentPage(index + 1)}
-                >
-                  <Text style={styles.pageNumberText}>{index + 1}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          }
-        />
-      </View>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <SearchBarComponent onSearch={handleSearch} />
+      <ScrollView>
+        {currentResults.length > 0 ? (
+          currentResults.map((recipe) => (
+            <SearchRecipeComponent
+              key={recipe.id}
+              recipe={{
+                image: recipe.photo,
+                title: recipe.title,
+                description: recipe.instructions
+                  ? recipe.instructions.slice(0, 100) + "..."
+                  : "No instructions available.",
+                author: "Unknown", // Add author if available
+                time: "Unknown", // Add time if available
+                difficulty: "Unknown", // Add difficulty if available
+                rating: "Unknown", // Add rating if available
+              }}
+            />
+          ))
+        ) : (
+          <View style={styles.noResultsContainer}>
+            <Text style={styles.noResultsText}>No recipes found.</Text>
+          </View>
+        )}
+      </ScrollView>
+      {totalPages > 1 && (
+        <View style={styles.pagination}>
+          {[...Array(totalPages)].map((_, index) => (
+            <TouchableOpacity
+              key={index + 1}
+              style={[
+                styles.pageNumber,
+                currentPage === index + 1 && styles.activePage,
+              ]}
+              onPress={() => handlePageChange(index + 1)}
+            >
+              <Text
+                style={[
+                  styles.pageNumberText,
+                  currentPage === index + 1 && styles.activePageText,
+                ]}
+              >
+                {index + 1}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeContainer: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
   container: {
     flex: 1,
     padding: 16,
     backgroundColor: "#fff",
   },
-  paginationContainer: {
+  noResultsContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+  },
+  noResultsText: {
+    fontSize: 18,
+    color: "#666",
+  },
+  pagination: {
     flexDirection: "row",
     justifyContent: "center",
-    marginVertical: 16,
+    marginVertical: 8,
   },
   pageNumber: {
     marginHorizontal: 4,
     padding: 8,
-    borderRadius: 4,
-    backgroundColor: "#f0f0f0",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
   },
-  activePageNumber: {
-    backgroundColor: "#ff6347",
+  activePage: {
+    backgroundColor: "#FD5D69",
   },
   pageNumberText: {
-    color: "#000",
+    fontSize: 16,
+    color: "#666",
+  },
+  activePageText: {
+    color: "#fff",
   },
 });
 

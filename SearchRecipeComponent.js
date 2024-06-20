@@ -6,7 +6,10 @@ const SearchRecipeComponent = ({ recipe }) => {
   const navigation = useNavigation();
 
   const navigateToRecipeDetails = () => {
-    navigation.navigate("RecipeDetailsScreen");
+    navigation.navigate("Recipe Details Screen", {
+      recipeId: recipe.id,
+      recipeName: recipe.title,
+    });
   };
 
   return (
@@ -66,7 +69,7 @@ const styles = StyleSheet.create({
   },
   recipeInfo: {
     padding: 16,
-    flex: 3, // Use flex to define the relative width
+    flex: 3,
   },
   recipeTitle: {
     fontSize: 18,
