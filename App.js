@@ -39,10 +39,10 @@ export default function App() {
           }}
         />
         <Stack.Screen
-          name="RecipeDetailsScreen"
+          name="Recipe Details Screen"
           component={RecipeDetailsScreen}
         />
-        <Stack.Screen name="SearchScreen" component={SearchScreen} />
+        <Stack.Screen name="SearchScreen" component={SearchScreen}  />
       </Stack.Navigator>
     </NavigationContainer>
   );

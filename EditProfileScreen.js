@@ -92,12 +92,12 @@ const EditProfileScreen = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         onPress={() => navigation.goBack()}
         style={styles.backButton}
       >
         <Text style={styles.backButtonText}>←</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <Text style={styles.title}>Edit Profile</Text>
       <TouchableOpacity onPress={handlePickImage}>
         {profileImage ? (

@@ -115,7 +115,7 @@ export default function HomeScreen({ user, setUser }) {
   const userName = user.name;
 
   const navigateToRecipeDetails = (recipeId, recipeName) => {
-    navigation.navigate("RecipeDetailsScreen", { recipeId, recipeName, user });
+    navigation.navigate("Recipe Details Screen", { recipeId, recipeName, user });
   };
 
   return (
