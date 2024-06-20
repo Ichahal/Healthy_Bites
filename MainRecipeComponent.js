@@ -1,10 +1,13 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import React from "react";
+import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 
 const MainRecipeComponent = ({ recipe, onPress }) => {
   return (
     <TouchableOpacity onPress={onPress} style={styles.container}>
-      <Image source={{ uri: recipe.image }} style={styles.image} />
+      <Image
+        source={{ uri: recipe.image || "https://via.placeholder.com/150" }}
+        style={styles.image}
+      />
       <View style={styles.infoContainer}>
         <Text style={styles.title}>{recipe.title}</Text>
         <Text style={styles.details}>{recipe.details}</Text>
@@ -15,25 +18,33 @@ const MainRecipeComponent = ({ recipe, onPress }) => {
 
 const styles = StyleSheet.create({
   container: {
-    margin: 16,
+    marginBottom: 8,
+    marginTop: 8,
     borderRadius: 10,
-    overflow: 'hidden',
+    overflow: "hidden",
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
   },
   image: {
-    width: '100%',
+    width: "100%",
     height: 200,
   },
   infoContainer: {
     padding: 16,
-    backgroundColor: '#fff',
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
+    color: "#333",
   },
   details: {
     fontSize: 16,
     marginTop: 8,
+    color: "#666",
   },
 });
 

@@ -1,9 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useIsFocused } from "@react-navigation/native";
 import { db } from "./firebaseConfig";
 import { collection, getDocs, query } from "firebase/firestore";
+import SquareRecipeComponent from "./SquareRecipeComponent";
+import MainRecipeComponent from "./MainRecipeComponent";
+import SearchBarComponent from "./SearchBarComponent";
+
 
 const PRIMARY_COLOR = "#FD5D69";
 const SECONDARY_COLOR = "#FFA69E"; // Lighter shade of primary color
@@ -16,6 +29,8 @@ export default function HomeScreen({ user, setUser }) {
   const [vegetarianLoading, setVegetarianLoading] = useState(false);
   const [randomRecipe, setRandomRecipe] = useState(null);
   const [randomRecipeLoading, setRandomRecipeLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigation = useNavigation();
 
   useEffect(() => {
     const loadRecipes = async () => {
@@ -24,9 +39,9 @@ export default function HomeScreen({ user, setUser }) {
         if (user && user.email) {
           const q = query(collection(db, `users/${user.email}/ownRecipes`));
           const querySnapshot = await getDocs(q);
-          const recipesData = querySnapshot.docs.map(doc => ({
+          const recipesData = querySnapshot.docs.map((doc) => ({
             id: doc.id,
-            ...doc.data()
+            ...doc.data(),
           }));
           setRecipes(recipesData);
         }
@@ -40,7 +55,9 @@ export default function HomeScreen({ user, setUser }) {
     const loadVegetarianRecipes = async () => {
       setVegetarianLoading(true);
       try {
-        const response = await fetch("https://www.themealdb.com/api/json/v1/1/filter.php?c=Vegan");
+        const response = await fetch(
+          "https://www.themealdb.com/api/json/v1/1/filter.php?c=Vegetarian"
+        );
         const data = await response.json();
         setVegetarianRecipes(data.meals);
       } catch (error) {
@@ -53,7 +70,9 @@ export default function HomeScreen({ user, setUser }) {
     const fetchRandomRecipe = async () => {
       setRandomRecipeLoading(true);
       try {
-        const response = await fetch("https://www.themealdb.com/api/json/v1/1/random.php");
+        const response = await fetch(
+          "https://www.themealdb.com/api/json/v1/1/random.php"
+        );
         const data = await response.json();
         setRandomRecipe(data.meals[0]); // Assuming data.meals is an array and we take the first item
       } catch (error) {
@@ -71,8 +90,29 @@ export default function HomeScreen({ user, setUser }) {
     fetchRandomRecipe();
   }, [isFocused, user]);
 
+  const handleSearch = async () => {
+    try {
+      const response = await fetch(
+        `https://www.themealdb.com/api/json/v1/1/search.php?s=${searchQuery}`
+      );
+      const data = await response.json();
+      if (data.meals) {
+        const searchResults = data.meals.map((meal) => ({
+          id: meal.idMeal,
+          title: meal.strMeal,
+          photo: meal.strMealThumb,
+          instructions: meal.strInstructions,
+        }));
+        navigation.navigate("SearchScreen", { searchResults });
+      } else {
+        alert("No results found");
+      }
+    } catch (error) {
+      console.error("Error searching recipes:", error);
+    }
+  };
+
   const userName = user.name;
-  const navigation = useNavigation();
 
   const navigateToRecipeDetails = (recipeId, recipeName) => {
     navigation.navigate("RecipeDetailsScreen", { recipeId, recipeName, user });
@@ -85,6 +125,11 @@ export default function HomeScreen({ user, setUser }) {
           <Text style={styles.greeting}>Hi, {userName}!</Text>
           <Text style={styles.subtitle}>What are you cooking today?</Text>
         </View>
+        <SearchBarComponent
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          onSearch={handleSearch}
+        />
         <View style={styles.tabContainer}>
           <Text style={[styles.tab, styles.activeTab]}>Breakfast</Text>
           <Text style={styles.tab}>Lunch</Text>
@@ -92,55 +137,79 @@ export default function HomeScreen({ user, setUser }) {
           <Text style={styles.tab}>Vegan</Text>
           <Text style={styles.tab}>Dessert</Text>
         </View>
+        <Text style={styles.sectionTitle}>Featured Recipe</Text>
         {randomRecipeLoading ? (
-          <ActivityIndicator size="large" color={PRIMARY_COLOR} style={styles.loadingIndicator} />
+          <ActivityIndicator
+            size="large"
+            color={PRIMARY_COLOR}
+            style={styles.loadingIndicator}
+          />
         ) : randomRecipe ? (
-          <TouchableOpacity onPress={() => navigateToRecipeDetails(null, randomRecipe.strMeal)} style={styles.trendingRecipe}>
-            <Image
-              source={{ uri: randomRecipe.strMealThumb || "https://via.placeholder.com/150" }}
-              style={styles.trendingImage}
-            />
-            <Text style={styles.recipeTitle}>{randomRecipe.strMeal}</Text>
-            <Text style={styles.recipeDescription}>
-              {randomRecipe.strInstructions.slice(0, 100)}...
-            </Text>
-          </TouchableOpacity>
+          <MainRecipeComponent
+            recipe={{
+              image: randomRecipe.strMealThumb,
+              title: randomRecipe.strMeal,
+              details: randomRecipe.strInstructions.slice(0, 100) + "...",
+            }}
+            onPress={() => navigateToRecipeDetails(null, randomRecipe.strMeal)}
+          />
         ) : (
           <Text>No random recipe found</Text>
         )}
         <Text style={styles.sectionTitle}>Your Recipes</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.horizontalScroll}
+        >
           {loading ? (
-            <ActivityIndicator size="large" color={PRIMARY_COLOR} style={styles.loadingIndicator} />
+            <ActivityIndicator
+              size="large"
+              color={PRIMARY_COLOR}
+              style={styles.loadingIndicator}
+            />
           ) : (
             <View style={styles.recipeContainer}>
               {recipes.map((recipe) => (
-                <TouchableOpacity key={recipe.id} onPress={() => navigateToRecipeDetails(recipe.id, recipe.title)} style={styles.recipe}>
-                  <Image
-                    source={{ uri: recipe.photo || "https://via.placeholder.com/150" }}
-                    style={styles.recipeImage}
-                  />
-                  <Text style={styles.recipeTitle}>{recipe.title}</Text>
-                  <Text style={styles.recipeDescription}>{recipe.time || "5 stars | 15min"}</Text>
-                </TouchableOpacity>
+                <SquareRecipeComponent
+                  key={recipe.id}
+                  recipe={{
+                    image: recipe.photo || "https://via.placeholder.com/150",
+                    title: recipe.title,
+                    details: recipe.time || "5 stars | 15min",
+                  }}
+                  onPress={() =>
+                    navigateToRecipeDetails(recipe.id, recipe.title)
+                  }
+                />
               ))}
             </View>
           )}
         </ScrollView>
         <Text style={styles.sectionTitle}>Vegetarian Recipes</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.horizontalScroll}
+        >
           {vegetarianLoading ? (
-            <ActivityIndicator size="large" color={PRIMARY_COLOR} style={styles.loadingIndicator} />
+            <ActivityIndicator
+              size="large"
+              color={PRIMARY_COLOR}
+              style={styles.loadingIndicator}
+            />
           ) : (
             <View style={styles.recipeContainer}>
               {vegetarianRecipes.map((recipe) => (
-                <TouchableOpacity key={recipe.idMeal} onPress={() => navigateToRecipeDetails(null, recipe.strMeal)} style={styles.recipe}>
-                  <Image
-                    source={{ uri: recipe.strMealThumb || "https://via.placeholder.com/150" }}
-                    style={styles.recipeImage}
-                  />
-                  <Text style={styles.recipeTitle}>{recipe.strMeal}</Text>
-                </TouchableOpacity>
+                <SquareRecipeComponent
+                  key={recipe.idMeal}
+                  recipe={{
+                    image:
+                      recipe.strMealThumb || "https://via.placeholder.com/150",
+                    title: recipe.strMeal,
+                  }}
+                  onPress={() => navigateToRecipeDetails(null, recipe.strMeal)}
+                />
               ))}
             </View>
           )}
@@ -162,7 +231,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   header: {
-    marginBottom: 16,
+    marginBottom: 4,
   },
   greeting: {
     fontSize: 24,
@@ -173,7 +242,6 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 18,
     color: "#666",
-    marginBottom: 16,
   },
   tabContainer: {
     flexDirection: "row",
@@ -187,38 +255,8 @@ const styles = StyleSheet.create({
   activeTab: {
     color: PRIMARY_COLOR,
   },
-  trendingRecipe: {
-    marginBottom: 16,
-  },
-  trendingImage: {
-    width: "100%",
-    height: 200,
-    borderRadius: 8,
-  },
   recipeContainer: {
     flexDirection: "row",
-  },
-  recipe: {
-    width: 150,
-    marginRight: 16,
-  },
-  recipeImage: {
-    width: "100%",
-    height: 150,
-    borderRadius: 8,
-  },
-  recipeTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginVertical: 8,
-    color: PRIMARY_COLOR,
-  },
-  recipeDescription: {
-    fontSize: 14,
-    color: "#666",
-  },
-  horizontalScroll: {
-    marginBottom: 26,
   },
   sectionTitle: {
     fontSize: 18,
@@ -228,5 +266,9 @@ const styles = StyleSheet.create({
   },
   loadingIndicator: {
     marginTop: 16,
+  },
+  horizontalScroll: {
+    marginBottom: 16,
+    marginTop: 8,
   },
 });

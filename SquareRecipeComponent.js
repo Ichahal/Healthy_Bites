@@ -25,10 +25,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginVertical: 8,
+    color: "#333", // Adjusted font color
   },
   details: {
     fontSize: 14,
-    color: 'gray',
+    color: '#666', // Adjusted font color
   },
 });
 
