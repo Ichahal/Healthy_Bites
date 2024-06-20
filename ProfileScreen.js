@@ -282,65 +282,55 @@ const styles = StyleSheet.create({
   tab: {
     fontSize: 16,
     color: "#666",
-    padding: 8,
   },
   activeTab: {
-    color: "#ff6347",
     borderBottomWidth: 2,
     borderBottomColor: "#ff6347",
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    paddingBottom: 8,
   },
   recipeGrid: {
-    paddingTop: 16,
+    paddingHorizontal: 8,
   },
   recipeCard: {
-    flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#f0f0f0",
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    margin: 8,
-    padding: 8,
-    alignItems: "center",
-    justifyContent: "center",
+    marginBottom: 16,
+    marginHorizontal: 8,
+    flex: 1,
+    overflow: "hidden",
   },
   recipeImage: {
     width: "100%",
     height: 150,
-    borderRadius: 8,
-    marginBottom: 8,
+    resizeMode: "cover",
   },
   recipeDetails: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    padding: 8,
   },
   recipeTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    textAlign: "center",
     marginBottom: 4,
   },
   recipeDescription: {
     fontSize: 14,
     color: "#666",
-    textAlign: "center",
     marginBottom: 4,
   },
   recipeTime: {
     fontSize: 12,
     color: "#999",
-    textAlign: "center",
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   createRecipeButton: {
     backgroundColor: "#ff6347",
     padding: 10,
     borderRadius: 8,
-    marginTop: 10, // Adjust the margin top as needed
+    marginTop: 8,
   },
   createRecipeButtonText: {
     color: "#fff",
@@ -348,7 +338,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
+  menuText: {
+    fontSize: 20,
+    paddingHorizontal: 10,
+  },
 });
 
 export default ProfileScreen;
-
