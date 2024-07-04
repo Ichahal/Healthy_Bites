@@ -13,6 +13,7 @@ const SearchScreen = ({ route, navigation }) => {
   const initialSearchResults = route?.params?.searchResults || [];
   const [searchResults, setSearchResults] = useState(initialSearchResults);
   const [currentPage, setCurrentPage] = useState(1);
+  const [lastSearchQuery, setLastSearchQuery] = useState("");
   const resultsPerPage = 10;
 
   const totalPages = Math.ceil(searchResults.length / resultsPerPage);
@@ -27,6 +28,7 @@ const SearchScreen = ({ route, navigation }) => {
   };
 
   const handleSearch = async (query) => {
+    setLastSearchQuery(query);
     try {
       const response = await fetch(
         `https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`
@@ -42,20 +44,13 @@ const SearchScreen = ({ route, navigation }) => {
         setSearchResults(newSearchResults);
         setCurrentPage(1); // Reset page to 1 when new results are fetched
       } else {
-        const randomRecipesResponse = await fetch(
-          "https://www.themealdb.com/api/json/v1/1/filter.php?a=Random"
-        );
-        const randomRecipesData = await randomRecipesResponse.json();
-        const randomResults = randomRecipesData.meals.map((meal) => ({
-          id: meal.idMeal,
-          title: meal.strMeal,
-          photo: meal.strMealThumb,
-        }));
-        setSearchResults(randomResults);
-        setCurrentPage(1); // Reset page to 1 when new results are fetched
+        setSearchResults([]); // Handle no results case
+        setCurrentPage(1); // Reset page to 1 when no results are found
       }
     } catch (error) {
       console.error("Error searching recipes:", error);
+      setSearchResults([]); // Handle error case by showing no results
+      setCurrentPage(1); // Reset page to 1 when error occurs
     }
   };
 
@@ -82,7 +77,13 @@ const SearchScreen = ({ route, navigation }) => {
           ))
         ) : (
           <View style={styles.noResultsContainer}>
-            <Text style={styles.noResultsText}>No recipes found.</Text>
+            <Text style={styles.noResultsText}>
+                No recipes found for "{lastSearchQuery}" .
+                { "\n"}
+                Please try another
+              search term.
+              </Text>
+              
           </View>
         )}
       </ScrollView>
@@ -128,6 +129,7 @@ const styles = StyleSheet.create({
   noResultsText: {
     fontSize: 18,
     color: "#666",
+    textAlign: "center",
   },
   pagination: {
     flexDirection: "row",

@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import {Text, View, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+} from "react-native";
 
 const SearchBarComponent = ({ onSearch }) => {
   const [searchQuery, setSearchQuery] = useState("");

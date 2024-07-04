@@ -89,10 +89,10 @@ export default function HomeScreen({ user, setUser }) {
     fetchRandomRecipe();
   }, [isFocused, user, activeTab]);
 
-  const handleSearch = async () => {
+  const handleSearch = async (query) => {
     try {
       const response = await fetch(
-        `https://www.themealdb.com/api/json/v1/1/search.php?s=${searchQuery}`
+        `https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`
       );
       const data = await response.json();
       if (data.meals) {
@@ -104,19 +104,11 @@ export default function HomeScreen({ user, setUser }) {
         }));
         navigation.navigate("Search Screen", { searchResults });
       } else {
-        const randomRecipesResponse = await fetch(
-          "https://www.themealdb.com/api/json/v1/1/filter.php?a=Random"
-        );
-        const randomRecipesData = await randomRecipesResponse.json();
-        const randomResults = randomRecipesData.meals.map((meal) => ({
-          id: meal.idMeal,
-          title: meal.strMeal,
-          photo: meal.strMealThumb,
-        }));
-        navigation.navigate("Search Screen", { searchResults: randomResults });
+        navigation.navigate("Search Screen", { searchResults: [] });
       }
     } catch (error) {
       console.error("Error searching recipes:", error);
+      navigation.navigate("Search Screen", { searchResults: [] });
     }
   };
 
