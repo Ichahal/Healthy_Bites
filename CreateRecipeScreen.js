@@ -22,6 +22,7 @@ const CreateRecipeScreen = ({ user }) => {
   const [ingredients, setIngredients] = useState([{ amount: "", ingredient: "" }]);
   const [instructions, setInstructions] = useState([""]);
   const [photo, setPhoto] = useState(null);
+  const [uploadtime, setUploadTime] = useState("");
 
   const handleAddIngredient = () => {
     setIngredients([...ingredients, { amount: "", ingredient: "" }]);
@@ -56,6 +57,9 @@ const CreateRecipeScreen = ({ user }) => {
       return;
     }
 
+    const currentTimestamp = new Date().toISOString();
+    setUploadTime(currentTimestamp);
+
     const recipeData = {
       title,
       description,
@@ -63,6 +67,7 @@ const CreateRecipeScreen = ({ user }) => {
       ingredients,
       instructions,
       photo,
+      uploadtime: currentTimestamp,
       userId: user.email
     };
 
@@ -329,5 +334,3 @@ const styles = StyleSheet.create({
 });
 
 export default CreateRecipeScreen;
-
-   
