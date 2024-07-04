@@ -53,14 +53,17 @@ const SearchBarComponent = ({ onSearch, onQueryChange }) => {
     }
   };
 
-  const handleSearchPress = async () => {
-    await onSearch(
-      searchQuery,
-      selectedCategory,
-      selectedArea,
-      selectedIngredients
-    );
-  };
+const handleSearchPress = async () => {
+  await onSearch(
+    searchQuery,
+    selectedCategory,
+    selectedArea,
+    selectedIngredients
+  );
+  setFilterVisible(false); // Close modal after search
+  handleResetFilters(); // Reset filters after search
+};
+
 
   const toggleFilterTab = (tab) => {
     setSelectedTab(tab);

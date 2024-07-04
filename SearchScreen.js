@@ -104,7 +104,7 @@ const SearchScreen = () => {
         ) : (
           <View style={styles.noResultsContainer}>
             <Text style={styles.noResultsText}>
-              No recipes found for "{lastSearchQuery}". 
+              No match found for "{lastSearchQuery}", press search or change input.
             </Text>
           </View>
         )}
