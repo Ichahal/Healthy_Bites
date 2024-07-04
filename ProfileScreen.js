@@ -11,7 +11,6 @@ import { db } from "../Healthy_Bites/firebaseConfig";
 import { collection, getDocs, query } from 'firebase/firestore';
 import SquareRecipeComponent from "./SquareRecipeComponent";
 
-
 const Profile = ({ user, setUser }) => {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
@@ -107,7 +106,11 @@ const Profile = ({ user, setUser }) => {
         <View style={styles.tabsContainer}>
           <TouchableOpacity onPress={() => setActiveTab("Recipes")}>
             <Text
-              style={[styles.tab, activeTab === "Recipes" && styles.activeTab]}
+              style={[
+                styles.tab,
+                activeTab === "Recipes" && styles.activeTab,
+                activeTab === "Recipes" && styles.activeTabColor,
+              ]}
             >
               Recipes
             </Text>
@@ -117,6 +120,7 @@ const Profile = ({ user, setUser }) => {
               style={[
                 styles.tab,
                 activeTab === "Favorites" && styles.activeTab,
+                activeTab === "Favorites" && styles.activeTabColor,
               ]}
             >
               Favorites
@@ -342,11 +346,14 @@ const styles = StyleSheet.create({
   tab: {
     fontSize: 16,
     color: "#666",
+    paddingBottom: 8,
   },
   activeTab: {
     borderBottomWidth: 2,
     borderBottomColor: "#ff6347",
-    paddingBottom: 8,
+  },
+  activeTabColor: {
+    color: "#ff6347",
   },
   recipeGrid: {
     paddingHorizontal: 8,
