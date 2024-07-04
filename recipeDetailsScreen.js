@@ -11,49 +11,52 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
   const [isUserRecipe, setIsUserRecipe] = useState(false); // To track if the recipe is from user's collection
 
   useEffect(() => {
-    const fetchRecipeDetails = async () => {
+    console.log("RecipeDetailsScreen mounted with params:", route.params);
+    fetchRecipeDetails();
+  }, [route.params]);
+
+  const fetchRecipeDetails = async () => {
+    setLoading(true);
+    try {
       if (recipeId) {
-        try {
-          const docRef = doc(db, `users/${user.email}/ownRecipes`, recipeId);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            setRecipe(docSnap.data());
-            setIsUserRecipe(true);
-          } else {
-            console.log("No such document, fetching from API.");
-            setIsUserRecipe(false);
-            fetchRecipeFromAPI();
-          }
-        } catch (error) {
-          console.error("Error fetching recipe details:", error);
-        } finally {
-          setLoading(false);
+        const docRef = doc(db, `users/${user.email}/ownRecipes`, recipeId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setRecipe(docSnap.data());
+          setIsUserRecipe(true);
+        } else {
+          console.log("No such document, fetching from API.");
+          setIsUserRecipe(false);
+          await fetchRecipeFromAPI(recipeName);
         }
       } else {
-        fetchRecipeFromAPI();
+        await fetchRecipeFromAPI(recipeName);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching recipe details:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const fetchRecipeFromAPI = async () => {
-      try {
-        const response = await fetch(
-          `https://www.themealdb.com/api/json/v1/1/search.php?s=${recipeName}`
-        );
-        const data = await response.json();
-        if (data.meals && data.meals.length > 0) {
-          setRecipe(data.meals[0]);
-        } else {
-          console.log("Recipe not found in API.");
-        }
-      } catch (error) {
-        console.error("Error fetching recipe details:", error);
-      } finally {
-        setLoading(false);
+  const fetchRecipeFromAPI = async (recipeName) => {
+    try {
+      const response = await fetch(
+        `https://www.themealdb.com/api/json/v1/1/search.php?s=${recipeName}`
+      );
+      const data = await response.json();
+      if (data.meals && data.meals.length > 0) {
+        setRecipe(data.meals[0]);
+      } else {
+        console.log("Recipe not found in API.");
+        setRecipe(null); // Ensure recipe state is set appropriately
       }
-    };
-
-    fetchRecipeDetails();
-  }, [recipeId, recipeName]);
+    } catch (error) {
+      console.error("Error fetching recipe details:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleGoBack = () => {
     navigation.navigate("Home");

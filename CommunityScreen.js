@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, SafeAreaView, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { db } from './firebaseConfig';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 
 const PRIMARY_COLOR = '#FD5D69';
 
@@ -19,7 +19,17 @@ const CommunityScreen = ({ user }) => {
     setLoading(true);
     try {
       const querySnapshot = await getDocs(collection(db, 'Recipes'));
-      const fetchedRecipes = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const fetchedRecipes = [];
+      for (const doc of querySnapshot.docs) {
+        const recipeData = doc.data();
+        // Fetch user profile details based on userId
+        const userData = await fetchUserProfile(recipeData.userId);
+        fetchedRecipes.push({
+          id: doc.id,
+          ...recipeData,
+          user: userData
+        });
+      }
       setRecipes(fetchedRecipes);
     } catch (error) {
       console.error('Error fetching recipes:', error);
@@ -28,29 +38,41 @@ const CommunityScreen = ({ user }) => {
     }
   };
 
-  const navigateToRecipeDetails = (recipeId, recipeName) => {
-    if (user && user.email) {
-      navigation.navigate('Recipe Details Screen', {
-        recipeId,
-        recipeName,
-        user,
-      });
-    } else {
-      console.warn('User is not authenticated.');
+  const fetchUserProfile = async (userId) => {
+    try {
+      const userDoc = await getDoc(doc(db, 'users', userId));
+      if (userDoc.exists()) {
+        return userDoc.data();
+      } else {
+        console.warn(`User with ID ${userId} not found`);
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      return null;
     }
   };
 
+  const navigateToRecipeDetails = (recipeId, recipeName, recipeUser) => {
+    navigation.navigate('Recipe Details Screen', {
+      recipeId,
+      recipeName,
+      recipeUser,
+      user, // Pass the user object to Recipe Details Screen
+    });
+  };
+
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.recipeContainer} onPress={() => navigateToRecipeDetails(item.id, item.title)}>
+    <TouchableOpacity style={styles.recipeContainer} onPress={() => navigateToRecipeDetails(item.id, item.title, item.user)}>
       <Image source={{ uri: item.photo }} style={styles.recipeImage} />
       <View style={styles.recipeInfo}>
         <Text style={styles.recipeTitle}>{item.title}</Text>
         <Text style={styles.recipeDetails}>{item.description}</Text>
         <Text style={styles.recipeTime}>Time: {item.time}</Text>
-        {user && (
+        {item.user && (
           <View style={styles.profileContainer}>
-            <Image source={{ uri: user.profilePictureUrl }} style={styles.userProfileImage} />
-            <Text style={styles.userName}>{user.name}</Text>
+            <Image source={{ uri: item.user.profilePictureUrl }} style={styles.userProfileImage} />
+            <Text style={styles.userName}>{item.user.name}</Text>
           </View>
         )}
       </View>
