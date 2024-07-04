@@ -36,9 +36,7 @@ const CommunityScreen = ({ user }) => {
         user,
       });
     } else {
-      // Handle the case where user is not defined or authenticated
       console.warn('User is not authenticated.');
-      // Optionally, you can navigate to a login screen or handle the navigation differently
     }
   };
 
@@ -49,6 +47,12 @@ const CommunityScreen = ({ user }) => {
         <Text style={styles.recipeTitle}>{item.title}</Text>
         <Text style={styles.recipeDetails}>{item.description}</Text>
         <Text style={styles.recipeTime}>Time: {item.time}</Text>
+        {user && (
+          <View style={styles.profileContainer}>
+            <Image source={{ uri: user.profilePictureUrl }} style={styles.userProfileImage} />
+            <Text style={styles.userName}>{user.name}</Text>
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -60,7 +64,6 @@ const CommunityScreen = ({ user }) => {
           <Text style={styles.heading}>Community Recipes</Text>
         </View>
 
-        {/* <Text style={styles.sectionTitle}>All Recipes</Text> */}
         {loading ? (
           <ActivityIndicator
             size="large"
@@ -100,11 +103,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: PRIMARY_COLOR,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
   loadingIndicator: {
     marginTop: 16,
   },
@@ -131,7 +129,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   recipeTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 4,
   },
@@ -142,6 +140,25 @@ const styles = StyleSheet.create({
   recipeTime: {
     fontSize: 12,
     color: '#333',
+  },
+  flatListContainer: {
+    paddingVertical: 8,
+  },
+  profileContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 18,
+    marginRight: 10
+  },
+  userProfileImage: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginRight: 8,
+  },
+  userName: {
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });
 

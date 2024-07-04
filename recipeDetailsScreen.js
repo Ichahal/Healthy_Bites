@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  ScrollView,
-  ActivityIndicator,
-  StatusBar,
-} from "react-native";
+import { View, Text, StyleSheet, Image, ScrollView, ActivityIndicator, StatusBar } from "react-native";
 import { db } from "./firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
@@ -109,10 +101,10 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
               </View>
               <View style={styles.userContainer}>
                 <Image
-                  source={{ uri: "https://via.placeholder.com/150" }}
+                  source={{ uri: user.profilePictureUrl || "https://via.placeholder.com/150" }}
                   style={styles.userImage}
                 />
-                <Text style={styles.username}>Author</Text>
+                <Text style={styles.username}>{user.name || "Anonymous"}</Text>
               </View>
               <View style={styles.detailsContainer}>
                 <Text style={styles.cookTime}>
