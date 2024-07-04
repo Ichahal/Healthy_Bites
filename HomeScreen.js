@@ -21,11 +21,12 @@ export default function HomeScreen({ user, setUser }) {
   const isFocused = useIsFocused();
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [vegetarianRecipes, setVegetarianRecipes] = useState([]);
-  const [vegetarianLoading, setVegetarianLoading] = useState(false);
   const [randomRecipe, setRandomRecipe] = useState(null);
   const [randomRecipeLoading, setRandomRecipeLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedArea, setSelectedArea] = useState("");
+  const [selectedIngredients, setSelectedIngredients] = useState([]);
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState("Starter"); // Default active tab
   const [tabRecipes, setTabRecipes] = useState([]);
@@ -89,28 +90,46 @@ export default function HomeScreen({ user, setUser }) {
     fetchRandomRecipe();
   }, [isFocused, user, activeTab]);
 
-  const handleSearch = async (query) => {
-    try {
-      const response = await fetch(
-        `https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`
-      );
-      const data = await response.json();
-      if (data.meals) {
-        const searchResults = data.meals.map((meal) => ({
-          id: meal.idMeal,
-          title: meal.strMeal,
-          photo: meal.strMealThumb,
-          instructions: meal.strInstructions,
-        }));
-        navigation.navigate("Search Screen", { searchResults });
-      } else {
-        navigation.navigate("Search Screen", { searchResults: [] });
-      }
-    } catch (error) {
-      console.error("Error searching recipes:", error);
+  const handleQueryChange = (text) => {
+    setSearchQuery(text);
+  };
+
+
+const handleSearch = async (query) => {
+  let url = `https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`;
+
+  if (selectedCategory) {
+    url = `https://www.themealdb.com/api/json/v1/1/filter.php?c=${selectedCategory}`;
+  }
+  if (selectedArea) {
+    url = `https://www.themealdb.com/api/json/v1/1/filter.php?a=${selectedArea}`;
+  }
+  if (selectedIngredients.length > 0) {
+    url = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${selectedIngredients.join(
+      ","
+    )}`;
+  }
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    if (data.meals) {
+      const searchResults = data.meals.map((meal) => ({
+        id: meal.idMeal,
+        title: meal.strMeal,
+        photo: meal.strMealThumb,
+        instructions: meal.strInstructions,
+      }));
+      navigation.navigate("Search Screen", { searchResults });
+    } else {
       navigation.navigate("Search Screen", { searchResults: [] });
     }
-  };
+  } catch (error) {
+    console.error("Error searching recipes:", error);
+    navigation.navigate("Search Screen", { searchResults: [] });
+  }
+};
+
 
   const userName = user.name;
 
@@ -142,6 +161,13 @@ export default function HomeScreen({ user, setUser }) {
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           onSearch={handleSearch}
+          onQueryChange={handleQueryChange}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          selectedArea={selectedArea}
+          setSelectedArea={setSelectedArea}
+          selectedIngredients={selectedIngredients}
+          setSelectedIngredients={setSelectedIngredients}
         />
 
         <View style={styles.tabContainer}>
@@ -296,18 +322,17 @@ const styles = StyleSheet.create({
   },
   recipeContainer: {
     flexDirection: "row",
+    marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
     marginBottom: 8,
-    color: PRIMARY_COLOR,
-  },
-  loadingIndicator: {
-    marginTop: 16,
   },
   horizontalScroll: {
     marginBottom: 16,
-    marginTop: 8,
+  },
+  loadingIndicator: {
+    marginTop: 16,
   },
 });

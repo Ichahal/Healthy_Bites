@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-const SearchBarComponent = ({ onSearch }) => {
+const SearchBarComponent = ({ onSearch, onQueryChange }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterVisible, setFilterVisible] = useState(false);
   const [selectedTab, setSelectedTab] = useState("category");
@@ -32,22 +32,18 @@ const SearchBarComponent = ({ onSearch }) => {
         "https://www.themealdb.com/api/json/v1/1/categories.php"
       );
       const categoryData = await categoryResponse.json();
-
       setCategories(categoryData.categories);
 
       const areaResponse = await fetch(
         "https://www.themealdb.com/api/json/v1/1/list.php?a=list"
       );
       const areaData = await areaResponse.json();
-
       setAreas(areaData.meals);
 
       const ingredientResponse = await fetch(
         "https://www.themealdb.com/api/json/v1/1/list.php?i=list"
       );
       const ingredientData = await ingredientResponse.json();
-
-      // Sort ingredients alphabetically by name
       const sortedIngredients = ingredientData.meals.sort((a, b) =>
         a.strIngredient.localeCompare(b.strIngredient)
       );
@@ -68,27 +64,39 @@ const SearchBarComponent = ({ onSearch }) => {
 
   const toggleFilterTab = (tab) => {
     setSelectedTab(tab);
-    // Deselect previous selection when changing tabs
     setSelectedCategory("");
     setSelectedArea("");
     setSelectedIngredients([]);
   };
 
   const toggleFilter = (filterType) => {
-    if (selectedTab === "ingredients") {
-      const index = selectedIngredients.indexOf(filterType);
-      if (index === -1) {
-        setSelectedIngredients([...selectedIngredients, filterType]);
-      } else {
-        setSelectedIngredients(
-          selectedIngredients.filter((item) => item !== filterType)
-        );
-      }
-    } else if (selectedTab === "category") {
-      setSelectedCategory(selectedCategory === filterType ? "" : filterType);
-    } else if (selectedTab === "area") {
-      setSelectedArea(selectedArea === filterType ? "" : filterType);
+    switch (selectedTab) {
+      case "ingredients":
+        const index = selectedIngredients.indexOf(filterType);
+        if (index === -1) {
+          setSelectedIngredients([...selectedIngredients, filterType]);
+        } else {
+          setSelectedIngredients(
+            selectedIngredients.filter((item) => item !== filterType)
+          );
+        }
+        break;
+      case "category":
+        setSelectedCategory(selectedCategory === filterType ? "" : filterType);
+        break;
+      case "area":
+        setSelectedArea(selectedArea === filterType ? "" : filterType);
+        break;
+      default:
+        break;
     }
+  };
+
+  const handleResetFilters = () => {
+    setSelectedCategory("");
+    setSelectedArea("");
+    setSelectedIngredients([]);
+    setFilterVisible(false);
   };
 
   return (
@@ -97,7 +105,10 @@ const SearchBarComponent = ({ onSearch }) => {
         style={styles.searchBar}
         placeholder="Search recipes..."
         value={searchQuery}
-        onChangeText={(text) => setSearchQuery(text)}
+        onChangeText={(text) => {
+          setSearchQuery(text);
+          onQueryChange(text);
+        }}
       />
       <TouchableOpacity style={styles.iconButton} onPress={handleSearchPress}>
         <Ionicons name="search" size={24} color="#FF6347" />
@@ -209,13 +220,8 @@ const SearchBarComponent = ({ onSearch }) => {
 
             <View style={styles.modalButtonContainer}>
               <Button
-                title="Cancel"
-                onPress={() => {
-                  setSelectedCategory("");
-                  setSelectedArea("");
-                  setSelectedIngredients([]);
-                  setFilterVisible(false);
-                }}
+                title="Reset"
+                onPress={handleResetFilters}
                 color="#FF6347"
               />
               <Button
@@ -282,7 +288,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 16,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: "#555",
   },
   tabContent: {
@@ -302,7 +308,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   selectedFilterOption: {
-    backgroundColor: "#FF6347", 
+    backgroundColor: "#FF6347",
   },
   filterOptionText: {
     fontSize: 16,

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,16 +9,16 @@ import {
 import SearchRecipeComponent from "./SearchRecipeComponent";
 import SearchBarComponent from "./SearchBarComponent";
 
-const SearchScreen = ({ route, navigation }) => {
-  const initialSearchResults = route?.params?.searchResults || [];
-  const [searchResults, setSearchResults] = useState(initialSearchResults);
+const SearchScreen = () => {
+  const [searchResults, setSearchResults] = useState([]);
+  const [filteredResults, setFilteredResults] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastSearchQuery, setLastSearchQuery] = useState("");
   const resultsPerPage = 10;
 
-  const totalPages = Math.ceil(searchResults.length / resultsPerPage);
+  const totalPages = Math.ceil(filteredResults.length / resultsPerPage);
   const startIndex = (currentPage - 1) * resultsPerPage;
-  const currentResults = searchResults.slice(
+  const currentResults = filteredResults.slice(
     startIndex,
     startIndex + resultsPerPage
   );
@@ -37,7 +37,9 @@ const SearchScreen = ({ route, navigation }) => {
       } else if (area) {
         url = `https://www.themealdb.com/api/json/v1/1/filter.php?a=${area}`;
       } else if (ingredients.length > 0) {
-        url = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredients.join(",")}`;
+        url = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredients.join(
+          ","
+        )}`;
       }
 
       const response = await fetch(url);
@@ -51,21 +53,36 @@ const SearchScreen = ({ route, navigation }) => {
           instructions: meal.strInstructions,
         }));
         setSearchResults(newSearchResults);
+        setFilteredResults(newSearchResults);
         setCurrentPage(1); // Reset page to 1 when new results are fetched
       } else {
         setSearchResults([]); // Handle no results case
+        setFilteredResults([]);
         setCurrentPage(1); // Reset page to 1 when no results are found
       }
     } catch (error) {
       console.error("Error searching recipes:", error);
       setSearchResults([]); // Handle error case
+      setFilteredResults([]);
       setCurrentPage(1); // Reset page to 1 when an error occurs
     }
   };
 
+  const handleQueryChange = (query) => {
+    setLastSearchQuery(query);
+    const filtered = searchResults.filter((result) =>
+      result.title.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredResults(filtered);
+    setCurrentPage(1); // Reset to the first page of the filtered results
+  };
+
   return (
     <View style={styles.container}>
-      <SearchBarComponent onSearch={handleSearch} />
+      <SearchBarComponent
+        onSearch={handleSearch}
+        onQueryChange={handleQueryChange}
+      />
       <ScrollView>
         {currentResults.length > 0 ? (
           currentResults.map((recipe) => (
@@ -87,7 +104,7 @@ const SearchScreen = ({ route, navigation }) => {
         ) : (
           <View style={styles.noResultsContainer}>
             <Text style={styles.noResultsText}>
-              No recipes found for "{lastSearchQuery}". Please try another search term.
+              No recipes found for "{lastSearchQuery}". 
             </Text>
           </View>
         )}
