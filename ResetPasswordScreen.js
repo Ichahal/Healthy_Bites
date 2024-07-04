@@ -1,26 +1,21 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
 import { Input, Button, Icon } from 'react-native-elements';
-import { updatePasswordInDatabase } from './firebase/auth'; // Ensure this path is correct
+import { sendPasswordReset } from './firebase/auth'; // Ensure this path is correct
 
 export default function ResetPasswordScreen({ route, navigation }) {
-  const { email, otp: expectedOtp } = route.params;
+  const { email } = route.params;
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
-  const handleResetPassword = async () => {
-    if (otp !== expectedOtp) {
-      Alert.alert("Error", "Invalid OTP.");
-      return;
-    }
-
+  const handleSendPasswordReset = async () => {
     try {
-      await updatePasswordInDatabase(email, newPassword);
-      Alert.alert("Success", "Password reset successfully.");
+      await sendPasswordReset(email);
+      Alert.alert("Success", "Password reset email sent. Please check your inbox.");
       navigation.navigate('Login');
     } catch (error) {
-      console.error("Error resetting password:", error);
-      Alert.alert("Error", "Failed to reset password. Please try again.");
+      console.error("Error sending password reset email:", error);
+      Alert.alert("Error", "Failed to send password reset email. Please try again.");
     }
   };
 
@@ -35,17 +30,9 @@ export default function ResetPasswordScreen({ route, navigation }) {
         keyboardType="numeric"
         containerStyle={styles.input}
       />
-      <Input
-        placeholder="New Password"
-        leftIcon={<Icon name="lock" size={24} color="#FD5D69" />}
-        onChangeText={(value) => setNewPassword(value)}
-        value={newPassword}
-        secureTextEntry={true}
-        containerStyle={styles.input}
-      />
       <Button
-        title="Reset Password"
-        onPress={handleResetPassword}
+        title="Send Password Reset Email"
+        onPress={handleSendPasswordReset}
         buttonStyle={styles.button}
       />
     </View>

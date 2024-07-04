@@ -1,7 +1,6 @@
 import { auth } from "../firebaseConfig";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { addUser, select, updateUserPassword } from "./firestore"; 
-import { updatePassword as updatePasswordAuth } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
+import { addUser, select } from "./firestore"; 
 
 const signup = async (email, password, name, dob, mobile) => {
   try {
@@ -49,20 +48,14 @@ const signout = async () => {
   }
 };
 
-
-const updatePasswordInDatabase = async (email, newPassword) => {
+const sendPasswordReset = async (email) => {
   try {
-    const user = auth.currentUser;
-    if (!user) {
-      throw new Error("No user logged in");
-    }
-    await updatePassword(user, newPassword);
-    await updateUserPassword(email, newPassword);
-    console.log("Password updated successfully in Firebase and Firestore");
+    await sendPasswordResetEmail(auth, email);
+    console.log("Password reset email sent successfully");
   } catch (error) {
-    console.error("Error updating password:", error);
+    console.error("Error sending password reset email:", error);
     throw error;
   }
 };
 
-export { signup, signin, signout, updatePasswordInDatabase };
+export { signup, signin, signout, sendPasswordReset };
