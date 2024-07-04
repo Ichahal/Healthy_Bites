@@ -8,6 +8,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
   const { recipeId, recipeName, user } = route.params;
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isUserRecipe, setIsUserRecipe] = useState(false); // To track if the recipe is from user's collection
 
   useEffect(() => {
     const fetchRecipeDetails = async () => {
@@ -17,8 +18,11 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             setRecipe(docSnap.data());
+            setIsUserRecipe(true);
           } else {
-            console.log("No such document!");
+            console.log("No such document, fetching from API.");
+            setIsUserRecipe(false);
+            fetchRecipeFromAPI();
           }
         } catch (error) {
           console.error("Error fetching recipe details:", error);
@@ -26,17 +30,25 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
           setLoading(false);
         }
       } else {
-        try {
-          const response = await fetch(
-            `https://www.themealdb.com/api/json/v1/1/search.php?s=${recipeName}`
-          );
-          const data = await response.json();
+        fetchRecipeFromAPI();
+      }
+    };
+
+    const fetchRecipeFromAPI = async () => {
+      try {
+        const response = await fetch(
+          `https://www.themealdb.com/api/json/v1/1/search.php?s=${recipeName}`
+        );
+        const data = await response.json();
+        if (data.meals && data.meals.length > 0) {
           setRecipe(data.meals[0]);
-        } catch (error) {
-          console.error("Error fetching recipe details:", error);
-        } finally {
-          setLoading(false);
+        } else {
+          console.log("Recipe not found in API.");
         }
+      } catch (error) {
+        console.error("Error fetching recipe details:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -99,13 +111,23 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                   <Text style={styles.views}>{recipe.time || "15 min"}</Text>
                 </View>
               </View>
-              <View style={styles.userContainer}>
-                <Image
-                  source={{ uri: user.profilePictureUrl || "https://via.placeholder.com/150" }}
-                  style={styles.userImage}
-                />
-                <Text style={styles.username}>{user.name || "Anonymous"}</Text>
-              </View>
+              {isUserRecipe ? (
+                <View style={styles.userContainer}>
+                  <Image
+                    source={{ uri: user.profilePictureUrl || "https://via.placeholder.com/150" }}
+                    style={styles.userImage}
+                  />
+                  <Text style={styles.username}>{user.name || "Anonymous"}</Text>
+                </View>
+              ) : (
+                <View style={styles.userContainer}>
+                  <Image
+                    source={{ uri: "https://via.placeholder.com/150" }}
+                    style={styles.userImage}
+                  />
+                  <Text style={styles.username}>Random Author</Text>
+                </View>
+              )}
               <View style={styles.detailsContainer}>
                 <Text style={styles.cookTime}>
                   Time: {recipe.strCookTime || "30 minutes"}
