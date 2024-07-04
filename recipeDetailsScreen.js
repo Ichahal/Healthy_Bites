@@ -55,6 +55,30 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     navigation.navigate("Home");
   };
 
+  const renderIngredients = (recipe) => {
+    const ingredients = [];
+    for (let i = 1; i <= 20; i++) {
+      if (recipe[`strIngredient${i}`]) {
+        ingredients.push(
+          `${recipe[`strIngredient${i}`]} - ${recipe[`strMeasure${i}`] || ""}`
+        );
+      }
+    }
+    return ingredients.map((ingredient, index) => (
+      <Text key={index} style={styles.ingredient}>
+        {ingredient}
+      </Text>
+    ));
+  };
+
+  const renderCustomIngredients = (ingredients) => {
+    return ingredients.map((ingredientObj, index) => (
+      <Text key={index} style={styles.ingredient}>
+        {ingredientObj.amount} {ingredientObj.ingredient}
+      </Text>
+    ));
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -92,7 +116,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
               </View>
               <View style={styles.detailsContainer}>
                 <Text style={styles.cookTime}>
-                  Time: 30 minutes {recipe.strCookTime || recipe.time}
+                  Time: {recipe.strCookTime || "30 minutes"}
                 </Text>
                 <Text style={styles.detailsHeader}>Details</Text>
                 <Text style={styles.details}>
@@ -101,15 +125,11 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
               </View>
               <View style={styles.ingredientsContainer}>
                 <Text style={styles.ingredientsTitle}>Ingredients</Text>
-                {Object.keys(recipe)
-                  .filter(
-                    (key) => key.startsWith("strIngredient") && recipe[key]
-                  )
-                  .map((key, index) => (
-                    <Text key={index} style={styles.ingredient}>
-                      {recipe[key]}
-                    </Text>
-                  ))}
+                {recipeId ? (
+                  renderCustomIngredients(recipe.ingredients || [])
+                ) : (
+                  renderIngredients(recipe)
+                )}
               </View>
             </>
           ) : (
@@ -128,7 +148,7 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     flexGrow: 1,
-    padding:16,
+    padding: 16,
   },
   loadingContainer: {
     flex: 1,
