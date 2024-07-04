@@ -27,13 +27,22 @@ const SearchScreen = ({ route, navigation }) => {
     setCurrentPage(pageNumber);
   };
 
-  const handleSearch = async (query) => {
+  const handleSearch = async (query, category, area, ingredients) => {
     setLastSearchQuery(query);
     try {
-      const response = await fetch(
-        `https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`
-      );
+      let url = `https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`;
+
+      if (category) {
+        url = `https://www.themealdb.com/api/json/v1/1/filter.php?c=${category}`;
+      } else if (area) {
+        url = `https://www.themealdb.com/api/json/v1/1/filter.php?a=${area}`;
+      } else if (ingredients.length > 0) {
+        url = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredients.join(",")}`;
+      }
+
+      const response = await fetch(url);
       const data = await response.json();
+
       if (data.meals) {
         const newSearchResults = data.meals.map((meal) => ({
           id: meal.idMeal,
@@ -49,8 +58,8 @@ const SearchScreen = ({ route, navigation }) => {
       }
     } catch (error) {
       console.error("Error searching recipes:", error);
-      setSearchResults([]); // Handle error case by showing no results
-      setCurrentPage(1); // Reset page to 1 when error occurs
+      setSearchResults([]); // Handle error case
+      setCurrentPage(1); // Reset page to 1 when an error occurs
     }
   };
 
@@ -78,12 +87,8 @@ const SearchScreen = ({ route, navigation }) => {
         ) : (
           <View style={styles.noResultsContainer}>
             <Text style={styles.noResultsText}>
-                No recipes found for "{lastSearchQuery}" .
-                { "\n"}
-                Please try another
-              search term.
-              </Text>
-              
+              No recipes found for "{lastSearchQuery}". Please try another search term.
+            </Text>
           </View>
         )}
       </ScrollView>
