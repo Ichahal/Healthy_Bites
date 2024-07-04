@@ -1,39 +1,63 @@
-import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { Input, Button, Icon } from 'react-native-elements';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { Input, Button, Icon, CheckBox } from 'react-native-elements';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StatusBar } from 'expo-status-bar';
 import { signin } from './firebase/auth';
-import { Alert } from 'react-native';
-import MainScreen from "./MainScreen"
-
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
 
-const handleLogin = async () => {
-  try {
-    const { userCredential, userDetails } = await signin(email, password);
-    if (userCredential && userDetails) {
-      navigation.navigate("Main", { user: userDetails }); 
+  useEffect(() => {
+    const loadCredentials = async () => {
+      try {
+        const savedEmail = await AsyncStorage.getItem('email');
+        const savedPassword = await AsyncStorage.getItem('password');
+        if (savedEmail && savedPassword) {
+          setEmail(savedEmail);
+          setPassword(savedPassword);
+          setRememberMe(true);
+          handleLogin(savedEmail, savedPassword);
+        }
+      } catch (error) {
+        console.error('Error loading credentials:', error);
+      }
+    };
+    loadCredentials();
+  }, []);
+
+  const handleLogin = async (emailParam = email, passwordParam = password) => {
+    try {
+      const { userCredential, userDetails } = await signin(emailParam, passwordParam);
+      if (userCredential && userDetails) {
+        if (rememberMe) {
+          await AsyncStorage.setItem('email', emailParam);
+          await AsyncStorage.setItem('password', passwordParam);
+        } else {
+          await AsyncStorage.removeItem('email');
+          await AsyncStorage.removeItem('password');
+        }
+        navigation.navigate("Main", { user: userDetails });
+      }
+    } catch (error) {
+      console.error(error);
+      switch (error.code) {
+        case "auth/invalid-email":
+          Alert.alert("Login Failed", "Invalid email format.");
+          break;
+        case "auth/user-not-found":
+          Alert.alert("Login Failed", "No user found with this email.");
+          break;
+        case "auth/wrong-password":
+          Alert.alert("Login Failed", "Incorrect password.");
+          break;
+        default:
+          Alert.alert("Login Failed");
+      }
     }
-  } catch (error) {
-    console.error(error);
-    switch (error.code) {
-      case "auth/invalid-email":
-        Alert.alert("Login Failed", "Invalid email format.");
-        break;
-      case "auth/user-not-found":
-        Alert.alert("Login Failed", "No user found with this email.");
-        break;
-      case "auth/wrong-password":
-        Alert.alert("Login Failed", "Incorrect password.");
-        break;
-      default:
-        Alert.alert("Login Failed");
-    }
-  }
-};
+  };
 
   return (
     <View style={styles.container}>
@@ -56,13 +80,22 @@ const handleLogin = async () => {
         secureTextEntry={true}
         containerStyle={styles.input}
       />
+      <CheckBox
+        title="Remember Me"
+        checked={rememberMe}
+        onPress={() => setRememberMe(!rememberMe)}
+        containerStyle={styles.checkbox}
+      />
       <Button
         title="Login"
-        onPress={handleLogin}
+        onPress={() => handleLogin()}
         buttonStyle={[styles.button]}
       />
       <TouchableOpacity onPress={() => navigation.navigate("Register")}>
         <Text style={styles.link}>Register</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate("Forgot Password")}>
+        <Text style={styles.link}>Forgot Password?</Text>
       </TouchableOpacity>
       <StatusBar style="auto" />
     </View>
@@ -91,6 +124,11 @@ const styles = StyleSheet.create({
   input: {
     marginBottom: 20,
   },
+  checkbox: {
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    marginBottom: 16,
+  },
   button: {
     marginTop: 16,
     backgroundColor: "#FD5D69",
@@ -102,5 +140,3 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-
-

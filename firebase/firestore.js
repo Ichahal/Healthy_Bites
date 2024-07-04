@@ -91,4 +91,17 @@ const selectRecipesForUser = async (userEmail) => {
   }
 };
 
-export { addUser, add, delDoc, update, select, updateUser, selectRecipesForUser };
+
+const updateUserPassword = async (email, newPassword) => {
+  const userRef = doc(db, "users", email.toLowerCase());
+  try {
+    await updateDoc(userRef, {
+      password: newPassword
+    });
+    console.log("Password updated successfully in Firestore");
+  } catch (error) {
+    console.error("Error updating password in Firestore:", error);
+    throw error;
+  }
+};
+export { addUser, add, delDoc, update, select, updateUser, selectRecipesForUser,updateUserPassword };

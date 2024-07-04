@@ -7,10 +7,12 @@ import Register from "./Register";
 import MainScreen from "./MainScreen";
 import RecipeDetailsScreen from "./recipeDetailsScreen";
 import SearchScreen from "./SearchScreen";
+import ForgotPasswordScreen from "./ForgotPasswordScreen";
+import ResetPasswordScreen from "./ResetPasswordScreen";
 
 const Stack = createStackNavigator();
 
-export default function App() {
+export default function AppNavigator() {
   const [splashVisible, setSplashVisible] = React.useState(true);
 
   React.useEffect(() => {
@@ -43,6 +45,8 @@ export default function App() {
           component={RecipeDetailsScreen}
         />
         <Stack.Screen name="Search Screen" component={SearchScreen}  />
+        <Stack.Screen name="Forgot Password" component={ForgotPasswordScreen} />
+        <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

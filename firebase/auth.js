@@ -1,6 +1,7 @@
 import { auth } from "../firebaseConfig";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { addUser, select } from "./firestore"; 
+import { addUser, select, updateUserPassword } from "./firestore"; 
+import { updatePassword as updatePasswordAuth } from "firebase/auth";
 
 const signup = async (email, password, name, dob, mobile) => {
   try {
@@ -48,4 +49,20 @@ const signout = async () => {
   }
 };
 
-export { signup, signin, signout };
+
+const updatePasswordInDatabase = async (email, newPassword) => {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error("No user logged in");
+    }
+    await updatePassword(user, newPassword);
+    await updateUserPassword(email, newPassword);
+    console.log("Password updated successfully in Firebase and Firestore");
+  } catch (error) {
+    console.error("Error updating password:", error);
+    throw error;
+  }
+};
+
+export { signup, signin, signout, updatePasswordInDatabase };
