@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { db } from './firebaseConfig';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
@@ -33,6 +33,7 @@ const CommunityScreen = ({ user }) => {
       setRecipes(fetchedRecipes);
     } catch (error) {
       console.error('Error fetching recipes:', error);
+      Alert.alert('Error', 'Failed to fetch recipes. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -64,7 +65,11 @@ const CommunityScreen = ({ user }) => {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.recipeContainer} onPress={() => navigateToRecipeDetails(item.id, item.title, item.user)}>
-      <Image source={{ uri: item.photo }} style={styles.recipeImage} />
+      {item.photo ? (
+        <Image source={{ uri: item.photo }} style={styles.recipeImage} />
+      ) : (
+        <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.recipeImage} />
+      )}
       <View style={styles.recipeInfo}>
         <Text style={styles.recipeTitle}>{item.title}</Text>
         <Text style={styles.recipeDetails}>{item.description}</Text>
@@ -78,6 +83,7 @@ const CommunityScreen = ({ user }) => {
       </View>
     </TouchableOpacity>
   );
+  
 
   return (
     <SafeAreaView style={styles.safeContainer}>
@@ -98,6 +104,9 @@ const CommunityScreen = ({ user }) => {
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.flatListContainer}
+            ListEmptyComponent={() => (
+              <Text style={styles.emptyText}>No recipes found.</Text>
+            )}
           />
         )}
       </View>
@@ -181,6 +190,12 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  emptyText: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    color: '#666',
   },
 });
 
