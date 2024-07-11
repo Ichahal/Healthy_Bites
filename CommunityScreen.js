@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 18,
-    marginRight: 10
+    marginRight: 10,
   },
   userProfileImage: {
     width: 30,

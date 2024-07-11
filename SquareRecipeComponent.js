@@ -1,7 +1,8 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import React from "react";
+import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 
 const SquareRecipeComponent = ({ recipe, onPress }) => {
+  console.log("Recipe in SquareRecipeComponent:", recipe); // Log the recipe prop to verify
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
       <Image source={{ uri: recipe.image }} style={styles.image} />
@@ -13,23 +14,22 @@ const SquareRecipeComponent = ({ recipe, onPress }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginRight: 16,
     width: 150,
+    marginRight: 16,
   },
   image: {
-    width: '100%',
-    height: 100,
+    width: 150,
+    height: 150,
     borderRadius: 8,
+    marginBottom: 8,
   },
   title: {
     fontSize: 16,
-    fontWeight: 'bold',
-    marginVertical: 8,
-    color: "#333", // Adjusted font color
+    fontWeight: "bold",
   },
   details: {
     fontSize: 14,
-    color: '#666', // Adjusted font color
+    color: "#666",
   },
 });
 

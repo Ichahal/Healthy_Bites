@@ -77,7 +77,7 @@ const CreateRecipeScreen = ({ user }) => {
 
       // Add recipe to user's "ownRecipes" subcollection
       const userOwnRecipesRef = doc(db, `users/${user.email.toLowerCase()}/ownRecipes`, recipeRef.id);
-      await setDoc(userOwnRecipesRef, recipeData);
+    await setDoc(userOwnRecipesRef, recipeData);
 
       Alert.alert("Success", "Recipe published!");
       navigation.goBack();
