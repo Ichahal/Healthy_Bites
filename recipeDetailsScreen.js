@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, ScrollView, ActivityIndicator, StatusBar } from "react-native";
+import { View, Text, StyleSheet, Image, ScrollView, ActivityIndicator, StatusBar, Alert } from "react-native";
 import { db } from "./firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
@@ -17,9 +17,10 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
 
   const fetchRecipeDetails = async () => {
     setLoading(true);
+    console.log("recipeId", recipeId);
     try {
       if (recipeId) {
-        const docRef = doc(db, `users/${user.email}/ownRecipes`, recipeId);
+        const docRef = doc(db, `Recipes`, recipeId);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setRecipe(docSnap.data());
@@ -34,6 +35,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
       }
     } catch (error) {
       console.error("Error fetching recipe details:", error);
+      Alert.alert('Error', 'Failed to fetch recipe details. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -53,6 +55,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
       }
     } catch (error) {
       console.error("Error fetching recipe details:", error);
+      Alert.alert('Error', 'Failed to fetch recipe details from API.');
     } finally {
       setLoading(false);
     }

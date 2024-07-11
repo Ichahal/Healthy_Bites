@@ -55,6 +55,7 @@ const CommunityScreen = ({ user }) => {
   };
 
   const navigateToRecipeDetails = (recipeId, recipeName, recipeUser) => {
+    console.log("recipeId", recipeId);
     navigation.navigate('Recipe Details Screen', {
       recipeId,
       recipeName,

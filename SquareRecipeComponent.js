@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 
 const SquareRecipeComponent = ({ recipe, onPress }) => {
-  console.log("Recipe in SquareRecipeComponent:", recipe); // Log the recipe prop to verify
+  // console.log("Recipe in SquareRecipeComponent:", recipe); // Log the recipe prop to verify
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
       <Image source={{ uri: recipe.image }} style={styles.image} />
