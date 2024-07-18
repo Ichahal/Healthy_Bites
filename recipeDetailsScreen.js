@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, ScrollView, ActivityIndicator, StatusBar, Alert } from "react-native";
+import { View, Text, StyleSheet, Image, ScrollView, ActivityIndicator, StatusBar, Alert, TouchableOpacity } from "react-native";
 import { db } from "./firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 const RecipeDetailsScreen = ({ route, navigation }) => {
-  const { recipeId, recipeName, user } = route.params;
+  const { recipeId, recipeName, recipeUser, user } = route.params; // Use recipeUser instead of user
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isUserRecipe, setIsUserRecipe] = useState(false); // To track if the recipe is from user's collection
+  const [isUserRecipe, setIsUserRecipe] = useState(false);
 
   useEffect(() => {
     console.log("RecipeDetailsScreen mounted with params:", route.params);
@@ -39,6 +39,10 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const navigateToRecipeUserProfile = (user) => {
+    navigation.navigate('RecipeUserProfileScreen', { user });
   };
 
   const fetchRecipeFromAPI = async (recipeName) => {
@@ -117,23 +121,15 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                   <Text style={styles.views}>{recipe.time || "15 min"}</Text>
                 </View>
               </View>
-              {isUserRecipe ? (
+              <TouchableOpacity onPress={() => navigateToRecipeUserProfile(recipeUser)}>
                 <View style={styles.userContainer}>
                   <Image
-                    source={{ uri: user.profilePictureUrl || "https://via.placeholder.com/150" }}
+                    source={{ uri: recipeUser.profilePictureUrl || "https://via.placeholder.com/150" }}
                     style={styles.userImage}
                   />
-                  <Text style={styles.username}>{user.name || "Anonymous"}</Text>
+                  <Text style={styles.username}>{recipeUser.name || "Anonymous"}</Text>
                 </View>
-              ) : (
-                <View style={styles.userContainer}>
-                  <Image
-                    source={{ uri: "https://via.placeholder.com/150" }}
-                    style={styles.userImage}
-                  />
-                  <Text style={styles.username}>Random Author</Text>
-                </View>
-              )}
+              </TouchableOpacity>
               <View style={styles.detailsContainer}>
                 <Text style={styles.cookTime}>
                   Time: {recipe.strCookTime || "30 minutes"}
