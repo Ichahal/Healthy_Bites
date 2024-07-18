@@ -15,7 +15,7 @@ import SquareRecipeComponent from "./SquareRecipeComponent";
 import MainRecipeComponent from "./MainRecipeComponent";
 import SearchBarComponent from "./SearchBarComponent";
 
-const PRIMARY_COLOR = "#FD5D69";
+const PRIMARY_COLOR = "#ff6347";
 
 export default function HomeScreen({ user, setUser }) {
   const isFocused = useIsFocused();
