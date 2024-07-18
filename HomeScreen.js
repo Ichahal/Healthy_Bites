@@ -156,11 +156,11 @@ const handleSearch = async (
 
   const userName = user.name;
 
-  const navigateToRecipeDetails = (recipeId, recipeName) => {
+  const navigateToRecipeDetails = (recipeId, recipeName, recipeUser) => {
     navigation.navigate("Recipe Details Screen", {
       recipeId,
       recipeName,
-      user,
+      recipeUser:user,
     });
   };
 

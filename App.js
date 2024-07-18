@@ -10,6 +10,7 @@ import SearchScreen from "./SearchScreen";
 import ForgotPasswordScreen from "./ForgotPasswordScreen";
 import ResetPasswordScreen from "./ResetPasswordScreen";
 import RecipeUserProfileScreen from "./RecipeUserProfileScreen";
+import ProfileScreen from "./ProfileScreen";
 
 const Stack = createStackNavigator();
 
@@ -49,6 +50,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Forgot Password" component={ForgotPasswordScreen} />
         <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
         <Stack.Screen name="RecipeUserProfileScreen" component={RecipeUserProfileScreen}/>
+        <Stack.Screen name="UserProfileScreen" component={ProfileScreen}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
