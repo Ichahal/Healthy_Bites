@@ -58,7 +58,7 @@ export default function HomeScreen({ user, setUser }) {
             id: doc.id,
             ...doc.data(),
           }));
-          console.log("Fetched recipes:", recipesData); // Log fetched recipes
+          // console.log("Fetched recipes:", recipesData); // Log fetched recipes
           setRecipes(recipesData);
         }
       } catch (error) {
