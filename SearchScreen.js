@@ -8,12 +8,26 @@ import {
 } from "react-native";
 import SearchRecipeComponent from "./SearchRecipeComponent";
 import SearchBarComponent from "./SearchBarComponent";
+import { useRoute } from "@react-navigation/native";
 
 const SearchScreen = () => {
-  const [searchResults, setSearchResults] = useState([]);
-  const [filteredResults, setFilteredResults] = useState([]);
+  const route = useRoute();
+  const {
+    searchResults: initialSearchResults,
+    query: initialQuery,
+    selectedCategory: initialCategory,
+    selectedArea: initialArea,
+    selectedIngredients: initialIngredients,
+  } = route.params || {};
+
+  const [searchResults, setSearchResults] = useState(
+    initialSearchResults || []
+  );
+  const [filteredResults, setFilteredResults] = useState(
+    initialSearchResults || []
+  );
   const [currentPage, setCurrentPage] = useState(1);
-  const [lastSearchQuery, setLastSearchQuery] = useState("");
+  const [lastSearchQuery, setLastSearchQuery] = useState(initialQuery || "");
   const resultsPerPage = 10;
 
   const totalPages = Math.ceil(filteredResults.length / resultsPerPage);
@@ -82,6 +96,10 @@ const SearchScreen = () => {
       <SearchBarComponent
         onSearch={handleSearch}
         onQueryChange={handleQueryChange}
+        initialQuery={initialQuery}
+        initialCategory={initialCategory}
+        initialArea={initialArea}
+        initialIngredients={initialIngredients}
       />
       <ScrollView>
         {currentResults.length > 0 ? (
@@ -104,7 +122,8 @@ const SearchScreen = () => {
         ) : (
           <View style={styles.noResultsContainer}>
             <Text style={styles.noResultsText}>
-              No match found for "{lastSearchQuery}", press search or change input.
+              No match found for "{lastSearchQuery}", press search or change
+              input.
             </Text>
           </View>
         )}

@@ -95,40 +95,59 @@ export default function HomeScreen({ user, setUser }) {
     setSearchQuery(text);
   };
 
-  const handleSearch = async (query) => {
-    let url = `https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`;
+const handleSearch = async (query) => {
+  let url = `https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`;
 
-    if (selectedCategory) {
-      url = `https://www.themealdb.com/api/json/v1/1/filter.php?c=${selectedCategory}`;
-    }
-    if (selectedArea) {
-      url = `https://www.themealdb.com/api/json/v1/1/filter.php?a=${selectedArea}`;
-    }
-    if (selectedIngredients.length > 0) {
-      url = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${selectedIngredients.join(
-        ","
-      )}`;
-    }
+  if (selectedCategory) {
+    url = `https://www.themealdb.com/api/json/v1/1/filter.php?c=${selectedCategory}`;
+  }
+  if (selectedArea) {
+    url = `https://www.themealdb.com/api/json/v1/1/filter.php?a=${selectedArea}`;
+  }
+  if (selectedIngredients.length > 0) {
+    url = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${selectedIngredients.join(
+      ","
+    )}`;
+  }
 
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      if (data.meals) {
-        const searchResults = data.meals.map((meal) => ({
-          id: meal.idMeal,
-          title: meal.strMeal,
-          photo: meal.strMealThumb,
-          instructions: meal.strInstructions,
-        }));
-        navigation.navigate("Search Screen", { searchResults });
-      } else {
-        navigation.navigate("Search Screen", { searchResults: [] });
-      }
-    } catch (error) {
-      console.error("Error searching recipes:", error);
-      navigation.navigate("Search Screen", { searchResults: [] });
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    if (data.meals) {
+      const searchResults = data.meals.map((meal) => ({
+        id: meal.idMeal,
+        title: meal.strMeal,
+        photo: meal.strMealThumb,
+        instructions: meal.strInstructions,
+      }));
+      navigation.navigate("Search Screen", {
+        searchResults,
+        query,
+        selectedCategory,
+        selectedArea,
+        selectedIngredients,
+      });
+    } else {
+      navigation.navigate("Search Screen", {
+        searchResults: [],
+        query,
+        selectedCategory,
+        selectedArea,
+        selectedIngredients,
+      });
     }
-  };
+  } catch (error) {
+    console.error("Error searching recipes:", error);
+    navigation.navigate("Search Screen", {
+      searchResults: [],
+      query,
+      selectedCategory,
+      selectedArea,
+      selectedIngredients,
+    });
+  }
+};
+
 
   const userName = user.name;
 

@@ -26,32 +26,33 @@ const SearchBarComponent = ({ onSearch, onQueryChange }) => {
     fetchFilters();
   }, []);
 
-  const fetchFilters = async () => {
-    try {
-      const categoryResponse = await fetch(
-        "https://www.themealdb.com/api/json/v1/1/categories.php"
-      );
-      const categoryData = await categoryResponse.json();
-      setCategories(categoryData.categories);
+const fetchFilters = async () => {
+  try {
+    const categoryResponse = await fetch(
+      "https://www.themealdb.com/api/json/v1/1/categories.php"
+    );
+    const categoryData = await categoryResponse.json();
+    setCategories(categoryData.categories);
 
-      const areaResponse = await fetch(
-        "https://www.themealdb.com/api/json/v1/1/list.php?a=list"
-      );
-      const areaData = await areaResponse.json();
-      setAreas(areaData.meals);
+    const areaResponse = await fetch(
+      "https://www.themealdb.com/api/json/v1/1/list.php?a=list"
+    );
+    const areaData = await areaResponse.json();
+    setAreas(areaData.meals);
 
-      const ingredientResponse = await fetch(
-        "https://www.themealdb.com/api/json/v1/1/list.php?i=list"
-      );
-      const ingredientData = await ingredientResponse.json();
-      const sortedIngredients = ingredientData.meals.sort((a, b) =>
-        a.strIngredient.localeCompare(b.strIngredient)
-      );
-      setIngredients(sortedIngredients);
-    } catch (error) {
-      console.error("Error fetching filters:", error);
-    }
-  };
+    const ingredientResponse = await fetch(
+      "https://www.themealdb.com/api/json/v1/1/list.php?i=list"
+    );
+    const ingredientData = await ingredientResponse.json();
+    const sortedIngredients = ingredientData.meals.sort((a, b) =>
+      a.strIngredient.localeCompare(b.strIngredient)
+    );
+    setIngredients(sortedIngredients);
+  } catch (error) {
+    console.error("Error fetching filters:", error);
+  }
+};
+
 
 const handleSearchPress = async () => {
   await onSearch(
@@ -72,28 +73,29 @@ const handleSearchPress = async () => {
     setSelectedIngredients([]);
   };
 
-  const toggleFilter = (filterType) => {
-    switch (selectedTab) {
-      case "ingredients":
-        const index = selectedIngredients.indexOf(filterType);
-        if (index === -1) {
-          setSelectedIngredients([...selectedIngredients, filterType]);
-        } else {
-          setSelectedIngredients(
-            selectedIngredients.filter((item) => item !== filterType)
-          );
-        }
-        break;
-      case "category":
-        setSelectedCategory(selectedCategory === filterType ? "" : filterType);
-        break;
-      case "area":
-        setSelectedArea(selectedArea === filterType ? "" : filterType);
-        break;
-      default:
-        break;
-    }
-  };
+const toggleFilter = (filterType) => {
+  switch (selectedTab) {
+    case "ingredients":
+      const index = selectedIngredients.indexOf(filterType);
+      if (index === -1) {
+        setSelectedIngredients([...selectedIngredients, filterType]);
+      } else {
+        setSelectedIngredients(
+          selectedIngredients.filter((item) => item !== filterType)
+        );
+      }
+      break;
+    case "category":
+      setSelectedCategory(selectedCategory === filterType ? "" : filterType);
+      break;
+    case "area":
+      setSelectedArea(selectedArea === filterType ? "" : filterType);
+      break;
+    default:
+      break;
+  }
+};
+
 
   const handleResetFilters = () => {
     setSelectedCategory("");
@@ -206,7 +208,8 @@ const handleSearchPress = async () => {
                     key={ingredient.strIngredient}
                     style={[
                       styles.filterOption,
-                      selectedIngredients.includes(ingredient.strIngredient) 
+                      selectedIngredients.includes(ingredient.strIngredient) &&
+                        styles.selectedFilterOption,
                     ]}
                     onPress={() => toggleFilter(ingredient.strIngredient)}
                   >
