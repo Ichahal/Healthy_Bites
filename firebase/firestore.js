@@ -6,7 +6,10 @@ import {
 const addUser = async (itemToInsert, col) => {
   try {
     const userRef = doc(db, col, itemToInsert.email.toLowerCase());
-    await setDoc(userRef, itemToInsert);
+    await setDoc(userRef, {
+      ...itemToInsert,
+      following: []  // Initialize `following` field as an empty array
+    });
     await setDoc(doc(db, `${col}/${itemToInsert.email.toLowerCase()}/favouriteRecipes`, "initDoc"), { initialized: true });
     await setDoc(doc(db, `${col}/${itemToInsert.email.toLowerCase()}/ownRecipes`, "initDoc"), { initialized: true });
 
@@ -85,5 +88,38 @@ const updateUserPassword = async (email, newPassword) => {
     throw error;
   }
 };
+const handleFollow = async () => {
+  if (user && recipeUser) {
+    try {
+      const userRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userRef);
+      const userData = userDoc.exists() ? userDoc.data() : { following: [] };
+      const updatedFollowing = [...userData.following, recipeUser.uid];
 
-export { addUser, delDoc, update, select, updateUser, selectRecipesForUser, updateUserPassword };
+      await updateDoc(userRef, { following: updatedFollowing });
+      setIsFollowing(true);
+    } catch (error) {
+      console.error("Error following user:", error);
+      Alert.alert('Error', 'Failed to follow user. Please try again later.');
+    }
+  }
+};
+
+const handleUnfollow = async () => {
+  if (user && recipeUser) {
+    try {
+      const userRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userRef);
+      const userData = userDoc.exists() ? userDoc.data() : { following: [] };
+      const updatedFollowing = userData.following.filter(uid => uid !== recipeUser.uid);
+
+      await updateDoc(userRef, { following: updatedFollowing });
+      setIsFollowing(false);
+    } catch (error) {
+      console.error("Error unfollowing user:", error);
+      Alert.alert('Error', 'Failed to unfollow user. Please try again later.');
+    }
+  }
+};
+
+export { addUser, delDoc, update, select, updateUser, selectRecipesForUser, updateUserPassword,handleFollow, handleUnfollow};
