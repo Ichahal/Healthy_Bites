@@ -95,7 +95,12 @@ export default function HomeScreen({ user, setUser }) {
     setSearchQuery(text);
   };
 
-const handleSearch = async (query) => {
+const handleSearch = async (
+  query,
+  selectedCategory,
+  selectedArea,
+  selectedIngredients,
+) => {
   let url = `https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`;
 
   if (selectedCategory) {
