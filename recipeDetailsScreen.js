@@ -5,7 +5,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 const RecipeDetailsScreen = ({ route, navigation }) => {
-  const { recipeId, recipeName, recipeUser, user } = route.params; // Use recipeUser instead of user
+  const { recipeId, recipeName, recipeUser, user } = route.params || {}; // Destructure with default empty objects to prevent undefined access
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isUserRecipe, setIsUserRecipe] = useState(false);
@@ -41,8 +41,14 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     }
   };
 
-  const navigateToRecipeUserProfile = (user) => {
-    navigation.navigate('RecipeUserProfileScreen', { user });
+  const navigateToRecipeUserProfile = () => {
+    // if (user && user.uid && recipeUser && recipeUser.uid && user.uid !== recipeUser.uid) {
+    //   navigation.navigate('UserProfileScreen',{ user: recipeUser });
+    // } else if (recipeUser && recipeUser.uid) {
+      navigation.navigate('RecipeUserProfileScreen', { user: recipeUser });
+    // } else {
+    //   console.warn("Recipe user information is missing.");
+    // }
   };
 
   const fetchRecipeFromAPI = async (recipeName) => {
@@ -72,7 +78,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
   const renderIngredients = (recipe) => {
     const ingredients = [];
     for (let i = 1; i <= 20; i++) {
-      if (recipe[`strIngredient${i}`]) {
+      if (recipe && recipe[`strIngredient${i}`]) {
         ingredients.push(
           `${recipe[`strIngredient${i}`]} - ${recipe[`strMeasure${i}`] || ""}`
         );
@@ -121,13 +127,18 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                   <Text style={styles.views}>{recipe.time || "15 min"}</Text>
                 </View>
               </View>
-              <TouchableOpacity onPress={() => navigateToRecipeUserProfile(recipeUser)}>
+              <TouchableOpacity onPress={navigateToRecipeUserProfile}>
                 <View style={styles.userContainer}>
                   <Image
-                    source={{ uri: recipeUser.profilePictureUrl || "https://via.placeholder.com/150" }}
+                    source={{ uri: recipeUser?.profilePictureUrl || "https://via.placeholder.com/150" }}
                     style={styles.userImage}
                   />
-                  <Text style={styles.username}>{recipeUser.name || "Anonymous"}</Text>
+                  <Text style={styles.username}>{recipeUser?.name || "Anonymous"}</Text>
+                  {user && user.uid && recipeUser && recipeUser.uid && user.uid !== recipeUser.uid && (
+                    <TouchableOpacity style={styles.followButton}>
+                      <Text style={styles.followButtonText}>Follow</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               </TouchableOpacity>
               <View style={styles.detailsContainer}>
@@ -217,6 +228,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#333333",
+    flex: 1, // Ensures username takes remaining space
+  },
+  followButton: {
+    backgroundColor: "#FF6F61",
+    paddingVertical: 6,
+    paddingHorizontal: 20,
+    marginRight: 20,
+    borderRadius: 8,
+  },
+  followButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
   },
   detailsContainer: {
     marginBottom: 16,
