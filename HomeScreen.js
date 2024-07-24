@@ -315,6 +315,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 16,
+    marginBottom:32,
+    backgroundColor:"white",
     paddingHorizontal: 16,
     backgroundColor: "#fff",
   },

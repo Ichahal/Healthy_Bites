@@ -129,10 +129,12 @@ const Profile = ({ user, setUser }) => {
         </View>
         {activeTab === "Recipes" ? (
           <FlatList
+          // style={styles.recipecontainer}
             data={recipes}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <SquareRecipeComponent
+              style={styles.recipecontainer}
                 recipe={{
                   image: item.photo || "https://via.placeholder.com/150",
                   title: item.title,
@@ -254,6 +256,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   container: {
+    marginBottom:32,
     flex: 1,
     padding: 16,
     backgroundColor: "#fff",
@@ -314,6 +317,9 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     marginHorizontal: 16,
   },
+  // recipecontainer:{
+  //   backgroundColor: "black",
+  // },
   createRecipeButtonText: {
     color: "#fff",
     fontSize: 16,
@@ -356,7 +362,10 @@ const styles = StyleSheet.create({
     color: "#ff6347",
   },
   recipeGrid: {
-    paddingHorizontal: 8,
+    // paddingHorizontal: 8,
+    marginLeft: 40,
+    marginTop:10,
+
   },
   recipeCard: {
     backgroundColor: "#f0f0f0",
