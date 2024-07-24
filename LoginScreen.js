@@ -4,6 +4,7 @@ import { Input, Button, Icon, CheckBox } from 'react-native-elements';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StatusBar } from 'expo-status-bar';
 import { signin } from './firebase/auth';
+import { CommonActions } from '@react-navigation/native';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -39,7 +40,12 @@ export default function LoginScreen({ navigation }) {
           await AsyncStorage.removeItem('email');
           await AsyncStorage.removeItem('password');
         }
-        navigation.navigate("Main", { user: userDetails });
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: 'Main', params: { user: userDetails } }],
+          })
+        );
       }
     } catch (error) {
       console.error(error);
@@ -58,7 +64,6 @@ export default function LoginScreen({ navigation }) {
       }
     }
   };
-
   return (
     <View style={styles.container}>
       <Image source={require("./assets/diet.png")} style={styles.image} />
