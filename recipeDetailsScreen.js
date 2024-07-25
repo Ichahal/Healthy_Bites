@@ -322,53 +322,123 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  safeContainer: 
-    { flex: 1, backgroundColor: "#fff" }, 
+  safeContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
 
-  scrollViewContent:
-   { padding: 20 },
-  header: 
-  { alignItems: "center" },
-  image: 
-  { width: "100%", height: 200, borderRadius: 10 },
-  title: 
-  { fontSize: 24, fontWeight: "bold", marginVertical: 10 },
-  meta: 
-  { flexDirection: "row", justifyContent: "space-between", width: "100%" },
-  rating:
-   { fontSize: 16, color: "#FF6F61" },
+  scrollViewContent: {
+    padding: 20,
+  },
+
+  header: {
+    alignItems: "center",
+  },
+
+  image: {
+    width: "100%",
+    height: 200,
+    borderRadius: 10,
+  },
+
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginVertical: 10,
+  },
+
+  meta: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+
+  rating: {
+    fontSize: 16,
+    color: "#FF6F61",
+  },
+
   views: {
-     fontSize: 16, color: "#888" },
-  actionButtons: 
-  { flexDirection: "row", marginVertical: 10 },
-  iconButton: 
-  { marginHorizontal: 10 },
-  userContainer: 
-  { flexDirection: "row", alignItems: "center", marginVertical: 20 },
-  userImage: 
-  { width: 50, height: 50, borderRadius: 25 },
-  username: 
-  { fontSize: 18, marginLeft: 10, flex: 1 },
-  followButton: 
-  { paddingVertical: 5, paddingHorizontal: 10, backgroundColor: "#FF6F61", borderRadius: 5 },
-  followButtonText: 
-  { color: "#fff" },
-  ingredientsContainer: 
-  { marginVertical: 20 },
-  sectionTitle: 
-  { fontSize: 20, fontWeight: "bold", marginBottom: 10 },
-  ingredient: 
-  { fontSize: 16 },
-  instructionsContainer: 
-  { marginVertical: 20 },
-  instructions: 
-  { fontSize: 16 },
-  noRecipeContainer: 
-  { flex: 1, justifyContent: "center", alignItems: "center" },
-  noRecipeText: 
-  { fontSize: 18, color: "#888" },
-  loadingContainer: 
-  { flex: 1, justifyContent: "center", alignItems: "center" }
+    fontSize: 16,
+    color: "#888",
+  },
+
+  actionButtons: {
+    flexDirection: "row",
+    marginVertical: 10,
+  },
+
+  iconButton: {
+    marginHorizontal: 10,
+  },
+
+  userContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 20,
+  },
+
+  userImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+
+  username: {
+    fontSize: 18,
+    marginLeft: 10,
+    flex: 1,
+  },
+
+  followButton: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    backgroundColor: "#FF6F61",
+    borderRadius: 5,
+  },
+
+  followButtonText: {
+    color: "#fff",
+  },
+
+  ingredientsContainer: {
+    marginVertical: 20,
+  },
+
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+
+  ingredient: {
+    fontSize: 16,
+  },
+
+  instructionsContainer: {
+    marginVertical: 20,
+  },
+
+  instructions: {
+    fontSize: 16,
+  },
+
+  noRecipeContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  noRecipeText: {
+    fontSize: 18,
+    color: "#888",
+  },
+
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
 
 export default RecipeDetailsScreen;
