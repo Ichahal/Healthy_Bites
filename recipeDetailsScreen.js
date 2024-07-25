@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   View,
   Text,
   StyleSheet,
   Image,
+  Button,
   ScrollView,
   ActivityIndicator,
   StatusBar,
@@ -20,16 +21,18 @@ import {
   TestIds,
   useForeground,
 } from "react-native-google-mobile-ads";
+import YoutubePlayer from "react-native-youtube-iframe";
 
 const adUnitId = __DEV__
   ? TestIds.ADAPTIVE_BANNER
   : "ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy";
 
 const RecipeDetailsScreen = ({ route, navigation }) => {
-  const { recipeId, recipeName, recipeUser, user } = route.params || {}; // Destructure with default empty objects to prevent undefined access
+  const { recipeId, recipeName, recipeUser, user } = route.params || {};
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isUserRecipe, setIsUserRecipe] = useState(false);
+  const [playing, setPlaying] = useState(false);
 
   const bannerRef = useRef(null);
 
@@ -125,6 +128,14 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     ));
   };
 
+  const onStateChange = useCallback((state) => {
+    if (state === "ended") {
+      setPlaying(false);
+      Alert.alert("video has finished playing!");
+    }
+  }, []);
+
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -191,7 +202,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                 <BannerAd
                   ref={bannerRef}
                   unitId={adUnitId}
-                  size={BannerAdSize.INLINE_ADAPTIVE_BANNER}
+                  size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
                 />
               </View>
               <View style={styles.ingredientsContainer}>
@@ -200,6 +211,17 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                   ? renderCustomIngredients(recipe.ingredients || [])
                   : renderIngredients(recipe)}
               </View>
+              {recipe.strYoutube && (
+                <View style={styles.youtubeContainer}>
+                  <YoutubePlayer
+                    height={250}
+                    width={400}
+                    play={playing}
+                    videoId={recipe.strYoutube.split("v=")[1]}
+                    onChangeState={onStateChange}
+                  />
+                </View>
+              )}
             </>
           ) : (
             <Text>Recipe not found</Text>
@@ -275,20 +297,16 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#333333",
-    flex: 1, // Ensures username takes remaining space
+    color: "#333",
   },
   followButton: {
+    marginLeft: "auto",
     backgroundColor: "#FF6F61",
-    paddingVertical: 6,
-    paddingHorizontal: 20,
-    marginRight: 20,
-    borderRadius: 8,
+    padding: 8,
+    borderRadius: 4,
   },
   followButtonText: {
     color: "#fff",
-    fontSize: 14,
     fontWeight: "bold",
   },
   detailsContainer: {
@@ -296,42 +314,43 @@ const styles = StyleSheet.create({
   },
   cookTime: {
     fontSize: 16,
-    color: "#666666",
-    marginBottom: 16,
-  },
-  midBanner: {
-    marginBottom: 16,
-    marginTop: 16,
-    alignItems: "center",
-  },
-  smallBanner: {
-    marginTop: 16,
-    alignItems: "center",
+    color: "#333",
+    marginBottom: 8,
   },
   detailsHeader: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
+    marginBottom: 8,
     color: "#FF6F61",
-    marginBottom: 16,
   },
   details: {
     fontSize: 16,
-    color: "#666666",
-    lineHeight: 24,
+    color: "#333",
+  },
+  midBanner: {
+    marginVertical: 16,
+    alignItems: "center",
   },
   ingredientsContainer: {
     marginBottom: 16,
   },
   ingredientsTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
-    color: "#FF6F61",
     marginBottom: 8,
+    color: "#FF6F61",
   },
   ingredient: {
     fontSize: 16,
-    color: "#666666",
+    color: "#333",
     marginBottom: 4,
+  },
+  youtubeContainer: {
+    alignItems: "center",
+  },
+  smallBanner: {
+    alignItems: "center",
+    marginTop: 8,
   },
 });
 
