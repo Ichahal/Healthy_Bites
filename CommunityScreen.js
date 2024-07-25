@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,11 +10,12 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+// import { useNavigation } from "@react-navigation/native";
 import { db } from "./firebaseConfig";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { Ionicons } from "@expo/vector-icons";
-
+// import { useFocusEffect } from "@react-navigation/native";
+import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 const PRIMARY_COLOR = "#ff6347";
 const SECONDARY_COLOR = "#f7d8d8";
 const TEXT_COLOR = "#333";
@@ -24,12 +25,19 @@ const FALLBACK_IMAGE_URL = "https://www.themealdb.com/images/media/meals/ebvuir1
 const CommunityScreen = ({ user }) => {
   const navigation = useNavigation();
   const [recipes, setRecipes] = useState([]);
+  const route = useRoute();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("Latest");
 
   useEffect(() => {
     fetchRecipes();
   }, [activeTab]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchRecipes(); // Refetch data when the screen comes into focus
+    }, [route.params])
+  );
 
   const fetchRecipes = async () => {
     setLoading(true);

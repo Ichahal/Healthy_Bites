@@ -12,6 +12,7 @@ import ResetPasswordScreen from "./ResetPasswordScreen";
 import RecipeUserProfileScreen from "./RecipeUserProfileScreen";
 import ProfileScreen from "./ProfileScreen";
 import ContactUs from "./ContactUs";
+import EditRecipeScreen from "./EditRecipeScreen"
 
 const Stack = createStackNavigator();
 
@@ -53,6 +54,7 @@ export default function AppNavigator() {
         <Stack.Screen name="RecipeUserProfileScreen" component={RecipeUserProfileScreen}/>
         <Stack.Screen name="UserProfileScreen" component={ProfileScreen}/>
         <Stack.Screen name="Contact Us" component={ContactUs} />
+        <Stack.Screen name="EditRecipeScreen" component={EditRecipeScreen}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

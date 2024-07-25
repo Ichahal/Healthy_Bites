@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import {
   Share
 } from "react-native";
 import { db } from "./firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import {
   BannerAd,
@@ -24,6 +24,8 @@ import {
 } from "react-native-google-mobile-ads";
 import YoutubePlayer from "react-native-youtube-iframe";
 import { FontAwesome } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
+
 const adUnitId = __DEV__
   ? TestIds.ADAPTIVE_BANNER
   : "ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy";
@@ -34,6 +36,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true);
   const [isUserRecipe, setIsUserRecipe] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false); // Add isFavorite state
 
   const bannerRef = useRef(null);
 
@@ -43,10 +46,11 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     }
   });
 
-  useEffect(() => {
-    console.log("RecipeDetailsScreen mounted with params:", route.params);
-    fetchRecipeDetails();
-  }, [route.params]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchRecipeDetails(); // Refetch data when the screen comes into focus
+    }, [route.params])
+  );
 
   useEffect(() => {
     checkIfFavorite();
@@ -54,7 +58,6 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
 
   const fetchRecipeDetails = async () => {
     setLoading(true);
-    console.log("recipeId", recipeId);
     try {
       if (recipeId) {
         const docRef = doc(db, `Recipes`, recipeId);
@@ -63,7 +66,6 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
           setRecipe(docSnap.data());
           setIsUserRecipe(true);
         } else {
-          console.log("No such document, fetching from API.");
           setIsUserRecipe(false);
           await fetchRecipeFromAPI(recipeName);
         }
@@ -80,6 +82,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
       setLoading(false);
     }
   };
+
   const checkIfFavorite = async () => {
     if (user && recipeId) {
       const userRef = doc(db, "users", user.uid);
@@ -134,7 +137,6 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
       if (data.meals && data.meals.length > 0) {
         setRecipe(data.meals[0]);
       } else {
-        console.log("Recipe not found in API.");
         setRecipe(null); // Ensure recipe state is set appropriately
       }
     } catch (error) {
@@ -180,15 +182,6 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     }
   }, []);
 
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF6F61" />
-      </View>
-    );
-  }
-
   const shareRecipe = async () => {
     try {
       const result = await Share.share({
@@ -215,8 +208,6 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     );
   }
 
-
-
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeContainer}>
@@ -239,7 +230,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                 <View style={styles.actionButtons}>
                   <TouchableOpacity onPress={handleFavorite} style={styles.iconButton}>
                     <FontAwesome
-                      name={"heart-o"}
+                      name={isFavorite ? "heart" : "heart-o"}
                       size={24}
                       color="#FF6F61"
                     />
@@ -266,184 +257,108 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                     user.uid &&
                     recipeUser &&
                     recipeUser.uid &&
-                    user.uid !== recipeUser.uid && (
+                    user.uid !== recipeUser.uid ? (
                       <TouchableOpacity style={styles.followButton}>
                         <Text style={styles.followButtonText}>Follow</Text>
                       </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity
+                      onPress={() => navigation.navigate("EditRecipeScreen", { recipeId })}
+                      style={styles.followButton}
+                    >
+                      <Text style={styles.followButtonText}>Edit Recipe</Text>
+                    </TouchableOpacity>
                     )}
                 </View>
               </TouchableOpacity>
-              <View style={styles.detailsContainer}>
-                <Text style={styles.cookTime}>
-                  Time: {recipe.strCookTime || "30 minutes"}
-                </Text>
-
-                <Text style={styles.detailsHeader}>Details</Text>
-                <Text style={styles.details}>
+              <View style={styles.ingredientsContainer}>
+                <Text style={styles.sectionTitle}>Ingredients</Text>
+                {recipe.ingredients
+                  ? renderCustomIngredients(recipe.ingredients)
+                  : renderIngredients(recipe)}
+              </View>
+              <View style={styles.instructionsContainer}>
+                <Text style={styles.sectionTitle}>Instructions</Text>
+                <Text style={styles.instructions}>
                   {recipe.strInstructions || recipe.description}
                 </Text>
               </View>
-              <View style={styles.midBanner}>
-                <BannerAd
-                  ref={bannerRef}
-                  unitId={adUnitId}
-                  size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-                />
-              </View>
-              <View style={styles.ingredientsContainer}>
-                <Text style={styles.ingredientsTitle}>Ingredients</Text>
-                {recipeId
-                  ? renderCustomIngredients(recipe.ingredients || [])
-                  : renderIngredients(recipe)}
-              </View>
               {recipe.strYoutube && (
-                <View style={styles.youtubeContainer}>
-                  <YoutubePlayer
-                    height={250}
-                    width={400}
-                    play={playing}
-                    videoId={recipe.strYoutube.split("v=")[1]}
-                    onChangeState={onStateChange}
-                  />
-                </View>
+                <YoutubePlayer
+                  height={220}
+                  play={playing}
+                  videoId={recipe.strYoutube.split("v=")[1]}
+                  onChangeState={onStateChange}
+                />
               )}
             </>
           ) : (
-            <Text>Recipe not found</Text>
+            <View style={styles.noRecipeContainer}>
+              <Text style={styles.noRecipeText}>
+                Recipe not found. Please check back later.
+              </Text>
+            </View>
           )}
-          <View style={styles.smallBanner}>
-            <BannerAd
-              ref={bannerRef}
-              unitId={adUnitId}
-              size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-            />
-          </View>
         </ScrollView>
+        <BannerAd
+          unitId={adUnitId}
+          size={BannerAdSize.FULL_BANNER}
+          requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+          ref={bannerRef}
+        />
       </SafeAreaView>
     </SafeAreaProvider>
   );
 };
 
 const styles = StyleSheet.create({
-  safeContainer: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  scrollViewContent: {
-    flexGrow: 1,
-    padding: 10,
-  },
-  header: {
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  image: {
-    width: "100%",
-    height: 200,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 5,
-  },
-  meta: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-    paddingHorizontal: 20,
-    marginBottom: 10,
-  },
-  rating: {
-    fontSize: 16,
-    color: "#FF6F61",
-  },
+  safeContainer: 
+  { flex: 1 },
+
+  scrollViewContent:
+   { padding: 20 },
+  header: 
+  { alignItems: "center" },
+  image: 
+  { width: "100%", height: 200, borderRadius: 10 },
+  title: 
+  { fontSize: 24, fontWeight: "bold", marginVertical: 10 },
+  meta: 
+  { flexDirection: "row", justifyContent: "space-between", width: "100%" },
+  rating:
+   { fontSize: 16, color: "#FF6F61" },
   views: {
-    fontSize: 16,
-    color: "#757575",
-  },
-  actionButtons: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    width: "60%",
-    marginTop: 10,
-  },
-  iconButton: {
-    padding: 10,
-    borderRadius: 5,
-  },
-  userContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 10,
-  },
-  userImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 10,
-  },
-  username: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  followButton: {
-    backgroundColor: "#FF6F61",
-    padding: 5,
-    borderRadius: 5,
-    marginLeft: 10,
-  },
-  followButtonText: {
-    color: "#fff",
-    fontSize: 14,
-  },
-  detailsContainer: {
-    padding: 10,
-  },
-  cookTime: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  detailsHeader: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginTop: 10,
-  },
-  details: {
-    fontSize: 16,
-    marginTop: 5,
-  },
-  midBanner: {
-    marginVertical: 10,
-    alignItems: "center",
-  },
-  ingredientsContainer: {
-    padding: 10,
-  },
-  ingredientsTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  ingredient: {
-    fontSize: 16,
-    marginBottom: 5,
-  },
-  youtubeContainer: {
-    marginTop: 20,
-    alignItems: "center",
-  },
-  banner: {
-    alignItems: "center",
-    marginVertical: 20,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+     fontSize: 16, color: "#888" },
+  actionButtons: 
+  { flexDirection: "row", marginVertical: 10 },
+  iconButton: 
+  { marginHorizontal: 10 },
+  userContainer: 
+  { flexDirection: "row", alignItems: "center", marginVertical: 20 },
+  userImage: 
+  { width: 50, height: 50, borderRadius: 25 },
+  username: 
+  { fontSize: 18, marginLeft: 10, flex: 1 },
+  followButton: 
+  { paddingVertical: 5, paddingHorizontal: 10, backgroundColor: "#FF6F61", borderRadius: 5 },
+  followButtonText: 
+  { color: "#fff" },
+  ingredientsContainer: 
+  { marginVertical: 20 },
+  sectionTitle: 
+  { fontSize: 20, fontWeight: "bold", marginBottom: 10 },
+  ingredient: 
+  { fontSize: 16 },
+  instructionsContainer: 
+  { marginVertical: 20 },
+  instructions: 
+  { fontSize: 16 },
+  noRecipeContainer: 
+  { flex: 1, justifyContent: "center", alignItems: "center" },
+  noRecipeText: 
+  { fontSize: 18, color: "#888" },
+  loadingContainer: 
+  { flex: 1, justifyContent: "center", alignItems: "center" }
 });
 
 export default RecipeDetailsScreen;
