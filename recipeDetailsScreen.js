@@ -11,10 +11,10 @@ import {
   Alert,
   TouchableOpacity,
   Platform,
-  Share,
+  Share
 } from "react-native";
 import { db } from "./firebaseConfig";
-import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import {
   BannerAd,
@@ -33,7 +33,6 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isUserRecipe, setIsUserRecipe] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
   const [playing, setPlaying] = useState(false);
 
   const bannerRef = useRef(null);
@@ -81,7 +80,6 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
       setLoading(false);
     }
   };
-
   const checkIfFavorite = async () => {
     if (user && recipeId) {
       const userRef = doc(db, "users", user.uid);
@@ -182,6 +180,15 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     }
   }, []);
 
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FF6F61" />
+      </View>
+    );
+  }
+
   const shareRecipe = async () => {
     try {
       const result = await Share.share({
@@ -200,7 +207,6 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     }
   };
 
-
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -208,6 +214,9 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
       </View>
     );
   }
+
+
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeContainer}>
@@ -230,7 +239,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                 <View style={styles.actionButtons}>
                   <TouchableOpacity onPress={handleFavorite} style={styles.iconButton}>
                     <FontAwesome
-                      name={isFavorite ? "heart" : "heart-o"}
+                      name={"heart-o"}
                       size={24}
                       color="#FF6F61"
                     />
@@ -284,32 +293,31 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
               <View style={styles.ingredientsContainer}>
                 <Text style={styles.ingredientsTitle}>Ingredients</Text>
                 {recipeId
-                  ? renderIngredients(recipe)
-                  : recipe?.ingredients?.map((ingredient, index) => (
-                      <Text key={index} style={styles.ingredient}>
-                        {ingredient.amount} {ingredient.ingredient}
-                      </Text>
-                    ))}
+                  ? renderCustomIngredients(recipe.ingredients || [])
+                  : renderIngredients(recipe)}
               </View>
-              <View style={styles.youtubeContainer}>
-                {recipe.strYoutube ? (
+              {recipe.strYoutube && (
+                <View style={styles.youtubeContainer}>
                   <YoutubePlayer
-                    height={300}
+                    height={250}
+                    width={400}
                     play={playing}
                     videoId={recipe.strYoutube.split("v=")[1]}
                     onChangeState={onStateChange}
                   />
-                ) : (
-                  <Text>No video available</Text>
-                )}
-              </View>
-              <View style={styles.banner}>
-                <BannerAd unitId={adUnitId} size={BannerAdSize.BANNER} />
-              </View>
+                </View>
+              )}
             </>
           ) : (
-            <Text>Recipe not found.</Text>
+            <Text>Recipe not found</Text>
           )}
+          <View style={styles.smallBanner}>
+            <BannerAd
+              ref={bannerRef}
+              unitId={adUnitId}
+              size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            />
+          </View>
         </ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>
