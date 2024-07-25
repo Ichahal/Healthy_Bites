@@ -31,6 +31,7 @@
     },
     "owner": "ichahal",
     "plugins": [
+      
       [
         "expo-build-properties",
         {
