@@ -6,6 +6,7 @@ import HomeScreen from "./HomeScreen";
 import ProfileScreen from "./ProfileScreen";
 import CustomTabBar from "./CustomTabBar";
 import CommunityScreen from "./CommunityScreen"; // Import CommunityScreen
+import AboutScreen from "./AboutScreen"; // Import AboutScreen
 
 const Tab = createBottomTabNavigator();
 
@@ -60,6 +61,12 @@ export default function MainScreen({ route, navigation }) {
         options={{ headerShown: false }}
       >
         {(props) => <ProfileScreen {...props} user={currentUser} setUser={setCurrentUser} />}
+      </Tab.Screen>
+      <Tab.Screen
+        name="About" // Add About tab
+        options={{ headerShown: false }}
+      >
+        {(props) => <AboutScreen {...props} />}
       </Tab.Screen>
     </Tab.Navigator>
   );
