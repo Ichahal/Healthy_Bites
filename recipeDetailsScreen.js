@@ -224,10 +224,6 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                   {recipe.strMeal || recipe.title}
                 </Text>
                 <View style={styles.meta}>
-                  <Text style={styles.rating}>5 stars</Text>
-                  <Text style={styles.views}>{recipe.time || "15 min"}</Text>
-                </View>
-                <View style={styles.actionButtons}>
                   <TouchableOpacity
                     onPress={handleFavorite}
                     style={styles.iconButton}
@@ -238,6 +234,9 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                       color="#FF6F61"
                     />
                   </TouchableOpacity>
+                  <Text style={styles.metaText}>5 stars</Text>
+                  <Text style={styles.metaText}>{recipe.time || "15 min"}</Text>
+
                   <TouchableOpacity
                     onPress={shareRecipe}
                     style={styles.iconButton}
@@ -279,17 +278,18 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                   )}
                 </View>
               </TouchableOpacity>
-              <View style={styles.ingredientsContainer}>
-                <Text style={styles.sectionTitle}>Ingredients</Text>
-                {recipe.ingredients
-                  ? renderCustomIngredients(recipe.ingredients)
-                  : renderIngredients(recipe)}
-              </View>
               <View style={styles.instructionsContainer}>
                 <Text style={styles.sectionTitle}>Instructions</Text>
                 <Text style={styles.instructions}>
                   {recipe.strInstructions || recipe.description}
                 </Text>
+              </View>
+
+              <View style={styles.ingredientsContainer}>
+                <Text style={styles.sectionTitle}>Ingredients</Text>
+                {recipe.ingredients
+                  ? renderCustomIngredients(recipe.ingredients)
+                  : renderIngredients(recipe)}
               </View>
               {recipe.strYoutube && (
                 <YoutubePlayer
@@ -331,6 +331,12 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 
+  smallBanner: {
+    alignItems: "center",
+    margin: 0,
+    padding: 0,
+  },
+
   header: {
     alignItems: "center",
   },
@@ -351,16 +357,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
+    marginVertical: 8,
   },
 
-  rating: {
-    fontSize: 16,
+  metaText: {
+    fontSize: 18,
     color: "#FF6F61",
-  },
-
-  views: {
-    fontSize: 16,
-    color: "#888",
   },
 
   actionButtons: {
@@ -375,7 +377,7 @@ const styles = StyleSheet.create({
   userContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 20,
+    marginVertical: 16,
   },
 
   userImage: {
@@ -399,10 +401,13 @@ const styles = StyleSheet.create({
 
   followButtonText: {
     color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 
   ingredientsContainer: {
-    marginVertical: 20,
+    marginTop: 8,
+    marginBottom: 32,
   },
 
   sectionTitle: {
@@ -416,7 +421,7 @@ const styles = StyleSheet.create({
   },
 
   instructionsContainer: {
-    marginVertical: 20,
+    marginVertical: 8,
   },
 
   instructions: {
