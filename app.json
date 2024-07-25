@@ -12,7 +12,8 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ichahal.HealthyBites"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,6 +23,30 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "88434cd7-4b53-435e-a204-f94603abae20"
+      }
+    },
+    "owner": "ichahal",
+    "plugins": [
+      "react-native-google-mobile-ads",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-3208542453292516~9484718446",
+          "iosAppId": "ca-app-pub-3208542453292516~8431507137"
+        }
+      ]
+    ]
   }
 }

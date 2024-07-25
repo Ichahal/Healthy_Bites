@@ -1,14 +1,43 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, ScrollView, ActivityIndicator, StatusBar, Alert, TouchableOpacity } from "react-native";
+import React, { useEffect, useState, useRef } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
+  ActivityIndicator,
+  StatusBar,
+  Alert,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
 import { db } from "./firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import {
+  BannerAd,
+  BannerAdSize,
+  TestIds,
+  useForeground,
+} from "react-native-google-mobile-ads";
+
+const adUnitId = __DEV__
+  ? TestIds.ADAPTIVE_BANNER
+  : "ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy";
 
 const RecipeDetailsScreen = ({ route, navigation }) => {
   const { recipeId, recipeName, recipeUser, user } = route.params || {}; // Destructure with default empty objects to prevent undefined access
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isUserRecipe, setIsUserRecipe] = useState(false);
+
+  const bannerRef = useRef(null);
+
+  useForeground(() => {
+    if (Platform.OS === "ios" && bannerRef.current) {
+      bannerRef.current.load();
+    }
+  });
 
   useEffect(() => {
     console.log("RecipeDetailsScreen mounted with params:", route.params);
@@ -35,20 +64,17 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
       }
     } catch (error) {
       console.error("Error fetching recipe details:", error);
-      Alert.alert('Error', 'Failed to fetch recipe details. Please try again later.');
+      Alert.alert(
+        "Error",
+        "Failed to fetch recipe details. Please try again later."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const navigateToRecipeUserProfile = () => {
-    // if (user && user.uid && recipeUser && recipeUser.uid && user.uid !== recipeUser.uid) {
-    //   navigation.navigate('UserProfileScreen',{ user: recipeUser });
-    // } else if (recipeUser && recipeUser.uid) {
-      navigation.navigate('RecipeUserProfileScreen', { user: recipeUser });
-    // } else {
-    //   console.warn("Recipe user information is missing.");
-    // }
+    navigation.navigate("RecipeUserProfileScreen", { user: recipeUser });
   };
 
   const fetchRecipeFromAPI = async (recipeName) => {
@@ -65,7 +91,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
       }
     } catch (error) {
       console.error("Error fetching recipe details:", error);
-      Alert.alert('Error', 'Failed to fetch recipe details from API.');
+      Alert.alert("Error", "Failed to fetch recipe details from API.");
     } finally {
       setLoading(false);
     }
@@ -130,38 +156,61 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
               <TouchableOpacity onPress={navigateToRecipeUserProfile}>
                 <View style={styles.userContainer}>
                   <Image
-                    source={{ uri: recipeUser?.profilePictureUrl || "https://via.placeholder.com/150" }}
+                    source={{
+                      uri:
+                        recipeUser?.profilePictureUrl ||
+                        "https://via.placeholder.com/150",
+                    }}
                     style={styles.userImage}
                   />
-                  <Text style={styles.username}>{recipeUser?.name || "Anonymous"}</Text>
-                  {user && user.uid && recipeUser && recipeUser.uid && user.uid !== recipeUser.uid && (
-                    <TouchableOpacity style={styles.followButton}>
-                      <Text style={styles.followButtonText}>Follow</Text>
-                    </TouchableOpacity>
-                  )}
+                  <Text style={styles.username}>
+                    {recipeUser?.name || "Anonymous"}
+                  </Text>
+                  {user &&
+                    user.uid &&
+                    recipeUser &&
+                    recipeUser.uid &&
+                    user.uid !== recipeUser.uid && (
+                      <TouchableOpacity style={styles.followButton}>
+                        <Text style={styles.followButtonText}>Follow</Text>
+                      </TouchableOpacity>
+                    )}
                 </View>
               </TouchableOpacity>
               <View style={styles.detailsContainer}>
                 <Text style={styles.cookTime}>
                   Time: {recipe.strCookTime || "30 minutes"}
                 </Text>
+
                 <Text style={styles.detailsHeader}>Details</Text>
                 <Text style={styles.details}>
                   {recipe.strInstructions || recipe.description}
                 </Text>
               </View>
+              <View style={styles.midBanner}>
+                <BannerAd
+                  ref={bannerRef}
+                  unitId={adUnitId}
+                  size={BannerAdSize.INLINE_ADAPTIVE_BANNER}
+                />
+              </View>
               <View style={styles.ingredientsContainer}>
                 <Text style={styles.ingredientsTitle}>Ingredients</Text>
-                {recipeId ? (
-                  renderCustomIngredients(recipe.ingredients || [])
-                ) : (
-                  renderIngredients(recipe)
-                )}
+                {recipeId
+                  ? renderCustomIngredients(recipe.ingredients || [])
+                  : renderIngredients(recipe)}
               </View>
             </>
           ) : (
             <Text>Recipe not found</Text>
           )}
+          <View style={styles.smallBanner}>
+            <BannerAd
+              ref={bannerRef}
+              unitId={adUnitId}
+              size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            />
+          </View>
         </ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -248,18 +297,26 @@ const styles = StyleSheet.create({
   cookTime: {
     fontSize: 16,
     color: "#666666",
-    marginBottom: 8,
+    marginBottom: 16,
+  },
+  midBanner: {
+    marginBottom: 16,
+    marginTop: 16,
+    alignItems: "center",
+  },
+  smallBanner: {
+    marginTop: 16,
+    alignItems: "center",
   },
   detailsHeader: {
     fontSize: 20,
     fontWeight: "bold",
     color: "#FF6F61",
-    marginBottom: 8,
+    marginBottom: 16,
   },
   details: {
     fontSize: 16,
     color: "#666666",
-    marginBottom: 16,
     lineHeight: 24,
   },
   ingredientsContainer: {
