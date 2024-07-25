@@ -4,7 +4,7 @@ import MapView, { Marker } from "react-native-maps";
 
 const AboutScreen = ({ navigation }) => {
   const handleContactUsPress = () => {
-    navigation.navigate("ContactUs"); // Ensure you have a ContactUs screen in your navigation stack
+    navigation.navigate("Contact Us"); // Ensure you have a ContactUs screen in your navigation stack
   };
 
   // Coordinates for 160 Kendal Ave, Toronto, ON M5R 1M3
@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+  
   title: {
     fontSize: 24,
     fontWeight: "bold",
@@ -104,6 +105,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FF6F61",
     padding: 16,
     borderRadius: 8,
+    marginBottom:30,
     alignItems: "center",
   },
   buttonText: {
