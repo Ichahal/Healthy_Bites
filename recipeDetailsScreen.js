@@ -228,14 +228,20 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                   <Text style={styles.views}>{recipe.time || "15 min"}</Text>
                 </View>
                 <View style={styles.actionButtons}>
-                  <TouchableOpacity onPress={handleFavorite} style={styles.iconButton}>
+                  <TouchableOpacity
+                    onPress={handleFavorite}
+                    style={styles.iconButton}
+                  >
                     <FontAwesome
                       name={isFavorite ? "heart" : "heart-o"}
                       size={24}
                       color="#FF6F61"
                     />
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={shareRecipe} style={styles.iconButton}>
+                  <TouchableOpacity
+                    onPress={shareRecipe}
+                    style={styles.iconButton}
+                  >
                     <FontAwesome name="share-alt" size={24} color="#FF6F61" />
                   </TouchableOpacity>
                 </View>
@@ -254,21 +260,23 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                     {recipeUser?.name || "Anonymous"}
                   </Text>
                   {user &&
-                    user.uid &&
-                    recipeUser &&
-                    recipeUser.uid &&
-                    user.uid !== recipeUser.uid ? (
-                      <TouchableOpacity style={styles.followButton}>
-                        <Text style={styles.followButtonText}>Follow</Text>
-                      </TouchableOpacity>
-                    ) : (
-                      <TouchableOpacity
-                      onPress={() => navigation.navigate("EditRecipeScreen", { recipeId })}
+                  user.uid &&
+                  recipeUser &&
+                  recipeUser.uid &&
+                  user.uid !== recipeUser.uid ? (
+                    <TouchableOpacity style={styles.followButton}>
+                      <Text style={styles.followButtonText}>Follow</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity
+                      onPress={() =>
+                        navigation.navigate("EditRecipeScreen", { recipeId })
+                      }
                       style={styles.followButton}
                     >
                       <Text style={styles.followButtonText}>Edit Recipe</Text>
                     </TouchableOpacity>
-                    )}
+                  )}
                 </View>
               </TouchableOpacity>
               <View style={styles.ingredientsContainer}>
@@ -300,12 +308,14 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
             </View>
           )}
         </ScrollView>
-        <BannerAd
-          unitId={adUnitId}
-          size={BannerAdSize.FULL_BANNER}
-          requestOptions={{ requestNonPersonalizedAdsOnly: true }}
-          ref={bannerRef}
-        />
+        <View style={styles.smallBanner}>
+          <BannerAd
+            unitId={adUnitId}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+            ref={bannerRef}
+          />
+        </View>
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -313,7 +323,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   safeContainer: 
-  { flex: 1 },
+    { flex: 1, backgroundColor: "#fff" }, 
 
   scrollViewContent:
    { padding: 20 },
