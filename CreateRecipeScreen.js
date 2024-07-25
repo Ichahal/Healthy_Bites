@@ -10,9 +10,10 @@ import {
   Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { db } from "../Healthy_Bites/firebaseConfig";
+import { db, storage } from "../Healthy_Bites/firebaseConfig";
 import { useNavigation } from "@react-navigation/native";
 import { collection, doc, setDoc, addDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const CreateRecipeScreen = ({ user }) => {
   const navigation = useNavigation();
@@ -51,6 +52,15 @@ const CreateRecipeScreen = ({ user }) => {
     }
   };
 
+  const uploadImageToStorage = async (uri) => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const imageRef = ref(storage, `recipeImages/${Date.now()}`);
+    await uploadBytes(imageRef, blob);
+    const downloadURL = await getDownloadURL(imageRef);
+    return downloadURL;
+  };
+
   const handlePublish = async () => {
     if (!title || !description || !time || !photo) {
       Alert.alert("Error", "Please fill out all fields and add a photo.");
@@ -60,24 +70,27 @@ const CreateRecipeScreen = ({ user }) => {
     const currentTimestamp = new Date().toISOString();
     setUploadTime(currentTimestamp);
 
-    const recipeData = {
-      title,
-      description,
-      time,
-      ingredients,
-      instructions,
-      photo,
-      uploadtime: currentTimestamp,
-      userId: user.email
-    };
-
     try {
+      // Upload the image to Firebase Storage
+      const photoURL = await uploadImageToStorage(photo);
+
+      const recipeData = {
+        title,
+        description,
+        time,
+        ingredients,
+        instructions,
+        photoURL,  // Save the image URL
+        uploadtime: currentTimestamp,
+        userId: user.email,
+      };
+
       // Add recipe to Firestore "Recipes" collection
       const recipeRef = await addDoc(collection(db, "Recipes"), recipeData);
 
       // Add recipe to user's "ownRecipes" subcollection
       const userOwnRecipesRef = doc(db, `users/${user.email.toLowerCase()}/ownRecipes`, recipeRef.id);
-    await setDoc(userOwnRecipesRef, recipeData);
+      await setDoc(userOwnRecipesRef, recipeData);
 
       Alert.alert("Success", "Recipe published!");
       navigation.goBack();
