@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 16,
-    marginBottom:32,
+    marginBottom:40,
     backgroundColor:"white",
     paddingHorizontal: 16,
     backgroundColor: "#fff",
@@ -347,12 +347,12 @@ const styles = StyleSheet.create({
   },
   recipeContainer: {
     flexDirection: "row",
-    marginBottom: 16,
+    marginVertical: 8,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 8,
+    marginVertical: 8,
   },
   horizontalScroll: {
     marginBottom: 16,

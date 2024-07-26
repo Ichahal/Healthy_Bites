@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Image,
   ScrollView,
+  SafeAreaView,
   TextInput,
   TouchableOpacity,
   Alert,
@@ -122,114 +123,135 @@ const EditRecipeScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.photoContainer} onPress={handlePickImage}>
-          {photo ? (
-            <Image source={{ uri: photo }} style={styles.photo} />
-          ) : (
-            <View style={styles.photoPlaceholder}>
-              <Text style={styles.photoPlaceholderText}>Add photo</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      </View>
-      <TextInput
-        style={styles.input}
-        placeholder="Recipe title"
-        placeholderTextColor="#ff6347"
-        value={title}
-        onChangeText={setTitle}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Recipe description"
-        placeholderTextColor="#ff6347"
-        value={description}
-        onChangeText={setDescription}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Time (e.g., 1 hour, 30 min)"
-        placeholderTextColor="#ff6347"
-        value={time}
-        onChangeText={setTime}
-      />
-      <Text style={styles.sectionTitle}>Ingredients</Text>
-      {ingredients.map((ingredient, index) => (
-        <View key={index} style={styles.ingredientContainer}>
-          <TextInput
-            style={styles.ingredientInput}
-            placeholder="Amt"
-            placeholderTextColor="#ff6347"
-            value={ingredient.amount}
-            onChangeText={(text) => {
-              const newIngredients = [...ingredients];
-              newIngredients[index].amount = text;
-              setIngredients(newIngredients);
-            }}
-          />
-          <TextInput
-            style={styles.ingredientInput}
-            placeholder="Ingredient..."
-            placeholderTextColor="#ff6347"
-            value={ingredient.ingredient}
-            onChangeText={(text) => {
-              const newIngredients = [...ingredients];
-              newIngredients[index].ingredient = text;
-              setIngredients(newIngredients);
-            }}
-          />
+    <SafeAreaView style={styles.safeContainer}>
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => {
-              const newIngredients = ingredients.filter((_, i) => i !== index);
-              setIngredients(newIngredients);
-            }}
+            style={styles.photoContainer}
+            onPress={handlePickImage}
           >
-            <Text style={styles.deleteButton}>🗑️</Text>
+            {photo ? (
+              <Image source={{ uri: photo }} style={styles.photo} />
+            ) : (
+              <View style={styles.photoPlaceholder}>
+                <Text style={styles.photoPlaceholderText}>Add photo</Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
-      ))}
-      <TouchableOpacity style={styles.addButton} onPress={handleAddIngredient}>
-        <Text style={styles.addButtonText}>+ Add Ingredient</Text>
-      </TouchableOpacity>
-      <Text style={styles.sectionTitle}>Instructions</Text>
-      {instructions.map((instruction, index) => (
-        <View key={index} style={styles.instructionContainer}>
-          <TextInput
-            style={styles.instructionInput}
-            placeholder={`Instruction ${index + 1}`}
-            placeholderTextColor="#ff6347"
-            value={instruction}
-            onChangeText={(text) => {
-              const newInstructions = [...instructions];
-              newInstructions[index] = text;
-              setInstructions(newInstructions);
-            }}
-          />
-          <TouchableOpacity
-            onPress={() => {
-              const newInstructions = instructions.filter((_, i) => i !== index);
-              setInstructions(newInstructions);
-            }}
-          >
-            <Text style={styles.deleteButton}>🗑️</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Recipe title"
+          placeholderTextColor="#ff6347"
+          value={title}
+          onChangeText={setTitle}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Recipe description"
+          placeholderTextColor="#ff6347"
+          value={description}
+          onChangeText={setDescription}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Time (e.g., 1 hour, 30 min)"
+          placeholderTextColor="#ff6347"
+          value={time}
+          onChangeText={setTime}
+        />
+        <Text style={styles.sectionTitle}>Ingredients</Text>
+        {ingredients.map((ingredient, index) => (
+          <View key={index} style={styles.ingredientContainer}>
+            <TextInput
+              style={styles.ingredientInput}
+              placeholder="Amt"
+              placeholderTextColor="#ff6347"
+              value={ingredient.amount}
+              onChangeText={(text) => {
+                const newIngredients = [...ingredients];
+                newIngredients[index].amount = text;
+                setIngredients(newIngredients);
+              }}
+            />
+            <TextInput
+              style={styles.ingredientInput}
+              placeholder="Ingredient..."
+              placeholderTextColor="#ff6347"
+              value={ingredient.ingredient}
+              onChangeText={(text) => {
+                const newIngredients = [...ingredients];
+                newIngredients[index].ingredient = text;
+                setIngredients(newIngredients);
+              }}
+            />
+            <TouchableOpacity
+              onPress={() => {
+                const newIngredients = ingredients.filter(
+                  (_, i) => i !== index
+                );
+                setIngredients(newIngredients);
+              }}
+            >
+              <Text style={styles.deleteButton}>🗑️</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={handleAddIngredient}
+        >
+          <Text style={styles.addButtonText}>+ Add Ingredient</Text>
+        </TouchableOpacity>
+        <Text style={styles.sectionTitle}>Instructions</Text>
+        {instructions.map((instruction, index) => (
+          <View key={index} style={styles.instructionContainer}>
+            <TextInput
+              style={styles.instructionInput}
+              placeholder={`Instruction ${index + 1}`}
+              placeholderTextColor="#ff6347"
+              value={instruction}
+              onChangeText={(text) => {
+                const newInstructions = [...instructions];
+                newInstructions[index] = text;
+                setInstructions(newInstructions);
+              }}
+            />
+            <TouchableOpacity
+              onPress={() => {
+                const newInstructions = instructions.filter(
+                  (_, i) => i !== index
+                );
+                setInstructions(newInstructions);
+              }}
+            >
+              <Text style={styles.deleteButton}>🗑️</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={handleAddInstruction}
+        >
+          <Text style={styles.addButtonText}>+ Add Instruction</Text>
+        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveButtonText}>Save</Text>
           </TouchableOpacity>
         </View>
-      ))}
-      <TouchableOpacity style={styles.addButton} onPress={handleAddInstruction}>
-        <Text style={styles.addButtonText}>+ Add Instruction</Text>
-      </TouchableOpacity>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Save</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+    marginBottom: 0,
+    paddingBottom: 0,
+  },
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",

@@ -83,7 +83,6 @@ export default function LoginScreen({ navigation }) {
         onChangeText={(value) => setPassword(value)}
         value={password}
         secureTextEntry={true}
-        containerStyle={styles.input}
       />
       <CheckBox
         title="Remember Me"
@@ -132,7 +131,6 @@ const styles = StyleSheet.create({
   checkbox: {
     backgroundColor: 'transparent',
     borderWidth: 0,
-    marginBottom: 16,
   },
   button: {
     marginTop: 16,

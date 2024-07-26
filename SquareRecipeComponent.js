@@ -2,12 +2,22 @@ import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 
 const SquareRecipeComponent = ({ recipe, onPress }) => {
-  // console.log("Recipe in SquareRecipeComponent:", recipe); // Log the recipe prop to verify
+  const maxTitleLength = 25;
+
+  const truncateTitle = (title, maxLength) => {
+    if (!title) return "";
+    if (title.length <= maxLength) return title;
+    return title.substring(0, maxLength) + "...";
+  };
+
+
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
       <Image source={{ uri: recipe.image }} style={styles.image} />
-      <Text style={styles.title}>{recipe.title}</Text>
-      <Text style={styles.details}>{recipe.details}</Text>
+      <Text style={styles.title}>
+        {truncateTitle(recipe.title, maxTitleLength)}
+      </Text>
+      {/* <Text style={styles.details}>{recipe.details}</Text> */}
     </TouchableOpacity>
   );
 };
