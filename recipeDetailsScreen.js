@@ -217,7 +217,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF6F61" />
+        <ActivityIndicator size="large" color="#ff6347" />
       </View>
     );
   }
@@ -267,7 +267,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                     <FontAwesome
                       name={isFavorite ? "heart" : "heart-o"}
                       size={24}
-                      color="#FF6F61"
+                      color="#ff6347"
                     />
                   </TouchableOpacity>
                   <Text style={styles.metaText}>5 stars</Text>
@@ -277,7 +277,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                     onPress={shareRecipe}
                     style={styles.iconButton}
                   >
-                    <FontAwesome name="share-alt" size={24} color="#FF6F61" />
+                    <FontAwesome name="share-alt" size={24} color="#ff6347" />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
 
   metaText: {
     fontSize: 18,
-    color: "#FF6F61",
+    color: "#ff6347",
   },
 
   actionButtons: {
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
   followButton: {
     paddingVertical: 5,
     paddingHorizontal: 10,
-    backgroundColor: "#FF6F61",
+    backgroundColor: "#ff6347",
     borderRadius: 5,
   },
 

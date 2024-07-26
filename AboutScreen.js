@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image,SafeAreaView, TouchableOpacity } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
 const AboutScreen = ({ navigation }) => {
@@ -14,25 +14,24 @@ const AboutScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>About Us</Text>
-      <Image
-        source={{ uri: "https://www.carstairsminorhockey.ca/wp-content/uploads/sites/1672/2019/04/about-us.jpg" }} // Replace with your actual image URL
-        style={styles.image}
-      />
-      <Text style={styles.label}>Welcome to Healthy Bites!</Text>
-      <Text style={styles.description}>
-        Healthy Bites is a mobile recipe application designed to simplify the process of discovering, saving, and sharing nutritious recipes.
-      </Text>
-      <View style={styles.separator} />
-      <Text style={styles.infoTitle}>Address</Text>
-      <Text style={styles.infoText}>160 Kendal Ave, Toronto, ON M5R 1M3</Text>
-      <Text style={styles.infoTitle}>Phone</Text>
-      <Text style={styles.infoText}>+1 (437) 477-6201</Text>
-      <Text style={styles.infoTitle}>Email</Text>
-      <Text style={styles.infoText}>contact@healthybites.ca</Text>
-      
-      {/* <MapView
+    <SafeAreaView style={styles.safeContainer}>
+      <View style={styles.container}>
+        <Text style={styles.title}>About Us</Text>
+        <Image source={require("./assets/diet.png")} style={styles.image} />
+        <Text style={styles.label}>Welcome to Healthy Bites!</Text>
+        <Text style={styles.description}>
+          Healthy Bites is a mobile recipe application designed to simplify the
+          process of discovering, saving, and sharing nutritious recipes.
+        </Text>
+        <View style={styles.separator} />
+        <Text style={styles.infoTitle}>Address</Text>
+        <Text style={styles.infoText}>160 Kendal Ave, Toronto, ON M5R 1M3</Text>
+        <Text style={styles.infoTitle}>Phone</Text>
+        <Text style={styles.infoText}>+1 (437) 477-6201</Text>
+        <Text style={styles.infoTitle}>Email</Text>
+        <Text style={styles.infoText}>contact@healthybites.ca</Text>
+
+        {/* <MapView
         style={styles.map}
         initialRegion={{
           latitude: coordinates.latitude,
@@ -44,36 +43,45 @@ const AboutScreen = ({ navigation }) => {
         <Marker coordinate={coordinates} title="Healthy Bites" />
       </MapView> */}
 
-      <TouchableOpacity style={styles.button} onPress={handleContactUsPress}>
-        <Text style={styles.buttonText}>Contact Us</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity style={styles.button} onPress={handleContactUsPress}>
+          <Text style={styles.buttonText}>Contact Us</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+    marginBottom: 0,
+    paddingBottom: 0,
+  },
   container: {
     flex: 1,
+    backgroundColor: "#FFFFFF",
     padding: 16,
   },
-  
+
   title: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: "bold",
-    marginBottom: 16,
+    marginTop: 16,
+    marginBottom: 32,
     textAlign: "center",
   },
   image: {
-    width: "100%",
-    height: 250,
+    width: 200,
+    height: 200,
     marginBottom: 16,
-    resizeMode: "cover", // Changed to cover to ensure image covers the space properly
+    alignSelf: "center",
   },
   label: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 32,
     marginBottom: 8,
     textAlign: "center",
+    color: "#ff6347",
   },
   description: {
     fontSize: 16,
@@ -86,15 +94,16 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   infoTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
-    marginTop: 16,
-    textAlign: "center",
+    marginTop: 8,
+    textAlign: "start",
   },
   infoText: {
     fontSize: 16,
-    textAlign: "center",
-    marginBottom: 8,
+    textAlign: "start",
+    marginVertical: 8,
+    color: "#777",
   },
   map: {
     width: "100%",
@@ -102,10 +111,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   button: {
-    backgroundColor: "#FF6F61",
+    backgroundColor: "#ff6347",
     padding: 16,
     borderRadius: 8,
-    marginBottom:30,
+    marginVertical: 16,
     alignItems: "center",
   },
   buttonText: {

@@ -15,12 +15,17 @@ import { db } from "./firebaseConfig";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { Ionicons } from "@expo/vector-icons";
 // import { useFocusEffect } from "@react-navigation/native";
-import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
+import {
+  useNavigation,
+  useRoute,
+  useFocusEffect,
+} from "@react-navigation/native";
 const PRIMARY_COLOR = "#ff6347";
 const SECONDARY_COLOR = "#f7d8d8";
 const TEXT_COLOR = "#333";
 const INACTIVE_TAB_COLOR = "#FFC1C1";
-const FALLBACK_IMAGE_URL = "https://www.themealdb.com/images/media/meals/ebvuir1699013665.jpg";
+const FALLBACK_IMAGE_URL =
+  "https://www.themealdb.com/images/media/meals/ebvuir1699013665.jpg";
 
 const CommunityScreen = ({ user }) => {
   const navigation = useNavigation();
@@ -117,31 +122,34 @@ const CommunityScreen = ({ user }) => {
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.recipeContainer}
-      onPress={() => navigateToRecipeDetails(item.id, item.title, item.user)}
-    >
-      <RecipeImage uri={item.photo} />
-      <View style={styles.recipeInfo}>
-        <View style={styles.userInfo}>
-          <Image
-            source={{ uri: item.user.profilePictureUrl }}
-            style={styles.userProfileImage}
-          />
-          <View>
-            <Text style={styles.userName}>@{item.user.name}</Text>
-            <Text style={styles.userTime}>{item.time} ago</Text>
+    <View>
+      <TouchableOpacity
+        style={styles.recipeContainer}
+        onPress={() => navigateToRecipeDetails(item.id, item.title, item.user)}
+      >
+        <RecipeImage uri={item.photo} />
+        <View style={styles.recipeInfo}>
+          <View style={styles.userInfo}>
+            <Image
+              source={{ uri: item.user.profilePictureUrl }}
+              style={styles.userProfileImage}
+            />
+            <View>
+              <Text style={styles.userName}>@{item.user.name}</Text>
+              <Text style={styles.userTime}>{item.time} ago</Text>
+            </View>
+          </View>
+          <Text style={styles.recipeTitle}>{item.title}</Text>
+          <Text style={styles.recipeDetails}>{item.description}</Text>
+          <View style={styles.recipeFooter}>
+            <Text style={styles.recipeTime}>⏱ {item.time} min</Text>
+            <Text style={styles.recipeLikes}>❤️ {item.likes}</Text>
           </View>
         </View>
-        <Text style={styles.recipeTitle}>{item.title}</Text>
-        <Text style={styles.recipeDetails}>{item.description}</Text>
-        <View style={styles.recipeFooter}>
-          <Text style={styles.recipeTime}>⏱ {item.time} min</Text>
-          <Text style={styles.recipeLikes}>❤️ {item.likes}</Text>
-        </View>
-      </View>
-      <View style={styles.recipeBottomBorder} />
-    </TouchableOpacity>
+        <View style={styles.recipeBottomBorder} />
+      </TouchableOpacity>
+      <View style={styles.separator} />
+    </View>
   );
 
   return (
@@ -235,9 +243,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   container: {
-    marginBottom:32,
+    marginVertical: 16,
     flex: 1,
     backgroundColor: "#fff",
+  },
+  separator: {
+    height: 1,
+    backgroundColor: "#CCC",
+    marginVertical: 16,
   },
   header: {
     flexDirection: "row",
@@ -281,7 +294,6 @@ const styles = StyleSheet.create({
   },
   recipeContainer: {
     borderRadius: 24,
-    marginBottom: 32,
     marginHorizontal: 16,
     overflow: "hidden",
     shadowColor: "#000",

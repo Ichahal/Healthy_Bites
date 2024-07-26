@@ -315,8 +315,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 16,
-    marginBottom:40,
-    backgroundColor:"white",
+    marginBottom: 40,
+    backgroundColor: "white",
     paddingHorizontal: 16,
     backgroundColor: "#fff",
   },
@@ -353,6 +353,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginVertical: 8,
+    color: PRIMARY_COLOR,
   },
   horizontalScroll: {
     marginBottom: 16,
