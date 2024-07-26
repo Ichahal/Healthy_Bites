@@ -241,6 +241,35 @@ const handleSearch = async (
           <Text>No random recipe found</Text>
         )}
 
+        <Text style={styles.sectionTitle}>{activeTab} Recipes</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.horizontalScroll}
+        >
+          {tabLoading ? (
+            <ActivityIndicator
+              size="large"
+              color={PRIMARY_COLOR}
+              style={styles.loadingIndicator}
+            />
+          ) : (
+            <View style={styles.recipeContainer}>
+              {tabRecipes.map((recipe) => (
+                <SquareRecipeComponent
+                  key={recipe.idMeal}
+                  recipe={{
+                    image:
+                      recipe.strMealThumb || "https://via.placeholder.com/150",
+                    title: recipe.strMeal,
+                  }}
+                  onPress={() => navigateToRecipeDetails(null, recipe.strMeal)}
+                />
+              ))}
+            </View>
+          )}
+        </ScrollView>
+
         <Text style={styles.sectionTitle}>Your Recipes</Text>
         <ScrollView
           horizontal
@@ -266,35 +295,6 @@ const handleSearch = async (
                   onPress={() =>
                     navigateToRecipeDetails(recipe.id, recipe.title)
                   }
-                />
-              ))}
-            </View>
-          )}
-        </ScrollView>
-
-        <Text style={styles.sectionTitle}>{activeTab} Recipes</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.horizontalScroll}
-        >
-          {tabLoading ? (
-            <ActivityIndicator
-              size="large"
-              color={PRIMARY_COLOR}
-              style={styles.loadingIndicator}
-            />
-          ) : (
-            <View style={styles.recipeContainer}>
-              {tabRecipes.map((recipe) => (
-                <SquareRecipeComponent
-                  key={recipe.idMeal}
-                  recipe={{
-                    image:
-                      recipe.strMealThumb || "https://via.placeholder.com/150",
-                    title: recipe.strMeal,
-                  }}
-                  onPress={() => navigateToRecipeDetails(null, recipe.strMeal)}
                 />
               ))}
             </View>

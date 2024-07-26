@@ -11,10 +11,16 @@ import {
   Alert,
   TouchableOpacity,
   Platform,
-  Share
+  Share,
 } from "react-native";
 import { db } from "./firebaseConfig";
-import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+} from "firebase/firestore";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import {
   BannerAd,
@@ -111,7 +117,9 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
           });
 
           console.log(
-            `Recipe ${newFavoriteStatus ? "added to" : "removed from"} favorites`
+            `Recipe ${
+              newFavoriteStatus ? "added to" : "removed from"
+            } favorites`
           );
         }
       } catch (error) {
@@ -186,17 +194,23 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     try {
       const result = await Share.share({
         title: `Check out this recipe: ${recipe.strMeal || recipe.title}`,
-        message: `Hey! Check out this awesome recipe: ${recipe.strMeal || recipe.title}\n\nIngredients: ${recipe.ingredients?.map(ing => `${ing.amount} ${ing.ingredient}`).join(', ')}\n\nInstructions: ${recipe.strInstructions || recipe.description}\n\nWatch on YouTube: ${recipe.strYoutube || ''}`,
-        url: recipe.strYoutube || ''
+        message: `Hey! Check out this awesome recipe: ${
+          recipe.strMeal || recipe.title
+        }\n\nIngredients: ${recipe.ingredients
+          ?.map((ing) => `${ing.amount} ${ing.ingredient}`)
+          .join(", ")}\n\nInstructions: ${
+          recipe.strInstructions || recipe.description
+        }\n\nWatch on YouTube: ${recipe.strYoutube || ""}`,
+        url: recipe.strYoutube || "",
       });
 
       if (result.action === Share.sharedAction) {
-        console.log('Recipe shared successfully');
+        console.log("Recipe shared successfully");
       } else if (result.action === Share.dismissedAction) {
-        console.log('Share dismissed');
+        console.log("Share dismissed");
       }
     } catch (error) {
-      console.error('Error sharing recipe:', error);
+      console.error("Error sharing recipe:", error);
     }
   };
 
@@ -207,6 +221,28 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
       </View>
     );
   }
+
+  const processText = (text) => {
+    if (!text) return "";
+
+    // Replace carriage return and newline with double newline for paragraph breaks
+    const processedText = text.replace(/\r\n/g, "\n\n");
+
+    // Add an extra newline at the end of each paragraph
+    return processedText.replace(/(\n\n)/g, "$1\n");
+  };
+
+  const renderParagraphs = (text) => {
+    const processedText = processText(text);
+    const paragraphs = processedText.split(/\n\s*\n/);
+
+    return paragraphs.map((para, index) => (
+      <Text key={index} style={styles.instructions}>
+        {para}
+        {"\n"} {/* Add an extra new line after each paragraph */}
+      </Text>
+    ));
+  };
 
   return (
     <SafeAreaProvider>
@@ -280,24 +316,18 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
               </TouchableOpacity>
               <View style={styles.instructionsContainer}>
                 <Text style={styles.sectionTitle}>Instructions</Text>
-                <Text style={styles.instructions}>
-                  {recipe.strInstructions || recipe.description}
-                </Text>
+                {renderParagraphs(recipe.strInstructions || recipe.description)}
               </View>
 
-              <View style={styles.ingredientsContainer}>
-                <Text style={styles.sectionTitle}>Ingredients</Text>
-                {recipe.ingredients
-                  ? renderCustomIngredients(recipe.ingredients)
-                  : renderIngredients(recipe)}
-              </View>
               {recipe.strYoutube && (
-                <YoutubePlayer
-                  height={220}
-                  play={playing}
-                  videoId={recipe.strYoutube.split("v=")[1]}
-                  onChangeState={onStateChange}
-                />
+                <View style={styles.youtubeContainer}>
+                  <YoutubePlayer
+                    height={220}
+                    play={playing}
+                    videoId={recipe.strYoutube.split("v=")[1]}
+                    onChangeState={onStateChange}
+                  />
+                </View>
               )}
             </>
           ) : (
@@ -307,6 +337,13 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
               </Text>
             </View>
           )}
+
+          <View style={styles.ingredientsContainer}>
+            <Text style={styles.sectionTitle}>Ingredients</Text>
+            {recipe.ingredients
+              ? renderCustomIngredients(recipe.ingredients)
+              : renderIngredients(recipe)}
+          </View>
         </ScrollView>
         <View style={styles.smallBanner}>
           <BannerAd
@@ -406,8 +443,12 @@ const styles = StyleSheet.create({
   },
 
   ingredientsContainer: {
+    marginVertical: 8,
+  },
+
+  youtubeContainer: {
     marginTop: 8,
-    marginBottom: 32,
+    marginBottom: 24,
   },
 
   sectionTitle: {
@@ -418,6 +459,7 @@ const styles = StyleSheet.create({
 
   ingredient: {
     fontSize: 16,
+    lineHeight: 24,
   },
 
   instructionsContainer: {
@@ -426,6 +468,7 @@ const styles = StyleSheet.create({
 
   instructions: {
     fontSize: 16,
+    lineHeight: 24,
   },
 
   noRecipeContainer: {
