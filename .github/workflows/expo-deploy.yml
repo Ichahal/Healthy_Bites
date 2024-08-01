@@ -24,9 +24,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
@@ -54,7 +51,7 @@ jobs:
 
       - name: Get Android APK URL
         id: get-apk-url
-        run: echo "apk_url=$(eas build:list --json --limit=1 --platform=android | jq -r .[0].artifacts.buildUrl)" >> $GITHUB_ENV
+        run: echo "apk_url=$(eas build:list --json --limit=1 --platform=android --non-interactive | jq -r .[0].artifacts.buildUrl)" >> $GITHUB_ENV
 
       - name: Send Email Notification
         if: always()
