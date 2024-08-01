@@ -79,7 +79,7 @@ jobs:
       #     target: public/
       #     auto-match: true
 
-    - name: Print Environment Variables
+      - name: Print Environment Variables
         run: |
           echo "APK URL: ${{ env.apk_url }}"
           echo "CI: $CI"
