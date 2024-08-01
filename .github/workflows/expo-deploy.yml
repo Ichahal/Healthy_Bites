@@ -92,9 +92,9 @@ jobs:
         run: |
           curl -L -o public/app.apk ${{ env.apk_url }}
 
-      - name: Download iOS Build using curl
-        run: |
-          curl -L -o public/ios_build.zip ${{ env.ios_url }}
+      # - name: Download iOS Build using curl
+      #   run: |
+      #     curl -L -o public/ios_build.zip ${{ env.ios_url }}
 
       - name: LIST DIR
         run: ls -R
