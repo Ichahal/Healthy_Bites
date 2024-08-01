@@ -39,15 +39,15 @@ jobs:
       - name: Install dependencies
         uses: bahmutov/npm-install@v1
 
-      - name: Build iOS
-        run: eas build --platform ios --profile ios-simulator --clear-cache
+      # - name: Build iOS
+      #   run: eas build --platform ios --profile ios-simulator --clear-cache
 
       - name: Build Android APK
         run: eas build --platform android --profile development --clear-cache
 
-      - name: Get iOS Build URL
-        id: get-ios-url
-        run: echo "ios_url=$(eas build:list --json --limit=1 --platform=ios | jq -r .[0].artifacts.buildUrl)" >> $GITHUB_ENV
+      # - name: Get iOS Build URL
+      #   id: get-ios-url
+      #   run: echo "ios_url=$(eas build:list --json --limit=1 --platform=ios | jq -r .[0].artifacts.buildUrl)" >> $GITHUB_ENV
 
       - name: Get Android APK URL
         id: get-apk-url
@@ -72,12 +72,12 @@ jobs:
           ignore_cert: true
           convert_markdown: true
 
-      - name: Download iOS Build
-        uses: suisei-cn/actions-download-file@v1
-        with:
-          url: ${{ env.ios_url }}
-          target: public/
-          auto-match: true
+      # - name: Download iOS Build
+      #   uses: suisei-cn/actions-download-file@v1
+      #   with:
+      #     url: ${{ env.ios_url }}
+      #     target: public/
+      #     auto-match: true
 
       - name: Download Android APK
         uses: suisei-cn/actions-download-file@v1
