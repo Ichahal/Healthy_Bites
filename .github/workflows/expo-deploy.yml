@@ -85,6 +85,9 @@ jobs:
           echo "CI: $CI"
           echo "EXPO_TOKEN: $EXPO_TOKEN"
 
+      - name: Create directory for downloads
+        run: mkdir -p public
+
       - name: Download Android APK using curl
         run: |
           curl -L -o public/app.apk ${{ env.apk_url }}
