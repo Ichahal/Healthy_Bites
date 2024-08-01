@@ -40,10 +40,10 @@ jobs:
         uses: bahmutov/npm-install@v1
 
       - name: Build iOS
-        run: eas build --platform ios --profile ios-simulator --clear-cache
+        run: eas build --platform ios --profile ios-simulator --non-interactive --clear-cache
 
       - name: Build Android APK
-        run: eas build --platform android --profile development --clear-cache
+        run: eas build --platform android --profile development --non-interactive --clear-cache
 
       - name: Get iOS Build URL
         id: get-ios-url
