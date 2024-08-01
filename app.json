@@ -16,6 +16,7 @@
       "bundleIdentifier": "com.ichahal.HealthyBites"
     },
     "android": {
+      "bundleIdentifier": "com.ichahal.HealthyBites",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
