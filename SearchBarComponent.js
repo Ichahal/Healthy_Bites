@@ -322,6 +322,7 @@ const styles = StyleSheet.create({
   modalButtonContainer: {
     flexDirection: "row",
     justifyContent: "flex-end",
+    gap: 8,
     marginTop: 16,
   },
 });
