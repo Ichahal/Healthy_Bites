@@ -143,7 +143,7 @@ const CommunitySearchScreen = () => {
               <SearchRecipeComponent
                 key={recipe.id}
                 recipe={{
-                  image: recipe.photo || recipe.photoURL,
+                  image: recipe.photoURL || recipe.photo,
                   title: recipe.title,
                   description: recipe.instructions
                     ? recipe.instructions.slice(0, 100) + "..."

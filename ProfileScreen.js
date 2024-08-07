@@ -163,7 +163,7 @@ const Profile = ({ user, setUser }) => {
               <SquareRecipeComponent
                 style={styles.recipecontainer}
                 recipe={{
-                  image: item.photo || item.photoURL,
+                  image: item.photoURL || item.photo,
                   title: item.title,
                   details: item.time || "5 stars | 15min",
                 }}

@@ -124,7 +124,7 @@ const CommunityScreen = ({ user }) => {
         style={styles.recipeContainer}
         onPress={() => navigateToRecipeDetails(item.id, item.title, item.user)}
       >
-        <RecipeImage uri={item.photo || item.photoURL} />
+        <RecipeImage uri={item.photoURL || item.photo} />
         <View style={styles.recipeInfo}>
           <View style={styles.userInfo}>
             <Image

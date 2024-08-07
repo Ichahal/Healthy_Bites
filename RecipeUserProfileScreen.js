@@ -101,7 +101,7 @@ const navigateToRecipeDetails = (recipeId, recipeName, recipeUser) => {
           renderItem={({ item }) => (
             <SquareRecipeComponent
               recipe={{
-                image: item.photo || item.photoURL,
+                image: item.photoURL || item.photo,
                 title: item.title,
                 details: item.time || "5 stars | 15min",
               }}
