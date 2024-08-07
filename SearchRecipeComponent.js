@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-const SearchRecipeComponent = ({ recipe }) => {
+const SearchRecipeComponent = ({ recipe, onPress }) => {
   const navigation = useNavigation();
 
   const navigateToRecipeDetails = () => {
@@ -10,13 +10,13 @@ const SearchRecipeComponent = ({ recipe }) => {
       recipeId: recipe.id,
       recipeName: recipe.title,
     });
-  };
+  }; 
+
+  const handlePress = onPress || navigateToRecipeDetails;
+
 
   return (
-    <TouchableOpacity
-      onPress={navigateToRecipeDetails}
-      style={styles.recipeCard}
-    >
+    <TouchableOpacity onPress={handlePress} style={styles.recipeCard}>
       <View style={styles.imageContainer}>
         <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
         <View style={styles.favoriteIcon}>
@@ -26,12 +26,11 @@ const SearchRecipeComponent = ({ recipe }) => {
       <View style={styles.recipeInfo}>
         <Text style={styles.recipeTitle}>{recipe.title}</Text>
         <Text style={styles.recipeDescription}>{recipe.description}</Text>
-        <Text style={styles.recipeAuthor}>By {recipe.author}</Text>
-        <View style={styles.recipeDetails}>
-          <Text style={styles.recipeTime}>{recipe.time}</Text>
-          <Text style={styles.recipeDifficulty}>{recipe.difficulty}</Text>
-          <Text style={styles.recipeRating}>{recipe.rating} ⭐</Text>
-        </View>
+        <Text style={styles.recipeTime}>Time: {recipe.time}</Text>
+        <Text style={styles.recipeDifficulty}>
+          Difficulty:{recipe.difficulty}
+        </Text>
+        <Text style={styles.recipeRating}>{recipe.rating} ⭐</Text>
       </View>
     </TouchableOpacity>
   );
@@ -85,11 +84,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#ff6347",
     marginBottom: 8,
-  },
-  recipeDetails: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
   },
   recipeTime: {
     fontSize: 14,

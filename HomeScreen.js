@@ -288,7 +288,7 @@ const handleSearch = async (
                 <SquareRecipeComponent
                   key={recipe.id}
                   recipe={{
-                    image: recipe.photo || "https://via.placeholder.com/150",
+                    image: recipe.photo || recipe.photoURL,
                     title: recipe.title,
                     details: recipe.time || "5 stars | 15min",
                   }}

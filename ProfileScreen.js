@@ -129,14 +129,14 @@ const Profile = ({ user, setUser }) => {
         </View>
         {activeTab === "Recipes" ? (
           <FlatList
-          // style={styles.recipecontainer}
+            // style={styles.recipecontainer}
             data={recipes}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <SquareRecipeComponent
-              style={styles.recipecontainer}
+                style={styles.recipecontainer}
                 recipe={{
-                  image: item.photo || "https://via.placeholder.com/150",
+                  image: item.photo || item.photoURL,
                   title: item.title,
                   details: item.time || "5 stars | 15min",
                 }}

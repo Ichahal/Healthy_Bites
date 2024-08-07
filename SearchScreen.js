@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
   },
   activePage: {
-    backgroundColor: "#FD5D69",
+    backgroundColor: "#FF6347",
   },
   pageNumberText: {
     fontSize: 16,

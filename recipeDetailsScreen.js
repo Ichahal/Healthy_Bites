@@ -253,7 +253,9 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
             <>
               <View style={styles.header}>
                 <Image
-                  source={{ uri: recipe.strMealThumb || recipe.photo }}
+                  source={{
+                    uri: recipe.strMealThumb || recipe.photo || recipe.photoURL
+                  }}
                   style={styles.image}
                 />
                 <Text style={styles.title}>
