@@ -54,11 +54,12 @@ export default function HomeScreen({ user, setUser }) {
         if (user && user.email) {
           const q = query(collection(db, `users/${user.email}/ownRecipes`));
           const querySnapshot = await getDocs(q);
-          const recipesData = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          // console.log("Fetched recipes:", recipesData); // Log fetched recipes
+          const recipesData = querySnapshot.docs
+            .filter((doc) => doc.id !== "initDoc") // Exclude the "initDoc" document
+            .map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
           setRecipes(recipesData);
         }
       } catch (error) {
@@ -95,44 +96,54 @@ export default function HomeScreen({ user, setUser }) {
     setSearchQuery(text);
   };
 
-const handleSearch = async (
-  query,
-  selectedCategory,
-  selectedArea,
-  selectedIngredients,
-) => {
-  let url = `https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`;
+  const handleSearch = async (
+    query,
+    selectedCategory,
+    selectedArea,
+    selectedIngredients
+  ) => {
+    let url = `https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`;
 
-  if (selectedCategory) {
-    url = `https://www.themealdb.com/api/json/v1/1/filter.php?c=${selectedCategory}`;
-  }
-  if (selectedArea) {
-    url = `https://www.themealdb.com/api/json/v1/1/filter.php?a=${selectedArea}`;
-  }
-  if (selectedIngredients.length > 0) {
-    url = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${selectedIngredients.join(
-      ","
-    )}`;
-  }
+    if (selectedCategory) {
+      url = `https://www.themealdb.com/api/json/v1/1/filter.php?c=${selectedCategory}`;
+    }
+    if (selectedArea) {
+      url = `https://www.themealdb.com/api/json/v1/1/filter.php?a=${selectedArea}`;
+    }
+    if (selectedIngredients.length > 0) {
+      url = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${selectedIngredients.join(
+        ","
+      )}`;
+    }
 
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    if (data.meals) {
-      const searchResults = data.meals.map((meal) => ({
-        id: meal.idMeal,
-        title: meal.strMeal,
-        photo: meal.strMealThumb,
-        instructions: meal.strInstructions,
-      }));
-      navigation.navigate("Search Screen", {
-        searchResults,
-        query,
-        selectedCategory,
-        selectedArea,
-        selectedIngredients,
-      });
-    } else {
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      if (data.meals) {
+        const searchResults = data.meals.map((meal) => ({
+          id: meal.idMeal,
+          title: meal.strMeal,
+          photo: meal.strMealThumb,
+          instructions: meal.strInstructions,
+        }));
+        navigation.navigate("Search Screen", {
+          searchResults,
+          query,
+          selectedCategory,
+          selectedArea,
+          selectedIngredients,
+        });
+      } else {
+        navigation.navigate("Search Screen", {
+          searchResults: [],
+          query,
+          selectedCategory,
+          selectedArea,
+          selectedIngredients,
+        });
+      }
+    } catch (error) {
+      console.error("Error searching recipes:", error);
       navigation.navigate("Search Screen", {
         searchResults: [],
         query,
@@ -141,18 +152,7 @@ const handleSearch = async (
         selectedIngredients,
       });
     }
-  } catch (error) {
-    console.error("Error searching recipes:", error);
-    navigation.navigate("Search Screen", {
-      searchResults: [],
-      query,
-      selectedCategory,
-      selectedArea,
-      selectedIngredients,
-    });
-  }
-};
-
+  };
 
   const userName = user.name;
 
@@ -160,7 +160,7 @@ const handleSearch = async (
     navigation.navigate("Recipe Details Screen", {
       recipeId,
       recipeName,
-      recipeUser:user,
+      recipeUser: user,
     });
   };
 
@@ -288,7 +288,7 @@ const handleSearch = async (
                 <SquareRecipeComponent
                   key={recipe.id}
                   recipe={{
-                    image: recipe.photo || "https://via.placeholder.com/150",
+                    image: recipe.photo || recipe.photoURL,
                     title: recipe.title,
                     details: recipe.time || "5 stars | 15min",
                   }}

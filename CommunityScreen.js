@@ -10,16 +10,15 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-// import { useNavigation } from "@react-navigation/native";
 import { db } from "./firebaseConfig";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { Ionicons } from "@expo/vector-icons";
-// import { useFocusEffect } from "@react-navigation/native";
 import {
   useNavigation,
   useRoute,
   useFocusEffect,
 } from "@react-navigation/native";
+
 const PRIMARY_COLOR = "#ff6347";
 const SECONDARY_COLOR = "#f7d8d8";
 const TEXT_COLOR = "#333";
@@ -85,8 +84,6 @@ const CommunityScreen = ({ user }) => {
 
   const sortRecipes = (recipes, criteria) => {
     switch (criteria) {
-      case "AI Picked":
-        return recipes.sort((a, b) => b.likes - a.likes); // Example sorting logic
       case "Latest":
         return recipes.sort((a, b) => new Date(b.date) - new Date(a.date));
       case "Following":
@@ -127,7 +124,7 @@ const CommunityScreen = ({ user }) => {
         style={styles.recipeContainer}
         onPress={() => navigateToRecipeDetails(item.id, item.title, item.user)}
       >
-        <RecipeImage uri={item.photo} />
+        <RecipeImage uri={item.photo || item.photoURL} />
         <View style={styles.recipeInfo}>
           <View style={styles.userInfo}>
             <Image
@@ -173,23 +170,13 @@ const CommunityScreen = ({ user }) => {
               />
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => navigation.navigate("SearchScreen")}
+              onPress={() => navigation.navigate("Community Search Screen")}
             >
               <Ionicons name="search" size={24} color={PRIMARY_COLOR} />
             </TouchableOpacity>
           </View>
         </View>
         <View style={styles.tabs}>
-          <TouchableOpacity on onPress={() => setActiveTab("AI Picked")}>
-            <Text
-              style={[
-                styles.tab,
-                activeTab === "AI Picked" && styles.activeTab,
-              ]}
-            >
-              AI Picked
-            </Text>
-          </TouchableOpacity>
           <TouchableOpacity onPress={() => setActiveTab("Latest")}>
             <Text
               style={[styles.tab, activeTab === "Latest" && styles.activeTab]}
@@ -223,9 +210,7 @@ const CommunityScreen = ({ user }) => {
             contentContainerStyle={styles.flatListContainer}
             ListEmptyComponent={() => (
               <Text style={styles.emptyText}>
-                {activeTab === "AI Picked"
-                  ? "No AI Picked recipes found."
-                  : activeTab === "Following"
+                {activeTab === "Following"
                   ? "No Following recipes found."
                   : "No recipes found. Please try again later."}
               </Text>
@@ -249,7 +234,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: 1,
-    backgroundColor: "#CCC",
+    backgroundColor: "#ffd8d1",
     marginVertical: 16,
   },
   header: {
@@ -278,7 +263,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     marginVertical: 8,
-    paddingVertical: 8,
+    // paddingVertical: 8,
   },
   tab: {
     fontSize: 16,

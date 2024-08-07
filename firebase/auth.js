@@ -23,14 +23,14 @@ const signin = async (email, password) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    console.log('User authenticated successfully:', user);
+    // console.log('User authenticated successfully:', user);
 
     const userDetails = await select(user.email.toLowerCase(), 'users');
     if (!userDetails) {
       throw new Error('User details not found in database');
     }
 
-    console.log('User details retrieved:', userDetails);
+    // console.log('User details retrieved:', userDetails);
     return { userCredential, userDetails };
   } catch (err) {
     console.error('Signin error:', err);
