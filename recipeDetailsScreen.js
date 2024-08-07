@@ -37,6 +37,7 @@ const adUnitId = __DEV__
   : "ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy";
 
 const RecipeDetailsScreen = ({ route, navigation }) => {
+  
   const { recipeId, recipeName, recipeUser, user } = route.params || {};
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -133,7 +134,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
   };
 
   const navigateToRecipeUserProfile = () => {
-    navigation.navigate("RecipeUserProfileScreen", { user: recipeUser });
+    navigation.navigate("Recipe User Profile Screen", { user: recipeUser });
   };
 
   const fetchRecipeFromAPI = async (recipeName) => {
@@ -254,7 +255,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
               <View style={styles.header}>
                 <Image
                   source={{
-                    uri: recipe.strMealThumb || recipe.photo || recipe.photoURL
+                    uri: recipe.strMealThumb || recipe.photo || recipe.photoURL,
                   }}
                   style={styles.image}
                 />
@@ -307,7 +308,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                   ) : (
                     <TouchableOpacity
                       onPress={() =>
-                        navigation.navigate("EditRecipeScreen", { recipeId })
+                        navigation.navigate("Edit Recipe Screen", { recipeId })
                       }
                       style={styles.followButton}
                     >

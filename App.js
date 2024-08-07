@@ -54,12 +54,12 @@ export default function AppNavigator() {
         <Stack.Screen name="Forgot Password" component={ForgotPasswordScreen} />
         <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
         <Stack.Screen
-          name="RecipeUserProfileScreen"
+          name="Recipe User Profile Screen"
           component={RecipeUserProfileScreen}
         />
         <Stack.Screen name="UserProfileScreen" component={ProfileScreen} />
         <Stack.Screen name="Contact Us" component={ContactUs} />
-        <Stack.Screen name="EditRecipeScreen" component={EditRecipeScreen} />
+        <Stack.Screen name="Edit Recipe Screen" component={EditRecipeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -20,7 +20,9 @@ const RecipeUserProfileScreen = ({ route }) => {
         if (user && user.email) {
           const q = query(collection(db, `users/${user.email}/ownRecipes`));
           const querySnapshot = await getDocs(q);
-          const recipesData = querySnapshot.docs.map((doc) => ({
+          const recipesData = querySnapshot.docs
+            .filter((doc) => doc.id !== "initDoc") // Exclude the "initDoc" document
+            .map((doc) => ({
             id: doc.id,
             ...doc.data(),
           }));
@@ -38,9 +40,13 @@ const RecipeUserProfileScreen = ({ route }) => {
     }
   }, [isFocused, user]);
 
-  const navigateToRecipeDetails = (recipeId, recipeName) => {
-    navigation.navigate("Recipe Details Screen", { recipeId, recipeName, user });
-  };
+const navigateToRecipeDetails = (recipeId, recipeName, recipeUser) => {
+  navigation.navigate("Recipe Details Screen", {
+    recipeId,
+    recipeName,
+    recipeUser: user,
+  });
+};
 
   const handleFollow = () => {
     // Implement follow functionality here
@@ -67,14 +73,12 @@ const RecipeUserProfileScreen = ({ route }) => {
             <Text style={styles.profileName}>{user.name}</Text>
             <Text style={styles.profileUsername}>@{user.username}</Text>
             <Text style={styles.profileDescription}>
-              {user.description || "User description goes here. This is a placeholder for the user's bio or presentation."}
+              {user.description ||
+                "User description goes here. This is a placeholder for the user's bio or presentation."}
             </Text>
           </View>
         </View>
-        <TouchableOpacity
-          style={styles.followButton}
-          onPress={handleFollow}
-        >
+        <TouchableOpacity style={styles.followButton} onPress={handleFollow}>
           <Text style={styles.followButtonText}>Follow</Text>
         </TouchableOpacity>
         <View style={styles.statsContainer}>
@@ -97,7 +101,7 @@ const RecipeUserProfileScreen = ({ route }) => {
           renderItem={({ item }) => (
             <SquareRecipeComponent
               recipe={{
-                image: item.photo || "https://via.placeholder.com/150",
+                image: item.photo || item.photoURL,
                 title: item.title,
                 details: item.time || "5 stars | 15min",
               }}

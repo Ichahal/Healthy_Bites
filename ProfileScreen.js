@@ -1,15 +1,36 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, FlatList, SafeAreaView, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+  SafeAreaView,
+  ActivityIndicator,
+} from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { NavigationContainer, useNavigation, useIsFocused } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  useNavigation,
+  useIsFocused,
+} from "@react-navigation/native";
 import EditProfileScreen from "./EditProfileScreen";
-import RecipeDetailsScreen from "./recipeDetailsScreen"; 
+import RecipeDetailsScreen from "./recipeDetailsScreen";
 import { signout, auth } from "./firebase/auth";
-import { MenuProvider, Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
+import {
+  MenuProvider,
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+} from "react-native-popup-menu";
 import CreateRecipeScreen from "./CreateRecipeScreen";
 import { db } from "../Healthy_Bites/firebaseConfig";
-import { collection, getDocs, query } from 'firebase/firestore';
+import { collection, getDocs, query } from "firebase/firestore";
 import SquareRecipeComponent from "./SquareRecipeComponent";
+import EditRecipeScreen from "./EditRecipeScreen";
+import RecipeUserProfileScreen from "./RecipeUserProfileScreen";
 
 const Profile = ({ user, setUser }) => {
   const navigation = useNavigation();
@@ -29,10 +50,12 @@ const Profile = ({ user, setUser }) => {
           // Query the "ownRecipes" subcollection of the current user
           const q = query(collection(db, `users/${user.email}/ownRecipes`));
           const querySnapshot = await getDocs(q);
-          const recipesData = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
+          const recipesData = querySnapshot.docs
+            .filter((doc) => doc.id !== "initDoc") // Exclude the "initDoc" document
+            .map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
           setRecipes(recipesData);
         }
       } catch (error) {
@@ -47,9 +70,13 @@ const Profile = ({ user, setUser }) => {
     }
   }, [isFocused, user]);
 
-  const navigateToRecipeDetails = (recipeId, recipeName) => {
-    navigation.navigate("Recipe Details Screen", { recipeId, recipeName, user });
-  };
+ const navigateToRecipeDetails = (recipeId, recipeName, recipeUser) => {
+   navigation.navigate("Recipe Details Screen", {
+     recipeId,
+     recipeName,
+     recipeUser: user,
+   });
+ };
 
   return (
     <SafeAreaView style={styles.safeContainer}>
@@ -174,10 +201,10 @@ const ProfileScreen = ({ user, setUser }) => {
 
   const handleLogout = async () => {
     try {
-      await signout(); 
+      await signout();
       navigation.reset({
         index: 0,
-        routes: [{ name: 'Login' }], 
+        routes: [{ name: "Login" }],
       });
     } catch (error) {
       console.error("Logout Error:", error);
@@ -237,7 +264,18 @@ const ProfileScreen = ({ user, setUser }) => {
           <Stack.Screen name="Create Recipe" options={{ headerShown: true }}>
             {(props) => <CreateRecipeScreen {...props} user={user} />}
           </Stack.Screen>
-          <Stack.Screen name="Recipe Details Screen" component={RecipeDetailsScreen} />
+          <Stack.Screen
+            name="Recipe Details Screen"
+            component={RecipeDetailsScreen}
+          />
+          <Stack.Screen
+            name="Edit Recipe Screen"
+            component={EditRecipeScreen}
+          />
+          <Stack.Screen
+            name="Recipe User Profile Screen"
+            component={RecipeUserProfileScreen}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </MenuProvider>
@@ -256,7 +294,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   container: {
-    marginBottom:32,
+    marginBottom: 32,
     flex: 1,
     padding: 16,
     backgroundColor: "#fff",
@@ -364,8 +402,7 @@ const styles = StyleSheet.create({
   recipeGrid: {
     // paddingHorizontal: 8,
     marginLeft: 40,
-    marginTop:10,
-
+    marginTop: 10,
   },
   recipeCard: {
     backgroundColor: "#f0f0f0",
