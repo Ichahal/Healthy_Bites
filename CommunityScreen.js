@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: 1,
-    backgroundColor: "#CCC",
+    backgroundColor: "#ffd8d1",
     marginVertical: 16,
   },
   header: {
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     marginVertical: 8,
-    paddingVertical: 8,
+    // paddingVertical: 8,
   },
   tab: {
     fontSize: 16,

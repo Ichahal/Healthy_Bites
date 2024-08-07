@@ -325,7 +325,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
               {recipe.strYoutube && (
                 <View style={styles.youtubeContainer}>
                   <YoutubePlayer
-                    height={220}
+                    height={230}
                     play={playing}
                     videoId={recipe.strYoutube.split("v=")[1]}
                     onChangeState={onStateChange}
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
 
   image: {
     width: "100%",
-    height: 200,
+    height: 250,
     borderRadius: 10,
   },
 
