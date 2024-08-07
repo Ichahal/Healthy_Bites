@@ -5,6 +5,7 @@ import { Input, Button, Icon } from 'react-native-elements';
 import { signup } from './firebase/auth'; 
 import { doc, setDoc } from "firebase/firestore";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import "@react-native-community/datetimepicker";
 
 export default function Register({ navigation }) {
   const [email, setEmail] = useState('');

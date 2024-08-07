@@ -26,7 +26,7 @@
 		</data>
 		<key>EXConstants.bundle/app.config</key>
 		<data>
-		8x2MskxEqipyHJjHPBlwt70v3dM=
+		oKG6gaPmZp5XE20y58FTgqruMIo=
 		</data>
 		<key>EXDevLauncher.bundle/EXDevLauncherErrorView.storyboardc/EXDevLauncherErrorView.nib</key>
 		<data>
@@ -1240,6 +1240,10 @@
 		<data>
 		jELnhnqiUmua9zXW4TMLER64YlI=
 		</data>
+		<key>EXUpdates.bundle/Info.plist</key>
+		<data>
+		0bbz0OJ+uX2RPKggULKf5iA9Wls=
+		</data>
 		<key>Entypo.ttf</key>
 		<data>
 		ErVnDrF4E493KF1fLCRtPMX6Z9Y=
@@ -2029,6 +2033,14 @@
 		<data>
 		sPDfyCwXVFwSP8cGRWRskpblWgM=
 		</data>
+		<key>ReachabilitySwift.bundle/Info.plist</key>
+		<data>
+		iT7kum1P/KN7Rt5cZ7tm1UKG4u0=
+		</data>
+		<key>ReachabilitySwift.bundle/PrivacyInfo.xcprivacy</key>
+		<data>
+		ucg9pita0v8d353x3NuGfxweQYU=
+		</data>
 		<key>SimpleLineIcons.ttf</key>
 		<data>
 		n/uBpaEREuKS8swyPphIa61ZdZk=
@@ -2099,7 +2111,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			H56zG1Z3bZAj+GGxgf0EZmJGb1F+jwX8ztmyjF4WVVc=
+			0e3powy83IPTGTPsnZchXUhP/k6Vaz6m1qW9bMcqKOA=
 			</data>
 		</dict>
 		<key>EXDevLauncher.bundle/EXDevLauncherErrorView.storyboardc/EXDevLauncherErrorView.nib</key>
@@ -4223,6 +4235,13 @@
 			bPeJCCagL8dRr7j9xXEM8kaBLwLhvfqWquuZRKiEUoY=
 			</data>
 		</dict>
+		<key>EXUpdates.bundle/Info.plist</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			1FB+iYTF+I+D8kpv7f4U9l/kwTIQkQ98+pwivxWYtyA=
+			</data>
+		</dict>
 		<key>Entypo.ttf</key>
 		<dict>
 			<key>hash2</key>
@@ -5095,6 +5114,20 @@
 			<key>hash2</key>
 			<data>
 			CxKH0OaGz4Z9ONl8yl3GlLMCnyfE/kJw3UvS/VRYovA=
+			</data>
+		</dict>
+		<key>ReachabilitySwift.bundle/Info.plist</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			eQS5MV0+Rg3pKrg6wMQfy70xRumvzc95VZ0c7kNam34=
+			</data>
+		</dict>
+		<key>ReachabilitySwift.bundle/PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Uh6274Qwdz5cAQ4YOP6d2PpdYre3bRzqjX2NqtyxROI=
 			</data>
 		</dict>
 		<key>SimpleLineIcons.ttf</key>
