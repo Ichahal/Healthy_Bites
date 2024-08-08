@@ -117,7 +117,6 @@ const CommunitySearchScreen = () => {
   }, []);
 
   return (
-    <SafeAreaView>
       <View style={styles.container}>
         <View style={styles.searchContainer}>
           <TextInput
@@ -191,7 +190,6 @@ const CommunitySearchScreen = () => {
           </View>
         )}
       </View>
-    </SafeAreaView>
   );
 };
 
