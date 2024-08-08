@@ -163,7 +163,7 @@ const Profile = ({ user, setUser }) => {
               <SquareRecipeComponent
                 style={styles.recipecontainer}
                 recipe={{
-                  image: item.photo || item.photoURL,
+                  image: item.photoURL || item.photo,
                   title: item.title,
                   details: item.time || "5 stars | 15min",
                 }}
@@ -401,8 +401,9 @@ const styles = StyleSheet.create({
   },
   recipeGrid: {
     // paddingHorizontal: 8,
-    marginLeft: 40,
+    marginHorizontal: 8,
     marginTop: 10,
+    alignSelf: "center",
   },
   recipeCard: {
     backgroundColor: "#f0f0f0",
@@ -440,14 +441,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   menuText: {
-    fontSize: 20,
+    fontSize: 24,
     paddingHorizontal: 10,
     fontWeight: "bold",
     padding: 10,
   },
   menuOption: {
     textAlign: "center",
-    padding: 10,
+    padding: 12,
     fontSize: 20,
     fontWeight: "bold",
     borderRadius: 8,

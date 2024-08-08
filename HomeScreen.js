@@ -288,7 +288,7 @@ export default function HomeScreen({ user, setUser }) {
                 <SquareRecipeComponent
                   key={recipe.id}
                   recipe={{
-                    image: recipe.photo || recipe.photoURL,
+                    image: recipe.photoURL || recipe.photo,
                     title: recipe.title,
                     details: recipe.time || "5 stars | 15min",
                   }}

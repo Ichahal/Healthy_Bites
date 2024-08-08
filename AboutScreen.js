@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, Image,SafeAreaView, TouchableOpacity } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import MapView, { Marker } from "react-native-maps";
 
 const AboutScreen = ({ navigation }) => {
@@ -16,6 +17,8 @@ const AboutScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.safeContainer}>
       <View style={styles.container}>
+        <ScrollView>
+
         <Text style={styles.title}>About Us</Text>
         <Image source={require("./assets/diet.png")} style={styles.image} />
         <Text style={styles.label}>Welcome to Healthy Bites!</Text>
@@ -38,14 +41,15 @@ const AboutScreen = ({ navigation }) => {
           longitude: coordinates.longitude,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
-        }}
-      >
-        <Marker coordinate={coordinates} title="Healthy Bites" />
-      </MapView> */}
+          }}
+          >
+          <Marker coordinate={coordinates} title="Healthy Bites" />
+          </MapView> */}
 
         <TouchableOpacity style={styles.button} onPress={handleContactUsPress}>
           <Text style={styles.buttonText}>Contact Us</Text>
         </TouchableOpacity>
+      </ScrollView>
       </View>
     </SafeAreaView>
   );
@@ -55,7 +59,6 @@ const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
     backgroundColor: "#fff",
-    marginBottom: 0,
     paddingBottom: 0,
   },
   container: {
@@ -114,7 +117,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#ff6347",
     padding: 16,
     borderRadius: 8,
-    marginVertical: 16,
+    marginTop: 32,
+    marginBottom: 64,
     alignItems: "center",
   },
   buttonText: {

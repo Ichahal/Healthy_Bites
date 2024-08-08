@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  SafeAreaView
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { db, storage } from "../Healthy_Bites/firebaseConfig";
@@ -101,6 +102,7 @@ const CreateRecipeScreen = ({ user }) => {
   };
 
   return (
+    <SafeAreaView style={styles.safeContainer}>
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity
@@ -216,14 +218,27 @@ const CreateRecipeScreen = ({ user }) => {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+    marginBottom: 0,
+    paddingBottom: 0,
+    
+  },
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    padding: 16,
+    paddingBottom:25 ,
+    paddingLeft:16,
+    paddingRight:16,
+    // paddingTop:16,
+    marginBottom: 40,
+    
   },
   header: {
     alignItems: "center",
