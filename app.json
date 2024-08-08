@@ -13,8 +13,14 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ichahal.HealthyBites"
-    },
+      "bundleIdentifier": "com.ichahal.HealthyBites",
+    
+    "config": {
+      "googleMaps": {
+        "apiKey": "AIzaSyC1-yqIHV-9axkzIfr7STub8wOIAwCenYE"
+      }
+    }
+  },
     "android": {
       "package": "com.ichahal.HealthyBites",
       "adaptiveIcon": {
