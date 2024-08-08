@@ -368,7 +368,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                       >
                         <Text style={styles.followButtonText}>Edit</Text>
                       </TouchableOpacity>
-                      <TouchableOpacity
+                      {/* <TouchableOpacity
                         onPress={() =>
                           navigation.navigate("DeleteUserRecipe", { recipeId })
                         }
@@ -378,7 +378,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                         ]}
                       >
                         <Text style={styles.followButtonText}>Delete</Text>
-                      </TouchableOpacity>
+                      </TouchableOpacity> */}
                     </View>
                   )}
                 </View>

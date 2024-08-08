@@ -249,6 +249,12 @@ const EditRecipeScreen = () => {
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
             <Text style={styles.saveButtonText}>Save</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.deleteButtonContainer}
+            onPress={() => navigation.navigate("DeleteUserRecipe", { recipeId })}
+          >
+            <Text style={styles.deleteButtonText}>Delete</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -355,7 +361,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-between", // Adjusted to space buttons apart
     marginTop: 16,
   },
   saveButton: {
@@ -373,6 +379,18 @@ const styles = StyleSheet.create({
   deleteButton: {
     fontSize: 24,
     color: "#ff6347",
+  },
+  deleteButtonContainer: {
+    backgroundColor: "#ff6347",
+    borderRadius: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 48,
+    alignItems: "center",
+  },
+  deleteButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
 

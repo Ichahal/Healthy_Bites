@@ -31,6 +31,7 @@ import { collection, getDocs, query } from "firebase/firestore";
 import SquareRecipeComponent from "./SquareRecipeComponent";
 import EditRecipeScreen from "./EditRecipeScreen";
 import RecipeUserProfileScreen from "./RecipeUserProfileScreen";
+import DeleteUserRecipe from "./DeleteUserRecipe";
 
 const Profile = ({ user, setUser }) => {
   const navigation = useNavigation();
@@ -361,6 +362,10 @@ const ProfileScreen = ({ user, setUser }) => {
           <Stack.Screen
             name="Recipe User Profile Screen"
             component={RecipeUserProfileScreen}
+          />
+          <Stack.Screen
+            name="DeleteUserRecipe"
+            component={DeleteUserRecipe}
           />
         </Stack.Navigator>
       </NavigationContainer>
