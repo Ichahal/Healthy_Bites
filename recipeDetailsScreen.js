@@ -140,8 +140,6 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
           
           setIsFavorite(newFavoriteStatus);
   
-          // const recipeName = "Recipe Name Here"; // Replace this with the actual recipe name
-  
           await updateDoc(userRef, {
             favoriteRecipes: newFavoriteStatus
               ? arrayUnion({ id: recipeId, name: recipeName })
@@ -234,6 +232,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     }
   }, []);
 
+  
   const shareRecipe = async () => {
     try {
       const result = await Share.share({

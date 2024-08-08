@@ -25,6 +25,13 @@ import {
   MenuOption,
   MenuTrigger,
 } from "react-native-popup-menu";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+} from "firebase/firestore";
 import CreateRecipeScreen from "./CreateRecipeScreen";
 import { db } from "../Healthy_Bites/firebaseConfig";
 import { collection, getDocs, query } from "firebase/firestore";
@@ -71,56 +78,38 @@ const Profile = ({ user, setUser }) => {
       setLoading(true);
       try {
         if (user && user.email) {
+          // Get the user's document
           const userRef = doc(db, "users", user.email.toLowerCase());
           const userSnap = await getDoc(userRef);
     
           if (userSnap.exists()) {
             const userData = userSnap.data();
-            const favoriteRecipes = userData.favoriteRecipes || [];
-    
-            if (favoriteRecipes.length > 0) {
-              const recipesPromises = favoriteRecipes.map(async (fav) => {
-                // Fetch recipe details from API using the name
+            const favouriteRecipes = userData.favoriteRecipes || [];
+            console.log("Favorite Recipes IDs:", favouriteRecipes);
+            const recipesData = await Promise.all(
+              favouriteRecipes.map(async (favRecipe) => {
                 const response = await fetch(
-                  `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(fav.name)}`
+                  `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${favRecipe.id}`
                 );
                 const data = await response.json();
-                return data.meals && data.meals.length > 0 ? data.meals[0] : null;
-              });
-    
-              const recipes = await Promise.all(recipesPromises);
-    
-              const favoritesData = recipes
-                .filter((recipe) => recipe !== null)
-                .map((recipe) => ({
-                  id: recipe.idMeal, // API returns idMeal
-                  name: recipe.strMeal,
-                  image: recipe.strMealThumb,
-                  ...recipe,
-                }));
-    
-              setFavorites(favoritesData);
-            } else {
-              setFavorites([]);
-            }
+                return data.meals && data.meals.length > 0
+                  ? { id: favRecipe.id, name: favRecipe.name, ...data.meals[0] }
+                  : null;
+              })
+            );
+            console.log("Fetched Favorite Recipes Data:", recipesData);
+            setFavorites(recipesData.filter((recipe) => recipe !== null));
           } else {
             console.error("User document does not exist.");
-            Alert.alert(
-              "Error",
-              "User document does not exist. Please ensure your user profile is properly set up."
-            );
           }
         }
       } catch (error) {
-        console.error("Error loading favorites:", error);
-        Alert.alert(
-          "Error",
-          "Failed to load favorite recipes. Please try again later."
-        );
+        console.error("Error loading favourite recipes:", error);
       } finally {
         setLoading(false);
       }
     };
+    
     
 
     
@@ -219,58 +208,63 @@ const Profile = ({ user, setUser }) => {
           </TouchableOpacity>
         </View>
         {activeTab === "Recipes" ? (
-          <FlatList
-            data={recipes}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <SquareRecipeComponent
-                style={styles.recipecontainer}
-                recipe={{
-                  image: item.photoURL || item.photo,
-                  title: item.title,
-                  details: item.time || "5 stars | 15min",
-                }}
-                onPress={() => navigateToRecipeDetails(item.id, item.title)}
-              />
-            )}
-            numColumns={2}
-            contentContainerStyle={styles.recipeGrid}
-            ListEmptyComponent={() => (
-              <View style={styles.centeredView}>
-                <Text>No recipes found.</Text>
-              </View>
-            )}
-            ListFooterComponent={
-              loading && <ActivityIndicator size="large" color="#ff6347" />
-            }
-          />
-        ) : (
-          <FlatList
-            data={favorites}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <SquareRecipeComponent
-                style={styles.recipecontainer}
-                recipe={{
-                  image: item.photoURL || item.photo,
-                  title: item.title,
-                  details: item.time || "5 stars | 15min",
-                }}
-                onPress={() => navigateToRecipeDetails(item.id, item.title)}
-              />
-            )}
-            numColumns={2}
-            contentContainerStyle={styles.recipeGrid}
-            ListEmptyComponent={() => (
-              <View style={styles.centeredView}>
-                <Text>No favorites found.</Text>
-              </View>
-            )}
-            ListFooterComponent={
-              loading && <ActivityIndicator size="large" color="#ff6347" />
-            }
-          />
-        )}
+  <FlatList
+    data={recipes}
+    keyExtractor={(item) => item.id}
+    renderItem={({ item }) => {
+      console.log('Rendering item:', item);
+      return (
+        <SquareRecipeComponent
+          style={styles.recipecontainer}
+          recipe={{
+            image: item.photoURL || item.photo,
+            title: item.title,
+            details: item.time || "5 stars | 15min",
+          }}
+          onPress={() => navigateToRecipeDetails(item.id, item.title)}
+        />
+      );
+    }}
+    
+    numColumns={2}
+    contentContainerStyle={styles.recipeGrid}
+    ListEmptyComponent={() => (
+      <View style={styles.centeredView}>
+        <Text>No recipes found.</Text>
+      </View>
+    )}
+    ListFooterComponent={
+      loading && <ActivityIndicator size="large" color="#ff6347" />
+    }
+  />
+) : (
+  <FlatList
+    data={favorites}
+    keyExtractor={(item) => item.id}
+    renderItem={({ item }) => (
+      <SquareRecipeComponent
+        style={styles.recipecontainer}
+        recipe={{
+          image: item.photoURL || item.photo,
+          title: item.title,
+          details: item.time || "5 stars | 15min",
+        }}
+        onPress={() => navigateToRecipeDetails(item.id, item.title)}
+      />
+    )}
+    numColumns={2}
+    contentContainerStyle={styles.recipeGrid}
+    ListEmptyComponent={() => (
+      <View style={styles.centeredView}>
+        <Text>No favorites found.</Text>
+      </View>
+    )}
+    ListFooterComponent={
+      loading && <ActivityIndicator size="large" color="#ff6347" />
+    }
+  />
+)}
+
       </View>
     </SafeAreaView>
   );
