@@ -37,6 +37,7 @@ const Profile = ({ user, setUser }) => {
   const isFocused = useIsFocused();
   const [activeTab, setActiveTab] = useState("Recipes");
   const [recipes, setRecipes] = useState([]);
+  const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
   const [profileImage, setProfileImage] = useState(
     user.profilePictureUrl || ""
@@ -65,18 +66,80 @@ const Profile = ({ user, setUser }) => {
       }
     };
 
-    if (isFocused && user && user.email) {
-      loadRecipes();
-    }
-  }, [isFocused, user]);
+    const loadFavorites = async () => {
+      setLoading(true);
+      try {
+        if (user && user.email) {
+          const userRef = doc(db, "users", user.email.toLowerCase());
+          const userSnap = await getDoc(userRef);
+    
+          if (userSnap.exists()) {
+            const userData = userSnap.data();
+            const favoriteRecipes = userData.favoriteRecipes || [];
+    
+            if (favoriteRecipes.length > 0) {
+              const recipesPromises = favoriteRecipes.map(async (fav) => {
+                // Fetch recipe details from API using the name
+                const response = await fetch(
+                  `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(fav.name)}`
+                );
+                const data = await response.json();
+                return data.meals && data.meals.length > 0 ? data.meals[0] : null;
+              });
+    
+              const recipes = await Promise.all(recipesPromises);
+    
+              const favoritesData = recipes
+                .filter((recipe) => recipe !== null)
+                .map((recipe) => ({
+                  id: recipe.idMeal, // API returns idMeal
+                  name: recipe.strMeal,
+                  image: recipe.strMealThumb,
+                  ...recipe,
+                }));
+    
+              setFavorites(favoritesData);
+            } else {
+              setFavorites([]);
+            }
+          } else {
+            console.error("User document does not exist.");
+            Alert.alert(
+              "Error",
+              "User document does not exist. Please ensure your user profile is properly set up."
+            );
+          }
+        }
+      } catch (error) {
+        console.error("Error loading favorites:", error);
+        Alert.alert(
+          "Error",
+          "Failed to load favorite recipes. Please try again later."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+    
 
- const navigateToRecipeDetails = (recipeId, recipeName, recipeUser) => {
-   navigation.navigate("Recipe Details Screen", {
-     recipeId,
-     recipeName,
-     recipeUser: user,
-   });
- };
+    
+
+    if (isFocused && user && user.email) {
+      if (activeTab === "Recipes") {
+        loadRecipes();
+      } else if (activeTab === "Favorites") {
+        loadFavorites();
+      }
+    }
+  }, [isFocused, user, activeTab]);
+
+  const navigateToRecipeDetails = (recipeId, recipeName, recipeUser) => {
+    navigation.navigate("Recipe Details Screen", {
+      recipeId,
+      recipeName,
+      recipeUser: user,
+    });
+  };
 
   return (
     <SafeAreaView style={styles.safeContainer}>
@@ -156,7 +219,6 @@ const Profile = ({ user, setUser }) => {
         </View>
         {activeTab === "Recipes" ? (
           <FlatList
-            // style={styles.recipecontainer}
             data={recipes}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
@@ -182,7 +244,31 @@ const Profile = ({ user, setUser }) => {
             }
           />
         ) : (
-          <Text>Favorites Grid</Text>
+          <FlatList
+            data={favorites}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <SquareRecipeComponent
+                style={styles.recipecontainer}
+                recipe={{
+                  image: item.photoURL || item.photo,
+                  title: item.title,
+                  details: item.time || "5 stars | 15min",
+                }}
+                onPress={() => navigateToRecipeDetails(item.id, item.title)}
+              />
+            )}
+            numColumns={2}
+            contentContainerStyle={styles.recipeGrid}
+            ListEmptyComponent={() => (
+              <View style={styles.centeredView}>
+                <Text>No favorites found.</Text>
+              </View>
+            )}
+            ListFooterComponent={
+              loading && <ActivityIndicator size="large" color="#ff6347" />
+            }
+          />
         )}
       </View>
     </SafeAreaView>
@@ -331,7 +417,6 @@ const styles = StyleSheet.create({
   profileDescription: {
     fontSize: 14,
     color: "#666",
-    // textAlign: "center",
     marginBottom: 16,
   },
   editButton: {
@@ -355,9 +440,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     marginHorizontal: 16,
   },
-  // recipecontainer:{
-  //   backgroundColor: "black",
-  // },
   createRecipeButtonText: {
     color: "#fff",
     fontSize: 16,
@@ -400,40 +482,13 @@ const styles = StyleSheet.create({
     color: "#ff6347",
   },
   recipeGrid: {
-    // paddingHorizontal: 8,
     marginHorizontal: 8,
     marginTop: 10,
     alignSelf: "center",
   },
-  recipeCard: {
-    backgroundColor: "#f0f0f0",
-    borderRadius: 8,
-    marginBottom: 16,
-    marginHorizontal: 8,
+  recipecontainer: {
     flex: 1,
-    overflow: "hidden",
-  },
-  recipeImage: {
-    width: "100%",
-    height: 150,
-    resizeMode: "cover",
-  },
-  recipeDetails: {
-    padding: 8,
-  },
-  recipeTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  recipeDescription: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 4,
-  },
-  recipeTime: {
-    fontSize: 12,
-    color: "#999",
+    margin: 8,
   },
   centeredView: {
     flex: 1,

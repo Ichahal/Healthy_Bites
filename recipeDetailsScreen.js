@@ -116,23 +116,23 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
       try {
         const userRef = doc(db, "users", user.email.toLowerCase());
         const userSnap = await getDoc(userRef);
-
+  
         if (userSnap.exists()) {
           const userData = userSnap.data();
           const newFavoriteStatus = !isFavorite;
-
+          
           setIsFavorite(newFavoriteStatus);
-
+  
+          // const recipeName = "Recipe Name Here"; // Replace this with the actual recipe name
+  
           await updateDoc(userRef, {
             favoriteRecipes: newFavoriteStatus
-              ? arrayUnion(recipeId)
-              : arrayRemove(recipeId),
+              ? arrayUnion({ id: recipeId, name: recipeName })
+              : arrayRemove({ id: recipeId, name: recipeName }),
           });
-
+  
           console.log(
-            `Recipe${
-              newFavoriteStatus ? "added to" : "removed from"
-            } favorites`
+            `Recipe${newFavoriteStatus ? " added to" : " removed from"} favorites`
           );
         } else {
           console.error("User document does not exist.");
@@ -150,6 +150,10 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
       }
     }
   };
+  
+
+
+  
 
   const navigateToRecipeUserProfile = () => {
     navigation.navigate("Recipe User Profile Screen", { user: recipeUser });

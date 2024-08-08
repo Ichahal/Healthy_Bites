@@ -47,48 +47,49 @@ const EditProfileScreen = ({ route }) => {
   };
 
   const handleSave = async () => {
-    let profilePictureUrl = profileImage;
+  let profilePictureUrl = profileImage;
 
-    if (profileImage && profileImage.startsWith("file://")) {
-      try {
-        const response = await fetch(profileImage);
-        const blob = await response.blob();
-        const storageRef = ref(
-          storage,
-          `profileImages/${user.email.toLowerCase()}_profile_picture`
-        );
-        await uploadBytes(storageRef, blob);
-        profilePictureUrl = await getDownloadURL(storageRef);
-      } catch (error) {
-        console.error("Image upload error:", error);
-        Alert.alert(
-          "Error",
-          "Failed to upload profile picture. Please try again later."
-        );
-        return;
-      }
-    }
-
-    const updatedUser = {
-      ...user,
-      name,
-      username,
-      description,
-      link,
-      profilePictureUrl,
-    };
+  if (profileImage && profileImage.startsWith("file://")) {
     try {
-      await updateUser(updatedUser, "users", user.email.toLowerCase());
-      navigation.setOptions({ setUser: updatedUser }); // Update user state using navigation.setOptions
-      navigation.navigate("Profile");
+      const response = await fetch(profileImage);
+      const blob = await response.blob();
+      const storageRef = ref(
+        storage,
+        `profileImages/${user.email.toLowerCase()}_profile_picture`
+      );
+      await uploadBytes(storageRef, blob);
+      profilePictureUrl = await getDownloadURL(storageRef);
     } catch (error) {
-      console.error("Update Error:", error);
+      console.error("Image upload error:", error);
       Alert.alert(
         "Error",
-        "Failed to update profile. Please try again later."
+        "Failed to upload profile picture. Please try again later."
       );
+      return;
     }
+  }
+
+  const updatedUser = {
+    ...user,
+    name,
+    username,
+    description,
+    link,
+    profilePictureUrl, // Ensure this field is included
   };
+
+  try {
+    await updateUser(updatedUser, "users", user.email.toLowerCase());
+    navigation.navigate("Profile");
+  } catch (error) {
+    console.error("Update Error:", error);
+    Alert.alert(
+      "Error",
+      "Failed to update profile. Please try again later."
+    );
+  }
+};
+
 
   return (
     <View style={styles.container}>
