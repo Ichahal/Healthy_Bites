@@ -56,11 +56,10 @@ const Profile = ({ user, setUser }) => {
       setLoading(true);
       try {
         if (user && user.email) {
-          // Query the "ownRecipes" subcollection of the current user
           const q = query(collection(db, `users/${user.email}/ownRecipes`));
           const querySnapshot = await getDocs(q);
           const recipesData = querySnapshot.docs
-            .filter((doc) => doc.id !== "initDoc") // Exclude the "initDoc" document
+            .filter((doc) => doc.id !== "initDoc")
             .map((doc) => ({
               id: doc.id,
               ...doc.data(),
@@ -78,7 +77,6 @@ const Profile = ({ user, setUser }) => {
       setLoading(true);
       try {
         if (user && user.email) {
-          // Get the user's document
           const userRef = doc(db, "users", user.email.toLowerCase());
           const userSnap = await getDoc(userRef);
     
@@ -86,19 +84,10 @@ const Profile = ({ user, setUser }) => {
             const userData = userSnap.data();
             const favouriteRecipes = userData.favoriteRecipes || [];
             console.log("Favorite Recipes IDs:", favouriteRecipes);
-            const recipesData = await Promise.all(
-              favouriteRecipes.map(async (favRecipe) => {
-                const response = await fetch(
-                  `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${favRecipe.id}`
-                );
-                const data = await response.json();
-                return data.meals && data.meals.length > 0
-                  ? { id: favRecipe.id, name: favRecipe.name, ...data.meals[0] }
-                  : null;
-              })
-            );
-            console.log("Fetched Favorite Recipes Data:", recipesData);
-            setFavorites(recipesData.filter((recipe) => recipe !== null));
+            setFavorites(favouriteRecipes.map((favRecipe) => ({
+              id: favRecipe.id,
+              name: favRecipe.name
+            })));
           } else {
             console.error("User document does not exist.");
           }
@@ -109,10 +98,6 @@ const Profile = ({ user, setUser }) => {
         setLoading(false);
       }
     };
-    
-    
-
-    
 
     if (isFocused && user && user.email) {
       if (activeTab === "Recipes") {
@@ -208,63 +193,55 @@ const Profile = ({ user, setUser }) => {
           </TouchableOpacity>
         </View>
         {activeTab === "Recipes" ? (
-  <FlatList
-    data={recipes}
-    keyExtractor={(item) => item.id}
-    renderItem={({ item }) => {
-      console.log('Rendering item:', item);
-      return (
-        <SquareRecipeComponent
-          style={styles.recipecontainer}
-          recipe={{
-            image: item.photoURL || item.photo,
-            title: item.title,
-            details: item.time || "5 stars | 15min",
-          }}
-          onPress={() => navigateToRecipeDetails(item.id, item.title)}
-        />
-      );
-    }}
-    
-    numColumns={2}
-    contentContainerStyle={styles.recipeGrid}
-    ListEmptyComponent={() => (
-      <View style={styles.centeredView}>
-        <Text>No recipes found.</Text>
-      </View>
-    )}
-    ListFooterComponent={
-      loading && <ActivityIndicator size="large" color="#ff6347" />
-    }
-  />
-) : (
-  <FlatList
-    data={favorites}
-    keyExtractor={(item) => item.id}
-    renderItem={({ item }) => (
-      <SquareRecipeComponent
-        style={styles.recipecontainer}
-        recipe={{
-          image: item.photoURL || item.photo,
-          title: item.title,
-          details: item.time || "5 stars | 15min",
-        }}
-        onPress={() => navigateToRecipeDetails(item.id, item.title)}
-      />
-    )}
-    numColumns={2}
-    contentContainerStyle={styles.recipeGrid}
-    ListEmptyComponent={() => (
-      <View style={styles.centeredView}>
-        <Text>No favorites found.</Text>
-      </View>
-    )}
-    ListFooterComponent={
-      loading && <ActivityIndicator size="large" color="#ff6347" />
-    }
-  />
-)}
-
+          <FlatList
+            data={recipes}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => {
+              console.log('Rendering item:', item);
+              return (
+                <SquareRecipeComponent
+                  style={styles.recipecontainer}
+                  recipe={{
+                    image: item.photoURL || item.photo,
+                    title: item.title,
+                    details: item.time || "5 stars | 15min",
+                  }}
+                  onPress={() => navigateToRecipeDetails(item.id, item.title)}
+                />
+              );
+            }}
+            numColumns={2}
+            contentContainerStyle={styles.recipeGrid}
+            ListEmptyComponent={() => (
+              <View style={styles.centeredView}>
+                <Text>No recipes found.</Text>
+              </View>
+            )}
+            ListFooterComponent={
+              loading && <ActivityIndicator size="large" color="#ff6347" />
+            }
+          />
+        ) : (
+          <FlatList
+            data={favorites}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View style={styles.recipecontainer}>
+                <Text style={styles.favoriteItemName}>{item.name}</Text>
+              </View>
+            )}
+            numColumns={2}
+            contentContainerStyle={styles.recipeGrid}
+            ListEmptyComponent={() => (
+              <View style={styles.centeredView}>
+                <Text>No favorites found.</Text>
+              </View>
+            )}
+            ListFooterComponent={
+              loading && <ActivityIndicator size="large" color="#ff6347" />
+            }
+          />
+        )}
       </View>
     </SafeAreaView>
   );
@@ -289,7 +266,6 @@ const ProfileScreen = ({ user, setUser }) => {
       });
     } catch (error) {
       console.error("Logout Error:", error);
-      // Handle any logout errors here
     }
   };
 
@@ -488,6 +464,26 @@ const styles = StyleSheet.create({
   recipecontainer: {
     flex: 1,
     margin: 8,
+    alignItems: 'center',
+  },
+  favoriteItemContainer: {
+    flex: 1,
+    margin: 8,
+    alignItems: 'center',
+    backgroundColor: '#f9f9f9',
+    padding: 8,
+    borderRadius: 8,
+  },
+  favoriteItemImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  favoriteItemName: {
+    fontSize: 16,
+    color: '#333',
+    textAlign: 'center',
   },
   centeredView: {
     flex: 1,
@@ -510,3 +506,4 @@ const styles = StyleSheet.create({
 });
 
 export default ProfileScreen;
+
