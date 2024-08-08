@@ -76,6 +76,7 @@ export default function HomeScreen({ user, setUser }) {
           "https://www.themealdb.com/api/json/v1/1/random.php"
         );
         const data = await response.json();
+        console.log("Fetched random recipe:", data.meals[0]); // Check this
         setRandomRecipe(data.meals[0]);
       } catch (error) {
         console.error("Error loading random recipe:", error);
@@ -157,10 +158,16 @@ export default function HomeScreen({ user, setUser }) {
   const userName = user.name;
 
   const navigateToRecipeDetails = (recipeId, recipeName, recipeUser) => {
+    console.log("Navigating to Recipe Details Screen with:");
+    console.log("Recipe ID:", recipeId);
+    console.log("Recipe Name:", recipeName);
+    console.log("Recipe User:", recipeUser);
+    console.log("User:", user);
     navigation.navigate("Recipe Details Screen", {
       recipeId,
       recipeName,
-      recipeUser: user,
+      recipeUser,
+      user: user, // Pass the user object as well
     });
   };
 
@@ -235,7 +242,7 @@ export default function HomeScreen({ user, setUser }) {
               title: randomRecipe.strMeal,
               details: randomRecipe.strInstructions.slice(0, 100) + "...",
             }}
-            onPress={() => navigateToRecipeDetails(null, randomRecipe.strMeal)}
+            onPress={() => navigateToRecipeDetails(randomRecipe.idMeal, randomRecipe.strMeal, user)}
           />
         ) : (
           <Text>No random recipe found</Text>
@@ -263,7 +270,7 @@ export default function HomeScreen({ user, setUser }) {
                       recipe.strMealThumb || "https://via.placeholder.com/150",
                     title: recipe.strMeal,
                   }}
-                  onPress={() => navigateToRecipeDetails(null, recipe.strMeal)}
+                  onPress={() => navigateToRecipeDetails(recipe.idMeal, recipe.strMeal, user)}
                 />
               ))}
             </View>
@@ -293,7 +300,7 @@ export default function HomeScreen({ user, setUser }) {
                     details: recipe.time || "5 stars | 15min",
                   }}
                   onPress={() =>
-                    navigateToRecipeDetails(recipe.id, recipe.title)
+                    navigateToRecipeDetails(recipe.id, recipe.title, user)
                   }
                 />
               ))}

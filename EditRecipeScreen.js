@@ -27,6 +27,7 @@ const EditRecipeScreen = () => {
   const [ingredients, setIngredients] = useState([{ amount: "", ingredient: "" }]);
   const [instructions, setInstructions] = useState([""]);
   const [photo, setPhoto] = useState(null);
+  const [strYoutube, setStrYoutube] = useState("");
 
   useEffect(() => {
     fetchRecipe();
@@ -47,6 +48,7 @@ const EditRecipeScreen = () => {
         setIngredients(recipeData.ingredients || [{ amount: "", ingredient: "" }]);
         setInstructions(recipeData.instructions || [""]);
         setPhoto(recipeData.photo);
+        setStrYoutube(recipeData.strYoutube);
       } else {
         console.log("No such document!");
       }
@@ -91,6 +93,7 @@ const EditRecipeScreen = () => {
       ingredients,
       instructions,
       photo,
+      strYoutube
     };
 
     try {
@@ -235,9 +238,22 @@ const EditRecipeScreen = () => {
         >
           <Text style={styles.addButtonText}>+ Add Instruction</Text>
         </TouchableOpacity>
+        <TextInput
+          style={styles.input}
+          placeholder="YouTube Link"
+          placeholderTextColor="#ff6347"
+          value={strYoutube}
+          onChangeText={setStrYoutube}
+        />
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
             <Text style={styles.saveButtonText}>Save</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.deleteButtonContainer}
+            onPress={() => navigation.navigate("DeleteUserRecipe", { recipeId })}
+          >
+            <Text style={styles.deleteButtonText}>Delete</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -345,7 +361,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-between", // Adjusted to space buttons apart
     marginTop: 16,
   },
   saveButton: {
@@ -363,6 +379,18 @@ const styles = StyleSheet.create({
   deleteButton: {
     fontSize: 24,
     color: "#ff6347",
+  },
+  deleteButtonContainer: {
+    backgroundColor: "#ff6347",
+    borderRadius: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 48,
+    alignItems: "center",
+  },
+  deleteButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
 

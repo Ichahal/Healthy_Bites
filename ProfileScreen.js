@@ -25,18 +25,27 @@ import {
   MenuOption,
   MenuTrigger,
 } from "react-native-popup-menu";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+} from "firebase/firestore";
 import CreateRecipeScreen from "./CreateRecipeScreen";
 import { db } from "../Healthy_Bites/firebaseConfig";
 import { collection, getDocs, query } from "firebase/firestore";
 import SquareRecipeComponent from "./SquareRecipeComponent";
 import EditRecipeScreen from "./EditRecipeScreen";
 import RecipeUserProfileScreen from "./RecipeUserProfileScreen";
+import DeleteUserRecipe from "./DeleteUserRecipe";
 
 const Profile = ({ user, setUser }) => {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const [activeTab, setActiveTab] = useState("Recipes");
   const [recipes, setRecipes] = useState([]);
+  const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
   const [profileImage, setProfileImage] = useState(
     user.profilePictureUrl || ""
@@ -47,11 +56,10 @@ const Profile = ({ user, setUser }) => {
       setLoading(true);
       try {
         if (user && user.email) {
-          // Query the "ownRecipes" subcollection of the current user
           const q = query(collection(db, `users/${user.email}/ownRecipes`));
           const querySnapshot = await getDocs(q);
           const recipesData = querySnapshot.docs
-            .filter((doc) => doc.id !== "initDoc") // Exclude the "initDoc" document
+            .filter((doc) => doc.id !== "initDoc")
             .map((doc) => ({
               id: doc.id,
               ...doc.data(),
@@ -65,18 +73,48 @@ const Profile = ({ user, setUser }) => {
       }
     };
 
-    if (isFocused && user && user.email) {
-      loadRecipes();
-    }
-  }, [isFocused, user]);
+    const loadFavorites = async () => {
+      setLoading(true);
+      try {
+        if (user && user.email) {
+          const userRef = doc(db, "users", user.email.toLowerCase());
+          const userSnap = await getDoc(userRef);
+    
+          if (userSnap.exists()) {
+            const userData = userSnap.data();
+            const favouriteRecipes = userData.favoriteRecipes || [];
+            console.log("Favorite Recipes IDs:", favouriteRecipes);
+            setFavorites(favouriteRecipes.map((favRecipe) => ({
+              id: favRecipe.id,
+              name: favRecipe.name
+            })));
+          } else {
+            console.error("User document does not exist.");
+          }
+        }
+      } catch (error) {
+        console.error("Error loading favourite recipes:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
- const navigateToRecipeDetails = (recipeId, recipeName, recipeUser) => {
-   navigation.navigate("Recipe Details Screen", {
-     recipeId,
-     recipeName,
-     recipeUser: user,
-   });
- };
+    if (isFocused && user && user.email) {
+      if (activeTab === "Recipes") {
+        loadRecipes();
+      } else if (activeTab === "Favorites") {
+        loadFavorites();
+      }
+    }
+  }, [isFocused, user, activeTab]);
+
+  const navigateToRecipeDetails = (recipeId, recipeName, recipeUser) => {
+    navigation.navigate("Recipe Details Screen", {
+      recipeId,
+      recipeName,
+      recipeUser: user,
+    });
+  };
 
   return (
     <SafeAreaView style={styles.safeContainer}>
@@ -156,20 +194,22 @@ const Profile = ({ user, setUser }) => {
         </View>
         {activeTab === "Recipes" ? (
           <FlatList
-            // style={styles.recipecontainer}
             data={recipes}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <SquareRecipeComponent
-                style={styles.recipecontainer}
-                recipe={{
-                  image: item.photoURL || item.photo,
-                  title: item.title,
-                  details: item.time || "5 stars | 15min",
-                }}
-                onPress={() => navigateToRecipeDetails(item.id, item.title)}
-              />
-            )}
+            renderItem={({ item }) => {
+              console.log('Rendering item:', item);
+              return (
+                <SquareRecipeComponent
+                  style={styles.recipecontainer}
+                  recipe={{
+                    image: item.photoURL || item.photo,
+                    title: item.title,
+                    details: item.time || "5 stars | 15min",
+                  }}
+                  onPress={() => navigateToRecipeDetails(item.id, item.title)}
+                />
+              );
+            }}
             numColumns={2}
             contentContainerStyle={styles.recipeGrid}
             ListEmptyComponent={() => (
@@ -182,7 +222,36 @@ const Profile = ({ user, setUser }) => {
             }
           />
         ) : (
-          <Text>Favorites Grid</Text>
+          <FlatList
+  data={favorites}
+  keyExtractor={(item) => item.id}
+  renderItem={({ item }) => {
+    console.log('Rendering favorite item:', item);
+    return (
+      <View style={styles.favoriteItemContainer}>
+        {/* Include an image if available */}
+        {item.image && (
+          <Image
+            source={{ uri: item.image }}
+            style={styles.favoriteItemImage}
+          />
+        )}
+        <Text style={styles.favoriteItemName}>{item.name}</Text>
+      </View>
+    );
+  }}
+  numColumns={2}
+  contentContainerStyle={styles.recipeGrid}
+  ListEmptyComponent={() => (
+    <View style={styles.centeredView}>
+      <Text>No favorites found.</Text>
+    </View>
+  )}
+  ListFooterComponent={
+    loading && <ActivityIndicator size="large" color="#ff6347" />
+  }
+/>
+
         )}
       </View>
     </SafeAreaView>
@@ -208,7 +277,6 @@ const ProfileScreen = ({ user, setUser }) => {
       });
     } catch (error) {
       console.error("Logout Error:", error);
-      // Handle any logout errors here
     }
   };
 
@@ -276,6 +344,10 @@ const ProfileScreen = ({ user, setUser }) => {
             name="Recipe User Profile Screen"
             component={RecipeUserProfileScreen}
           />
+          <Stack.Screen
+            name="DeleteUserRecipe"
+            component={DeleteUserRecipe}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </MenuProvider>
@@ -331,7 +403,6 @@ const styles = StyleSheet.create({
   profileDescription: {
     fontSize: 14,
     color: "#666",
-    // textAlign: "center",
     marginBottom: 16,
   },
   editButton: {
@@ -355,9 +426,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     marginHorizontal: 16,
   },
-  // recipecontainer:{
-  //   backgroundColor: "black",
-  // },
   createRecipeButtonText: {
     color: "#fff",
     fontSize: 16,
@@ -400,40 +468,33 @@ const styles = StyleSheet.create({
     color: "#ff6347",
   },
   recipeGrid: {
-    // paddingHorizontal: 8,
     marginHorizontal: 8,
     marginTop: 10,
     alignSelf: "center",
   },
-  recipeCard: {
-    backgroundColor: "#f0f0f0",
-    borderRadius: 8,
-    marginBottom: 16,
-    marginHorizontal: 8,
+  recipecontainer: {
     flex: 1,
-    overflow: "hidden",
+    margin: 8,
+    alignItems: 'center',
   },
-  recipeImage: {
-    width: "100%",
-    height: 150,
-    resizeMode: "cover",
-  },
-  recipeDetails: {
+  favoriteItemContainer: {
+    flex: 1,
+    margin: 8,
+    alignItems: 'center',
+    backgroundColor: '#f9f9f9',
     padding: 8,
+    borderRadius: 8,
   },
-  recipeTitle: {
+  favoriteItemImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  favoriteItemName: {
     fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  recipeDescription: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 4,
-  },
-  recipeTime: {
-    fontSize: 12,
-    color: "#999",
+    color: '#333',
+    textAlign: 'center',
   },
   centeredView: {
     flex: 1,

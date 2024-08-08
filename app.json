@@ -4,7 +4,7 @@
     "slug": "Healthy_Bites",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/diet.png",
+    "icon": "./assets/dietorange.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -13,13 +13,23 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ichahal.HealthyBites"
+      "bundleIdentifier": "com.ichahal.HealthyBites",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyC1-yqIHV-9axkzIfr7STub8wOIAwCenYE"
+        }
+      }
     },
     "android": {
       "package": "com.ichahal.HealthyBites",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/diet.png",
+        "foregroundImage": "./assets/diet512.png",
         "backgroundColor": "#ffffff"
+      },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyC1-yqIHV-9axkzIfr7STub8wOIAwCenYE"
+        }
       }
     },
     "web": {

@@ -30,20 +30,20 @@ import {
 } from "react-native-google-mobile-ads";
 import YoutubePlayer from "react-native-youtube-iframe";
 import { FontAwesome } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
+import { useFocusEffect } from "@react-navigation/native";
 
 const adUnitId = __DEV__
   ? TestIds.ADAPTIVE_BANNER
   : "ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy";
 
 const RecipeDetailsScreen = ({ route, navigation }) => {
-  
   const { recipeId, recipeName, recipeUser, user } = route.params || {};
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isUserRecipe, setIsUserRecipe] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false); // Add isFavorite state
+  const [isFollowing, setIsFollowing] = useState(false);
 
   const bannerRef = useRef(null);
 
@@ -60,23 +60,32 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
   );
 
   useEffect(() => {
+    if (user) {
+      console.log("Recipe ID:", recipeId);
+      console.log("User ID:", user.uid);
+    }
+  }, [recipeId, user]);
+
+  useEffect(() => {
     checkIfFavorite();
+    checkIfFollowing(); // Check if following on component mount
   }, [recipeId, user]);
 
   const fetchRecipeDetails = async () => {
     setLoading(true);
     try {
       if (recipeId) {
-        const docRef = doc(db, `Recipes`, recipeId);
+        const docRef = doc(db, "Recipes", recipeId);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setRecipe(docSnap.data());
-          setIsUserRecipe(true);
+          setIsUserRecipe(true);  // Recipe is from Firestore
         } else {
-          setIsUserRecipe(false);
+          setIsUserRecipe(false); // Recipe is from API
           await fetchRecipeFromAPI(recipeName);
         }
       } else {
+        setIsUserRecipe(false); // Recipe is from API
         await fetchRecipeFromAPI(recipeName);
       }
     } catch (error) {
@@ -92,35 +101,61 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
 
   const checkIfFavorite = async () => {
     if (user && recipeId) {
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        const userData = userSnap.data();
-        setIsFavorite(userData.favoriteRecipes?.includes(recipeId));
-      }
-    }
-  };
-
-  const handleFavorite = async () => {
-    if (user && recipeId) {
       try {
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
           const userData = userSnap.data();
-          const newFavoriteStatus = !isFavorite;
-          setIsFavorite(newFavoriteStatus);
+          setIsFavorite(userData.favoriteRecipes?.includes(recipeId));
+        }
+      } catch (error) {
+        console.error("Error checking favorite status:", error);
+      }
+    }
+  };
 
+  const checkIfFollowing = async () => {
+    if (user && recipeUser?.uid) {
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          setIsFollowing(userData.following?.includes(recipeUser.uid) || false);
+        }
+      } catch (error) {
+        console.error("Error checking follow status:", error);
+      }
+    }
+  };
+
+
+  const handleFavorite = async () => {
+    if (user && recipeId) {
+      try {
+        const userRef = doc(db, "users", user.email.toLowerCase());
+        const userSnap = await getDoc(userRef);
+  
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          const newFavoriteStatus = !isFavorite;
+          
+          setIsFavorite(newFavoriteStatus);
+  
           await updateDoc(userRef, {
             favoriteRecipes: newFavoriteStatus
-              ? arrayUnion(recipeId)
-              : arrayRemove(recipeId),
+              ? arrayUnion({ id: recipeId, name: recipeName })
+              : arrayRemove({ id: recipeId, name: recipeName }),
           });
-
+  
           console.log(
-            `Recipe ${
-              newFavoriteStatus ? "added to" : "removed from"
-            } favorites`
+            `Recipe${newFavoriteStatus ? " added to" : " removed from"} favorites`
+          );
+        } else {
+          console.error("User document does not exist.");
+          Alert.alert(
+            "Error",
+            "User document does not exist. Please ensure your user profile is properly set up."
           );
         }
       } catch (error) {
@@ -129,6 +164,31 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
           "Error",
           "Failed to update favorite status. Please try again later."
         );
+      }
+    }
+  };
+  const handleFollowPress = async () => {
+    if (user && recipeUser?.uid) {
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          const newFollowingStatus = !isFollowing;
+          setIsFollowing(newFollowingStatus);
+  
+          // Update user's following list in Firestore
+          await updateDoc(userRef, {
+            following: newFollowingStatus
+              ? arrayUnion(recipeUser.uid)
+              : arrayRemove(recipeUser.uid),
+          });
+  
+          console.log(`User ${newFollowingStatus ? "followed" : "unfollowed"} successfully`);
+        }
+      } catch (error) {
+        console.error("Error updating follow status:", error);
+        Alert.alert("Error", "Failed to update follow status. Please try again later.");
       }
     }
   };
@@ -146,7 +206,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
       if (data.meals && data.meals.length > 0) {
         setRecipe(data.meals[0]);
       } else {
-        setRecipe(null); // Ensure recipe state is set appropriately
+        setRecipe(null);
       }
     } catch (error) {
       console.error("Error fetching recipe details:", error);
@@ -169,28 +229,40 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
         );
       }
     }
-    return ingredients.map((ingredient, index) => (
-      <Text key={index} style={styles.ingredient}>
-        {ingredient}
-      </Text>
-    ));
+
+    
+    
+    return ingredients.length > 0 ? (
+      ingredients.map((ingredient, index) => (
+        <Text key={index} style={styles.ingredient}>
+          {ingredient}
+        </Text>
+      ))
+    ) : (
+      <Text style={styles.noIngredientsText}>No ingredients available.</Text>
+    );
   };
 
   const renderCustomIngredients = (ingredients) => {
-    return ingredients.map((ingredientObj, index) => (
-      <Text key={index} style={styles.ingredient}>
-        {ingredientObj.amount} {ingredientObj.ingredient}
-      </Text>
-    ));
+    return ingredients.length > 0 ? (
+      ingredients.map((ingredientObj, index) => (
+        <Text key={index} style={styles.ingredient}>
+          {ingredientObj.amount} {ingredientObj.ingredient}
+        </Text>
+      ))
+    ) : (
+      <Text style={styles.noIngredientsText}>No ingredients available.</Text>
+    );
   };
 
   const onStateChange = useCallback((state) => {
     if (state === "ended") {
       setPlaying(false);
-      Alert.alert("video has finished playing!");
+      Alert.alert("Video has finished playing!");
     }
   }, []);
 
+  
   const shareRecipe = async () => {
     try {
       const result = await Share.share({
@@ -215,6 +287,12 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     }
   };
 
+  const extractVideoId = (url) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\/v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return match && match[2].length === 11 ? match[2] : null;
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -226,7 +304,6 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
   const processText = (text) => {
     if (!text) return "";
 
-    // Replace carriage return and newline with double newline for paragraph breaks
     const processedText = text.replace(/\r\n/g, "\n\n");
 
     // Add an extra newline at the end of each paragraph
@@ -240,7 +317,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     return paragraphs.map((para, index) => (
       <Text key={index} style={styles.instructions}>
         {para}
-        {"\n"} {/* Add an extra new line after each paragraph */}
+        {"\n"}
       </Text>
     ));
   };
@@ -284,6 +361,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                   </TouchableOpacity>
                 </View>
               </View>
+              {isUserRecipe && (
               <TouchableOpacity onPress={navigateToRecipeUserProfile}>
                 <View style={styles.userContainer}>
                   <Image
@@ -302,21 +380,30 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                   recipeUser &&
                   recipeUser.uid &&
                   user.uid !== recipeUser.uid ? (
-                    <TouchableOpacity style={styles.followButton}>
-                      <Text style={styles.followButtonText}>Follow</Text>
-                    </TouchableOpacity>
-                  ) : (
                     <TouchableOpacity
-                      onPress={() =>
-                        navigation.navigate("Edit Recipe Screen", { recipeId })
-                      }
+                      onPress={handleFollowPress}
                       style={styles.followButton}
                     >
-                      <Text style={styles.followButtonText}>Edit Recipe</Text>
+                      <Text style={styles.followButtonText}>
+                        {isFollowing ? "Following" : "Follow"}
+                      </Text>
                     </TouchableOpacity>
+                  ) : (
+                    <View style={styles.actionButtons}>
+                      <TouchableOpacity
+                        onPress={() =>
+                          navigation.navigate("Edit Recipe Screen", { recipeId })
+                        }
+                        style={styles.followButton}
+                      >
+                        <Text style={styles.followButtonText}>Edit</Text>
+                      </TouchableOpacity>
+                    </View>
                   )}
                 </View>
               </TouchableOpacity>
+            )}
+
               <View style={styles.instructionsContainer}>
                 <Text style={styles.sectionTitle}>Instructions</Text>
                 {renderParagraphs(recipe.strInstructions || recipe.description)}
@@ -327,7 +414,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                   <YoutubePlayer
                     height={230}
                     play={playing}
-                    videoId={recipe.strYoutube.split("v=")[1]}
+                    videoId={extractVideoId(recipe.strYoutube)}
                     onChangeState={onStateChange}
                   />
                 </View>
@@ -366,21 +453,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-
   scrollViewContent: {
     padding: 20,
   },
-
   smallBanner: {
     alignItems: "center",
     margin: 0,
     padding: 0,
   },
-
   header: {
     alignItems: "center",
   },
-
   image: {
     width: "100%",
     height: 250,
@@ -392,99 +475,85 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginVertical: 10,
   },
-
   meta: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
     marginVertical: 8,
   },
-
   metaText: {
     fontSize: 18,
     color: "#ff6347",
   },
-
   actionButtons: {
     flexDirection: "row",
     marginVertical: 10,
   },
-
   iconButton: {
     marginHorizontal: 10,
   },
-
   userContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginVertical: 16,
   },
-
   userImage: {
     width: 50,
     height: 50,
     borderRadius: 25,
   },
-
   username: {
     fontSize: 18,
     marginLeft: 10,
     flex: 1,
   },
-
   followButton: {
     paddingVertical: 5,
     paddingHorizontal: 10,
     backgroundColor: "#ff6347",
     borderRadius: 5,
   },
-
   followButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
   },
-
   ingredientsContainer: {
     marginVertical: 8,
   },
-
   youtubeContainer: {
     marginTop: 8,
     marginBottom: 24,
   },
-
   sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
   },
-
   ingredient: {
     fontSize: 16,
     lineHeight: 24,
   },
-
+  noIngredientsText: {
+    fontSize: 16,
+    color: "#888",
+  },
   instructionsContainer: {
     marginVertical: 8,
   },
-
   instructions: {
     fontSize: 16,
     lineHeight: 24,
   },
-
   noRecipeContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-
   noRecipeText: {
     fontSize: 18,
     color: "#888",
   },
-
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
