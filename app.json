@@ -23,7 +23,7 @@
     "android": {
       "package": "com.ichahal.HealthyBites",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/dietorange.png",
+        "foregroundImage": "./assets/diet512.png",
         "backgroundColor": "#ffffff"
       },
       "config": {

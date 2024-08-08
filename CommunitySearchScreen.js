@@ -20,6 +20,7 @@ import {
   where,
 } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 const CommunitySearchScreen = () => {
@@ -116,79 +117,81 @@ const CommunitySearchScreen = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchBar}
-          placeholder="Search recipes..."
-          value={lastSearchQuery}
-          onChangeText={(text) => {
-            handleQueryChange(text);
-          }}
-          onSubmitEditing={() => handleSearch(lastSearchQuery)}
-        />
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={() => handleSearch(lastSearchQuery)}
-        >
-          <Ionicons name="search" size={24} color="#FF6347" />
-        </TouchableOpacity>
-      </View>
-      {loading ? (
-        <ActivityIndicator size="large" color="#FF6347" />
-      ) : (
-        <ScrollView>
-          {currentResults.length > 0 ? (
-            currentResults.map((recipe) => (
-              <SearchRecipeComponent
-                key={recipe.id}
-                recipe={{
-                  image: recipe.photoURL || recipe.photo,
-                  title: recipe.title,
-                  description: recipe.instructions
-                    ? recipe.instructions.slice(0, 100) + "..."
-                    : "No instructions available.",
-                  time: recipe.time || "Unknown",
-                  difficulty: recipe.difficulty || "Unknown",
-                  rating: recipe.rating || "Unknown",
-                }}
-                onPress={() => handleRecipePress(recipe)} // Pass onPress handler
-              />
-            ))
-          ) : (
-            <View style={styles.noResultsContainer}>
-              <Text style={styles.noResultsText}>
-                No match found for "{lastSearchQuery}", press search or change
-                input.
-              </Text>
-            </View>
-          )}
-        </ScrollView>
-      )}
-      {totalPages > 1 && (
-        <View style={styles.pagination}>
-          {[...Array(totalPages)].map((_, index) => (
-            <TouchableOpacity
-              key={index + 1}
-              style={[
-                styles.pageNumber,
-                currentPage === index + 1 && styles.activePage,
-              ]}
-              onPress={() => handlePageChange(index + 1)}
-            >
-              <Text
-                style={[
-                  styles.pageNumberText,
-                  currentPage === index + 1 && styles.activePageText,
-                ]}
-              >
-                {index + 1}
-              </Text>
-            </TouchableOpacity>
-          ))}
+    <SafeAreaView>
+      <View style={styles.container}>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchBar}
+            placeholder="Search recipes..."
+            value={lastSearchQuery}
+            onChangeText={(text) => {
+              handleQueryChange(text);
+            }}
+            onSubmitEditing={() => handleSearch(lastSearchQuery)}
+          />
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => handleSearch(lastSearchQuery)}
+          >
+            <Ionicons name="search" size={24} color="#FF6347" />
+          </TouchableOpacity>
         </View>
-      )}
-    </View>
+        {loading ? (
+          <ActivityIndicator size="large" color="#FF6347" />
+        ) : (
+          <ScrollView>
+            {currentResults.length > 0 ? (
+              currentResults.map((recipe) => (
+                <SearchRecipeComponent
+                  key={recipe.id}
+                  recipe={{
+                    image: recipe.photoURL || recipe.photo,
+                    title: recipe.title,
+                    description: recipe.instructions
+                      ? recipe.instructions.slice(0, 100) + "..."
+                      : "No instructions available.",
+                    time: recipe.time || "Unknown",
+                    difficulty: recipe.difficulty || "Unknown",
+                    rating: recipe.rating || "Unknown",
+                  }}
+                  onPress={() => handleRecipePress(recipe)} // Pass onPress handler
+                />
+              ))
+            ) : (
+              <View style={styles.noResultsContainer}>
+                <Text style={styles.noResultsText}>
+                  No match found for "{lastSearchQuery}", press search or change
+                  input.
+                </Text>
+              </View>
+            )}
+          </ScrollView>
+        )}
+        {totalPages > 1 && (
+          <View style={styles.pagination}>
+            {[...Array(totalPages)].map((_, index) => (
+              <TouchableOpacity
+                key={index + 1}
+                style={[
+                  styles.pageNumber,
+                  currentPage === index + 1 && styles.activePage,
+                ]}
+                onPress={() => handlePageChange(index + 1)}
+              >
+                <Text
+                  style={[
+                    styles.pageNumberText,
+                    currentPage === index + 1 && styles.activePageText,
+                  ]}
+                >
+                  {index + 1}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+      </View>
+    </SafeAreaView>
   );
 };
 
