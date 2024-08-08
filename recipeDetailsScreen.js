@@ -30,20 +30,20 @@ import {
 } from "react-native-google-mobile-ads";
 import YoutubePlayer from "react-native-youtube-iframe";
 import { FontAwesome } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
+import { useFocusEffect } from "@react-navigation/native";
 
 const adUnitId = __DEV__
   ? TestIds.ADAPTIVE_BANNER
   : "ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy";
 
 const RecipeDetailsScreen = ({ route, navigation }) => {
-  
   const { recipeId, recipeName, recipeUser, user } = route.params || {};
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isUserRecipe, setIsUserRecipe] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false); // Add isFavorite state
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
 
   const bannerRef = useRef(null);
 
@@ -52,19 +52,20 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
       bannerRef.current.load();
     }
   });
-  // console.log("youtube like:",recipe.strYoutube)
+
   useFocusEffect(
     useCallback(() => {
-      fetchRecipeDetails(); // Refetch data when the screen comes into focus
+      fetchRecipeDetails();
+      checkIfFollowing();
     }, [route.params])
   );
 
   useEffect(() => {
     checkIfFavorite();
+    checkIfFollowing(); // Check if following on component mount
   }, [recipeId, user]);
 
   const fetchRecipeDetails = async () => {
-    // console.log("youtube like:",recipe.strYoutube)
     setLoading(true);
     try {
       if (recipeId) {
@@ -102,6 +103,22 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     }
   };
 
+  const checkIfFollowing = async () => {
+    if (user && recipeUser?.uid) {
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          setIsFollowing(userData.following?.includes(recipeUser.uid) || false);
+        }
+      } catch (error) {
+        console.error("Error checking follow status:", error);
+      }
+    }
+  };
+
+
   const handleFavorite = async () => {
     if (user && recipeId) {
       try {
@@ -134,6 +151,31 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     }
   };
 
+  const handleFollowPress = async () => {
+    if (user && recipeUser?.uid) {
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          const newFollowingStatus = !isFollowing;
+          setIsFollowing(newFollowingStatus);
+
+          await updateDoc(userRef, {
+            following: newFollowingStatus
+              ? arrayUnion(recipeUser.uid)
+              : arrayRemove(recipeUser.uid),
+          });
+
+          console.log(`User ${newFollowingStatus ? "followed" : "unfollowed"} successfully`);
+        }
+      } catch (error) {
+        console.error("Error updating follow status:", error);
+        Alert.alert("Error", "Failed to update follow status. Please try again later.");
+      }
+    }
+  };
+
   const navigateToRecipeUserProfile = () => {
     navigation.navigate("Recipe User Profile Screen", { user: recipeUser });
   };
@@ -147,7 +189,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
       if (data.meals && data.meals.length > 0) {
         setRecipe(data.meals[0]);
       } else {
-        setRecipe(null); // Ensure recipe state is set appropriately
+        setRecipe(null);
       }
     } catch (error) {
       console.error("Error fetching recipe details:", error);
@@ -233,10 +275,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
   const processText = (text) => {
     if (!text) return "";
 
-    // Replace carriage return and newline with double newline for paragraph breaks
     const processedText = text.replace(/\r\n/g, "\n\n");
-
-    // Add an extra newline at the end of each paragraph
     return processedText.replace(/(\n\n)/g, "$1\n");
   };
 
@@ -247,7 +286,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     return paragraphs.map((para, index) => (
       <Text key={index} style={styles.instructions}>
         {para}
-        {"\n"} {/* Add an extra new line after each paragraph */}
+        {"\n"}
       </Text>
     ));
   };
@@ -309,8 +348,13 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                   recipeUser &&
                   recipeUser.uid &&
                   user.uid !== recipeUser.uid ? (
-                    <TouchableOpacity style={styles.followButton}>
-                      <Text style={styles.followButtonText}>Follow</Text>
+                    <TouchableOpacity
+                      onPress={handleFollowPress}
+                      style={styles.followButton}
+                    >
+                      <Text style={styles.followButtonText}>
+                        {isFollowing ? "Following" : "Follow"}
+                      </Text>
                     </TouchableOpacity>
                   ) : (
                     <TouchableOpacity
@@ -334,7 +378,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                   <YoutubePlayer
                     height={230}
                     play={playing}
-                    videoId={extractVideoId(recipe.strYoutube)} // Extract the video ID
+                    videoId={extractVideoId(recipe.strYoutube)}
                     onChangeState={onStateChange}
                   />
                 </View>
@@ -393,7 +437,7 @@ const styles = StyleSheet.create({
     height: 250,
     borderRadius: 10,
   },
-  
+
   youtubeContainer: {
     marginBottom: 24,
   },
