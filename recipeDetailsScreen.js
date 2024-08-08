@@ -42,7 +42,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true);
   const [isUserRecipe, setIsUserRecipe] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false); // Add isFavorite state
 
   const bannerRef = useRef(null);
 
@@ -54,7 +54,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
-      fetchRecipeDetails();
+      fetchRecipeDetails(); // Refetch data when the screen comes into focus
     }, [route.params])
   );
 
@@ -67,6 +67,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
 
   useEffect(() => {
     checkIfFavorite();
+    checkIfFollowing(); // Check if following on component mount
   }, [recipeId, user]);
 
   const fetchRecipeDetails = async () => {
@@ -111,6 +112,22 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     }
   };
 
+  const checkIfFollowing = async () => {
+    if (user && recipeUser?.uid) {
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          setIsFollowing(userData.following?.includes(recipeUser.uid) || false);
+        }
+      } catch (error) {
+        console.error("Error checking follow status:", error);
+      }
+    }
+  };
+
+
   const handleFavorite = async () => {
     if (user && recipeId) {
       try {
@@ -150,10 +167,6 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
       }
     }
   };
-  
-
-
-  
 
   const navigateToRecipeUserProfile = () => {
     navigation.navigate("Recipe User Profile Screen", { user: recipeUser });
@@ -245,6 +258,12 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     }
   };
 
+  const extractVideoId = (url) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\/v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return match && match[2].length === 11 ? match[2] : null;
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -258,6 +277,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
 
     const processedText = text.replace(/\r\n/g, "\n\n");
 
+    // Add an extra newline at the end of each paragraph
     return processedText.replace(/(\n\n)/g, "$1\n");
   };
 
@@ -330,8 +350,13 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                   recipeUser &&
                   recipeUser.uid &&
                   user.uid !== recipeUser.uid ? (
-                    <TouchableOpacity style={styles.followButton}>
-                      <Text style={styles.followButtonText}>Follow</Text>
+                    <TouchableOpacity
+                      onPress={handleFollowPress}
+                      style={styles.followButton}
+                    >
+                      <Text style={styles.followButtonText}>
+                        {isFollowing ? "Following" : "Follow"}
+                      </Text>
                     </TouchableOpacity>
                   ) : (
                     <View style={styles.actionButtons}>
@@ -368,7 +393,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                   <YoutubePlayer
                     height={230}
                     play={playing}
-                    videoId={recipe.strYoutube.split("v=")[1]}
+                    videoId={extractVideoId(recipe.strYoutube)}
                     onChangeState={onStateChange}
                   />
                 </View>
@@ -423,6 +448,7 @@ const styles = StyleSheet.create({
     height: 250,
     borderRadius: 10,
   },
+
   title: {
     fontSize: 24,
     fontWeight: "bold",

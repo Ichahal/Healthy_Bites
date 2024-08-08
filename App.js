@@ -41,26 +41,13 @@ export default function AppNavigator() {
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={Register} />
-        <Stack.Screen
-          name="Main"
-          component={MainScreen}
-          options={{
-            headerLeft: null,
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="Recipe Details Screen"
-          component={RecipeDetailsScreen}
-        />
+        <Stack.Screen name="Main" component={MainScreen} options={{headerLeft: null,headerShown: false}}/>
+        <Stack.Screen name="Recipe Details Screen"component={RecipeDetailsScreen}/>
         <Stack.Screen name="Search Screen" component={SearchScreen} />
         <Stack.Screen name="Community Search Screen" component={CommunitySearchScreen} />
         <Stack.Screen name="Forgot Password" component={ForgotPasswordScreen} />
         <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
-        <Stack.Screen
-          name="Recipe User Profile Screen"
-          component={RecipeUserProfileScreen}
-        />
+        <Stack.Screen name="Recipe User Profile Screen" component={RecipeUserProfileScreen}/>
         <Stack.Screen name="UserProfileScreen" component={ProfileScreen} />
         <Stack.Screen name="Contact Us" component={ContactUs} />
         <Stack.Screen name="Edit Recipe Screen" component={EditRecipeScreen} />

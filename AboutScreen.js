@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Image,SafeAreaView, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image, SafeAreaView, TouchableOpacity } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import MapView, { Marker } from "react-native-maps";
 
@@ -18,38 +18,37 @@ const AboutScreen = ({ navigation }) => {
     <SafeAreaView style={styles.safeContainer}>
       <View style={styles.container}>
         <ScrollView>
+          <Text style={styles.title}>About Us</Text>
+          <Image source={require("./assets/diet.png")} style={styles.image} />
+          <Text style={styles.label}>Welcome to Healthy Bites!</Text>
+          <Text style={styles.description}>
+            Healthy Bites is a mobile recipe application designed to simplify the
+            process of discovering, saving, and sharing nutritious recipes.
+          </Text>
+          <View style={styles.separator} />
+          <Text style={styles.infoTitle}>Address</Text>
+          <Text style={styles.infoText}>160 Kendal Ave, Toronto, ON M5R 1M3</Text>
+          <Text style={styles.infoTitle}>Phone</Text>
+          <Text style={styles.infoText}>+1 (437) 477-6201</Text>
+          <Text style={styles.infoTitle}>Email</Text>
+          <Text style={styles.infoText}>contact@healthybites.ca</Text>
 
-        <Text style={styles.title}>About Us</Text>
-        <Image source={require("./assets/diet.png")} style={styles.image} />
-        <Text style={styles.label}>Welcome to Healthy Bites!</Text>
-        <Text style={styles.description}>
-          Healthy Bites is a mobile recipe application designed to simplify the
-          process of discovering, saving, and sharing nutritious recipes.
-        </Text>
-        <View style={styles.separator} />
-        <Text style={styles.infoTitle}>Address</Text>
-        <Text style={styles.infoText}>160 Kendal Ave, Toronto, ON M5R 1M3</Text>
-        <Text style={styles.infoTitle}>Phone</Text>
-        <Text style={styles.infoText}>+1 (437) 477-6201</Text>
-        <Text style={styles.infoTitle}>Email</Text>
-        <Text style={styles.infoText}>contact@healthybites.ca</Text>
-
-        {/* <MapView
-        style={styles.map}
-        initialRegion={{
-          latitude: coordinates.latitude,
-          longitude: coordinates.longitude,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-          }}
+          <MapView
+            style={styles.map}
+            initialRegion={{
+              latitude: coordinates.latitude,
+              longitude: coordinates.longitude,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            }}
           >
-          <Marker coordinate={coordinates} title="Healthy Bites" />
-          </MapView> */}
+            <Marker coordinate={coordinates} title="Healthy Bites" />
+          </MapView>
 
-        <TouchableOpacity style={styles.button} onPress={handleContactUsPress}>
-          <Text style={styles.buttonText}>Contact Us</Text>
-        </TouchableOpacity>
-      </ScrollView>
+          <TouchableOpacity style={styles.button} onPress={handleContactUsPress}>
+            <Text style={styles.buttonText}>Contact Us</Text>
+          </TouchableOpacity>
+        </ScrollView>
       </View>
     </SafeAreaView>
   );
@@ -59,14 +58,12 @@ const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingBottom: 0,
   },
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
     padding: 16,
   },
-
   title: {
     fontSize: 32,
     fontWeight: "bold",
@@ -110,7 +107,7 @@ const styles = StyleSheet.create({
   },
   map: {
     width: "100%",
-    height: 400,
+    height: 200,
     marginBottom: 16,
   },
   button: {
