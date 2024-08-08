@@ -14,6 +14,7 @@ import ProfileScreen from "./ProfileScreen";
 import ContactUs from "./ContactUs";
 import EditRecipeScreen from "./EditRecipeScreen"
 import CommunitySearchScreen from "./CommunitySearchScreen";
+import DeleteUserRecipe from "./DeleteUserRecipe"; 
 
 const Stack = createStackNavigator();
 
@@ -60,6 +61,11 @@ export default function AppNavigator() {
         <Stack.Screen name="UserProfileScreen" component={ProfileScreen} />
         <Stack.Screen name="Contact Us" component={ContactUs} />
         <Stack.Screen name="Edit Recipe Screen" component={EditRecipeScreen} />
+        <Stack.Screen
+  name="Delete User Recipe"
+  component={DeleteUserRecipe}
+/>
+
       </Stack.Navigator>
     </NavigationContainer>
   );
