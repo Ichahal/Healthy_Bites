@@ -216,6 +216,12 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
     }
   };
 
+  const extractVideoId = (url) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\/v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return match && match[2].length === 11 ? match[2] : null;
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -328,7 +334,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                   <YoutubePlayer
                     height={230}
                     play={playing}
-                    videoId={recipe.strYoutube.split("v=")[1]}
+                    videoId={extractVideoId(recipe.strYoutube)} // Extract the video ID
                     onChangeState={onStateChange}
                   />
                 </View>
@@ -386,6 +392,10 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 250,
     borderRadius: 10,
+  },
+  
+  youtubeContainer: {
+    marginBottom: 24,
   },
 
   title: {
