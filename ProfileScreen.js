@@ -223,24 +223,35 @@ const Profile = ({ user, setUser }) => {
           />
         ) : (
           <FlatList
-            data={favorites}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <View style={styles.recipecontainer}>
-                <Text style={styles.favoriteItemName}>{item.name}</Text>
-              </View>
-            )}
-            numColumns={2}
-            contentContainerStyle={styles.recipeGrid}
-            ListEmptyComponent={() => (
-              <View style={styles.centeredView}>
-                <Text>No favorites found.</Text>
-              </View>
-            )}
-            ListFooterComponent={
-              loading && <ActivityIndicator size="large" color="#ff6347" />
-            }
+  data={favorites}
+  keyExtractor={(item) => item.id}
+  renderItem={({ item }) => {
+    console.log('Rendering favorite item:', item);
+    return (
+      <View style={styles.favoriteItemContainer}>
+        {/* Include an image if available */}
+        {item.image && (
+          <Image
+            source={{ uri: item.image }}
+            style={styles.favoriteItemImage}
           />
+        )}
+        <Text style={styles.favoriteItemName}>{item.name}</Text>
+      </View>
+    );
+  }}
+  numColumns={2}
+  contentContainerStyle={styles.recipeGrid}
+  ListEmptyComponent={() => (
+    <View style={styles.centeredView}>
+      <Text>No favorites found.</Text>
+    </View>
+  )}
+  ListFooterComponent={
+    loading && <ActivityIndicator size="large" color="#ff6347" />
+  }
+/>
+
         )}
       </View>
     </SafeAreaView>
@@ -506,4 +517,3 @@ const styles = StyleSheet.create({
 });
 
 export default ProfileScreen;
-
