@@ -79,12 +79,13 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setRecipe(docSnap.data());
-          setIsUserRecipe(true);
+          setIsUserRecipe(true);  // Recipe is from Firestore
         } else {
-          setIsUserRecipe(false);
+          setIsUserRecipe(false); // Recipe is from API
           await fetchRecipeFromAPI(recipeName);
         }
       } else {
+        setIsUserRecipe(false); // Recipe is from API
         await fetchRecipeFromAPI(recipeName);
       }
     } catch (error) {
@@ -360,6 +361,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                   </TouchableOpacity>
                 </View>
               </View>
+              {isUserRecipe && (
               <TouchableOpacity onPress={navigateToRecipeUserProfile}>
                 <View style={styles.userContainer}>
                   <Image
@@ -396,21 +398,12 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
                       >
                         <Text style={styles.followButtonText}>Edit</Text>
                       </TouchableOpacity>
-                      {/* <TouchableOpacity
-                        onPress={() =>
-                          navigation.navigate("DeleteUserRecipe", { recipeId })
-                        }
-                        style={[
-                          styles.followButton,
-                          { marginLeft: 10, backgroundColor: "#ff0000" },
-                        ]}
-                      >
-                        <Text style={styles.followButtonText}>Delete</Text>
-                      </TouchableOpacity> */}
                     </View>
                   )}
                 </View>
               </TouchableOpacity>
+            )}
+
               <View style={styles.instructionsContainer}>
                 <Text style={styles.sectionTitle}>Instructions</Text>
                 {renderParagraphs(recipe.strInstructions || recipe.description)}
