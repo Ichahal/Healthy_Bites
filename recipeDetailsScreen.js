@@ -43,6 +43,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
   const [isUserRecipe, setIsUserRecipe] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false); // Add isFavorite state
+  const [isFollowing, setIsFollowing] = useState(false);
 
   const bannerRef = useRef(null);
 
@@ -165,6 +166,31 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
       }
     }
   };
+  const handleFollowPress = async () => {
+    if (user && recipeUser?.uid) {
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          const newFollowingStatus = !isFollowing;
+          setIsFollowing(newFollowingStatus);
+  
+          // Update user's following list in Firestore
+          await updateDoc(userRef, {
+            following: newFollowingStatus
+              ? arrayUnion(recipeUser.uid)
+              : arrayRemove(recipeUser.uid),
+          });
+  
+          console.log(`User ${newFollowingStatus ? "followed" : "unfollowed"} successfully`);
+        }
+      } catch (error) {
+        console.error("Error updating follow status:", error);
+        Alert.alert("Error", "Failed to update follow status. Please try again later.");
+      }
+    }
+  };
 
   const navigateToRecipeUserProfile = () => {
     navigation.navigate("Recipe User Profile Screen", { user: recipeUser });
@@ -202,6 +228,9 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
         );
       }
     }
+
+    
+    
     return ingredients.length > 0 ? (
       ingredients.map((ingredient, index) => (
         <Text key={index} style={styles.ingredient}>
