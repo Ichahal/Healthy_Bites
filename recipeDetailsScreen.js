@@ -36,8 +36,8 @@ const adUnitId = __DEV__
   ? TestIds.ADAPTIVE_BANNER
   : "ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy";
 
-  const RecipeDetailsScreen = ({ route, navigation }) => {
-    const { recipeId, recipeName, recipeUser, user } = route.params || {};
+const RecipeDetailsScreen = ({ route, navigation }) => {
+  const { recipeId, recipeName, recipeUser, user } = route.params || {};
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isUserRecipe, setIsUserRecipe] = useState(false);
@@ -64,7 +64,6 @@ const adUnitId = __DEV__
       console.log("User ID:", user.uid);
     }
   }, [recipeId, user]);
-
 
   useEffect(() => {
     checkIfFavorite();
@@ -115,28 +114,23 @@ const adUnitId = __DEV__
   const handleFavorite = async () => {
     if (user && recipeId) {
       try {
-        // Reference to the user's document
         const userRef = doc(db, "users", user.email.toLowerCase());
-  
-        // Get the user's document
         const userSnap = await getDoc(userRef);
-  
+
         if (userSnap.exists()) {
           const userData = userSnap.data();
           const newFavoriteStatus = !isFavorite;
-  
-          // Update the favorite status in the state
+
           setIsFavorite(newFavoriteStatus);
-  
-          // Update the favoriteRecipes field in Firestore
+
           await updateDoc(userRef, {
             favoriteRecipes: newFavoriteStatus
               ? arrayUnion(recipeId)
               : arrayRemove(recipeId),
           });
-  
+
           console.log(
-            `Recipe ${
+            `Recipe${
               newFavoriteStatus ? "added to" : "removed from"
             } favorites`
           );
@@ -156,13 +150,7 @@ const adUnitId = __DEV__
       }
     }
   };
-  
 
-  
-
-  
-  console.log("User ID:", user.uid);
-  console.log("User email:", user.email);
   const navigateToRecipeUserProfile = () => {
     navigation.navigate("Recipe User Profile Screen", { user: recipeUser });
   };
@@ -199,25 +187,33 @@ const adUnitId = __DEV__
         );
       }
     }
-    return ingredients.map((ingredient, index) => (
-      <Text key={index} style={styles.ingredient}>
-        {ingredient}
-      </Text>
-    ));
+    return ingredients.length > 0 ? (
+      ingredients.map((ingredient, index) => (
+        <Text key={index} style={styles.ingredient}>
+          {ingredient}
+        </Text>
+      ))
+    ) : (
+      <Text style={styles.noIngredientsText}>No ingredients available.</Text>
+    );
   };
 
   const renderCustomIngredients = (ingredients) => {
-    return ingredients.map((ingredientObj, index) => (
-      <Text key={index} style={styles.ingredient}>
-        {ingredientObj.amount} {ingredientObj.ingredient}
-      </Text>
-    ));
+    return ingredients.length > 0 ? (
+      ingredients.map((ingredientObj, index) => (
+        <Text key={index} style={styles.ingredient}>
+          {ingredientObj.amount} {ingredientObj.ingredient}
+        </Text>
+      ))
+    ) : (
+      <Text style={styles.noIngredientsText}>No ingredients available.</Text>
+    );
   };
 
   const onStateChange = useCallback((state) => {
     if (state === "ended") {
       setPlaying(false);
-      Alert.alert("video has finished playing!");
+      Alert.alert("Video has finished playing!");
     }
   }, []);
 
@@ -272,7 +268,7 @@ const adUnitId = __DEV__
       </Text>
     ));
   };
-  console.log("Recipe ID 1:", recipeId);
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeContainer}>
@@ -338,7 +334,6 @@ const adUnitId = __DEV__
                       <TouchableOpacity
                         onPress={() =>
                           navigation.navigate("Edit Recipe Screen", { recipeId })
-                          
                         }
                         style={styles.followButton}
                       >
@@ -346,7 +341,7 @@ const adUnitId = __DEV__
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() =>
-                          navigation.navigate("DeleteUserRecipe",{ recipeId })
+                          navigation.navigate("DeleteUserRecipe", { recipeId })
                         }
                         style={[
                           styles.followButton,
@@ -487,6 +482,10 @@ const styles = StyleSheet.create({
   ingredient: {
     fontSize: 16,
     lineHeight: 24,
+  },
+  noIngredientsText: {
+    fontSize: 16,
+    color: "#888",
   },
   instructionsContainer: {
     marginVertical: 8,

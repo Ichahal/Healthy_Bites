@@ -11,6 +11,8 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-native-community/datetimepicker": "8.0.1",
+    "@react-native-firebase/app": "^20.3.0",
+    "@react-native-firebase/messaging": "^20.3.0",
     "@react-navigation/bottom-tabs": "^6.5.20",
     "@react-navigation/material-top-tabs": "^6.6.13",
     "@react-navigation/native": "^6.1.18",
@@ -21,6 +23,7 @@
     "expo-dev-client": "~4.0.21",
     "expo-doctor": "^1.9.0",
     "expo-image-picker": "~15.0.7",
+    "expo-notifications": "~0.28.15",
     "expo-status-bar": "~1.12.1",
     "expo-updates": "~0.25.22",
     "firebase": "^10.12.2",

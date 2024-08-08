@@ -16,6 +16,7 @@ import EditRecipeScreen from "./EditRecipeScreen"
 import CommunitySearchScreen from "./CommunitySearchScreen";
 import DeleteUserRecipe from "./DeleteUserRecipe"; 
 
+
 const Stack = createStackNavigator();
 
 export default function AppNavigator() {
@@ -32,6 +33,8 @@ export default function AppNavigator() {
   if (splashVisible) {
     return <SplashScreen />;
   }
+
+
 
   return (
     <NavigationContainer>
