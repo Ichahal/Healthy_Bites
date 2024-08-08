@@ -52,7 +52,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
       bannerRef.current.load();
     }
   });
-
+  // console.log("youtube like:",recipe.strYoutube)
   useFocusEffect(
     useCallback(() => {
       fetchRecipeDetails(); // Refetch data when the screen comes into focus
@@ -64,6 +64,7 @@ const RecipeDetailsScreen = ({ route, navigation }) => {
   }, [recipeId, user]);
 
   const fetchRecipeDetails = async () => {
+    // console.log("youtube like:",recipe.strYoutube)
     setLoading(true);
     try {
       if (recipeId) {

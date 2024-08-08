@@ -25,6 +25,7 @@ const CreateRecipeScreen = ({ user }) => {
   const [instructions, setInstructions] = useState([""]);
   const [photo, setPhoto] = useState(null);
   const [uploadtime, setUploadTime] = useState("");
+  const [strYoutube, setStrYoutube] = useState("");
 
   const handleAddIngredient = () => {
     setIngredients([...ingredients, { amount: "", ingredient: "" }]);
@@ -81,6 +82,7 @@ const CreateRecipeScreen = ({ user }) => {
         time,
         ingredients,
         instructions,
+        strYoutube, 
         photoURL,  // Save the image URL
         uploadtime: currentTimestamp,
         userId: user.email,
@@ -206,6 +208,15 @@ const CreateRecipeScreen = ({ user }) => {
       <TouchableOpacity style={styles.addButton} onPress={handleAddInstruction}>
         <Text style={styles.addButtonText}>+ Add Instruction</Text>
       </TouchableOpacity>
+
+      <TextInput
+          style={styles.input}
+          placeholder="YouTube Link"
+          placeholderTextColor="#ff6347"
+          value={strYoutube}
+          onChangeText={setStrYoutube}
+        />
+        
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.publishButton} onPress={handlePublish}>
           <Text style={styles.publishButtonText}>Publish</Text>
