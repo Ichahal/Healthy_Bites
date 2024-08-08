@@ -14,18 +14,22 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.ichahal.HealthyBites",
-    
-    "config": {
-      "googleMaps": {
-        "apiKey": "AIzaSyC1-yqIHV-9axkzIfr7STub8wOIAwCenYE"
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyC1-yqIHV-9axkzIfr7STub8wOIAwCenYE"
+        }
       }
-    }
-  },
+    },
     "android": {
       "package": "com.ichahal.HealthyBites",
       "adaptiveIcon": {
         "foregroundImage": "./assets/dietorange.png",
         "backgroundColor": "#ffffff"
+      },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyC1-yqIHV-9axkzIfr7STub8wOIAwCenYE"
+        }
       }
     },
     "web": {
