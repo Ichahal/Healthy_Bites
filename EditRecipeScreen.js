@@ -27,6 +27,7 @@ const EditRecipeScreen = () => {
   const [ingredients, setIngredients] = useState([{ amount: "", ingredient: "" }]);
   const [instructions, setInstructions] = useState([""]);
   const [photo, setPhoto] = useState(null);
+  const [strYoutube, setStrYoutube] = useState("");
 
   useEffect(() => {
     fetchRecipe();
@@ -47,6 +48,7 @@ const EditRecipeScreen = () => {
         setIngredients(recipeData.ingredients || [{ amount: "", ingredient: "" }]);
         setInstructions(recipeData.instructions || [""]);
         setPhoto(recipeData.photo);
+        setStrYoutube(recipeData.strYoutube);
       } else {
         console.log("No such document!");
       }
@@ -91,6 +93,7 @@ const EditRecipeScreen = () => {
       ingredients,
       instructions,
       photo,
+      strYoutube
     };
 
     try {
@@ -235,6 +238,13 @@ const EditRecipeScreen = () => {
         >
           <Text style={styles.addButtonText}>+ Add Instruction</Text>
         </TouchableOpacity>
+        <TextInput
+          style={styles.input}
+          placeholder="YouTube Link"
+          placeholderTextColor="#ff6347"
+          value={strYoutube}
+          onChangeText={setStrYoutube}
+        />
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
             <Text style={styles.saveButtonText}>Save</Text>
