@@ -170,7 +170,7 @@ const CommunityScreen = ({ user }) => {
               />
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => navigation.navigate("Community Search Screen")}
+  onPress={() => navigation.navigate("Community Search Screen", { user })}
             >
               <Ionicons name="search" size={24} color={PRIMARY_COLOR} />
             </TouchableOpacity>
