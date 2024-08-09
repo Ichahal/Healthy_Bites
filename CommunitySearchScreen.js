@@ -117,7 +117,7 @@ const CommunitySearchScreen = () => {
   }, []);
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.safeContainer}>
       <View style={styles.container}>
         <View style={styles.searchContainer}>
           <TextInput
@@ -196,6 +196,12 @@ const CommunitySearchScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  safeContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+    marginBottom: 0,
+    paddingBottom: 0,
+  },
   container: {
     flex: 1,
     padding: 16,
