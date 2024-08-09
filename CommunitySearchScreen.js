@@ -4,6 +4,7 @@ import {
   TextInput,
   TouchableOpacity,
   Text,
+  SafeAreaView,
   StyleSheet,
   ActivityIndicator,
   Alert,
@@ -18,16 +19,15 @@ import {
   getDocs,
   query as firestoreQuery,
   where,
+  getDoc,
+  doc,
 } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
-import { SafeAreaView } from "react-native-safe-area-context";
-
 
 const CommunitySearchScreen = () => {
   const route = useRoute();
-  const { initialQuery } = route.params || {};
+  const { initialQuery, user } = route.params || {};
   const navigation = useNavigation();
-
 
   const [searchResults, setSearchResults] = useState([]);
   const [filteredResults, setFilteredResults] = useState([]);
@@ -53,10 +53,8 @@ const CommunitySearchScreen = () => {
     try {
       let q;
       if (query.trim() === "") {
-        // Fetch all results if the query is empty
         q = firestoreQuery(collection(db, "Recipes"));
       } else {
-        // Fetch results matching the query
         q = firestoreQuery(
           collection(db, "Recipes"),
           where("title", ">=", query),
@@ -66,12 +64,15 @@ const CommunitySearchScreen = () => {
 
       const querySnapshot = await getDocs(q);
       const fetchedRecipes = [];
-      querySnapshot.forEach((doc) => {
+      for (const doc of querySnapshot.docs) {
+        const recipeData = doc.data();
+        const userData = await fetchUserProfile(recipeData.userId); // Fetch user profile for each recipe
         fetchedRecipes.push({
           id: doc.id,
-          ...doc.data(),
+          ...recipeData,
+          user: userData, // Attach user data
         });
-      });
+      }
 
       setSearchResults(fetchedRecipes);
       setFilteredResults(fetchedRecipes);
@@ -101,20 +102,32 @@ const CommunitySearchScreen = () => {
       recipeId: recipe.id,
       recipeName: recipe.title,
       recipeUser: recipe.user,
+      user,
     });
   };
 
+  const fetchUserProfile = async (userId) => {
+    try {
+      const userDoc = await getDoc(doc(db, "users", userId));
+      if (userDoc.exists()) {
+        return userDoc.data();
+      } else {
+        console.warn(`User with ID ${userId} not found`);
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     if (initialQuery) {
       handleSearch(initialQuery);
+    } else {
+      handleSearch(""); // Fetch all results on first load if no initialQuery
     }
   }, [initialQuery]);
-
-  useEffect(() => {
-    // Fetch all results when the page is first accessed
-    handleSearch("");
-  }, []);
 
   return (
     <SafeAreaView style={styles.safeContainer}>
@@ -124,9 +137,7 @@ const CommunitySearchScreen = () => {
             style={styles.searchBar}
             placeholder="Search recipes..."
             value={lastSearchQuery}
-            onChangeText={(text) => {
-              handleQueryChange(text);
-            }}
+            onChangeText={handleQueryChange}
             onSubmitEditing={() => handleSearch(lastSearchQuery)}
           />
           <TouchableOpacity
@@ -154,7 +165,7 @@ const CommunitySearchScreen = () => {
                     difficulty: recipe.difficulty || "Unknown",
                     rating: recipe.rating || "Unknown",
                   }}
-                  onPress={() => handleRecipePress(recipe)} // Pass onPress handler
+                  onPress={() => handleRecipePress(recipe)}
                 />
               ))
             ) : (
@@ -198,9 +209,9 @@ const CommunitySearchScreen = () => {
 const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
-    backgroundColor: "#fff",
-    marginBottom: 0,
-    paddingBottom: 0,
+    backgroundColor: "#000",
+    margin: 0,
+    padding: 0,
   },
   container: {
     flex: 1,
